@@ -1,5 +1,6 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
+#include "adc.h"
 
 static GPIO_InitTypeDef  GPIO_InitStruct;
 
@@ -8,7 +9,8 @@ static void Error_Handler(void);
 
 int main(void)
 {
-
+  uint32_t tmp = 0;
+  HAL_StatusTypeDef st;
   HAL_Init();
 
   SystemClock_Config();
@@ -22,11 +24,17 @@ int main(void)
   GPIO_InitStruct.Pin = GPIO_PIN_5;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  ADC_Init();
 
   while (1)
   {
+    HAL_ADC_Start(&gsAdcHandle);
+    st = HAL_ADC_PollForConversion(&gsAdcHandle, 100);
+    if(st == HAL_OK) {
+      tmp = HAL_ADC_GetValue(&gsAdcHandle);
+    }
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    HAL_Delay(100);
+    HAL_Delay(tmp);
   }
 }
 
