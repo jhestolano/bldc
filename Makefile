@@ -33,7 +33,7 @@ OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
 
 # Any compiler options you need to set
-CFLAGS=-ggdb
+CFLAGS=-ggdb3
 CFLAGS+=-O0
 CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
