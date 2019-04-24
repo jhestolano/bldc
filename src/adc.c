@@ -68,60 +68,39 @@ void ADC_Init(void) {
 
   HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
 
-  /*
 
-  sConfigInjected.InjectedChannel = PHA_IFBK_ADC_CHANNEL;
-  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+
   sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
   sConfigInjected.InjectedNbrOfConversion = 3;
   sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5;
-  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
+  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_NONE;
+  sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
-  sConfigInjected.QueueInjectedContext = ENABLE;
+  sConfigInjected.QueueInjectedContext = DISABLE;
   sConfigInjected.InjectedOffset = 0;
   sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
+
+  sConfigInjected.InjectedChannel = POT_ADC_CHANNEL;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
   if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
 
-  sConfigInjected.InjectedChannel = PHB_IFBK_ADC_CHANNEL;
+  sConfigInjected.InjectedChannel = TEMP_SENS_ADC_CHANNEL;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
   if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
-  sConfigInjected.InjectedChannel = PHC_IFBK_ADC_CHANNEL;
+  sConfigInjected.InjectedChannel = VBUS_ADC_CHANNEL;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_3;
   if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
 
-  */
-
-  sConfig.Channel = POT_ADC_CHANNEL;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig);
-
-  sConfig.Channel = TEMP_SENS_ADC_CHANNEL;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig) != HAL_OK)
-  {
-    ADC_ErrorHandler();
-  }
-  sConfig.Channel = VBUS_ADC_CHANNEL;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
-  if (HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig) != HAL_OK)
-  {
-    ADC_ErrorHandler();
-  }
   return;
 }
 
