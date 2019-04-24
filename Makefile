@@ -6,6 +6,8 @@ STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
 SRCS=src/main.c
 SRCS+=src/stm32f3xx_it.c
 SRCS+=src/adc.c
+SRCS+=src/gpio.c
+SRCS+=src/pwm.c
 SRCS+=system/src/system_stm32f3xx.c
 SRCS+=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f302x8.s
 SRCS+=$(STM_SRC)/stm32f3xx_hal_gpio.c
@@ -15,6 +17,7 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_cortex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_adc.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_adc_ex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_dma.c
+SRCS+=$(STM_SRC)/stm32f3xx_hal_rcc_ex.c
 
 
 

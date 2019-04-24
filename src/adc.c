@@ -2,67 +2,141 @@
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc.h"
 
+static void ADC_ErrorHandler(void) {
+  while(1);
+  return;
+}
+
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
-	GPIO_InitTypeDef gpioinit;
-	
-	// GPIO & ADC Clock Enable.
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	__HAL_RCC_ADC1_CLK_ENABLE();
+  GPIO_InitTypeDef gpio_init;
 
-	// GPIO Init.
-	gpioinit.Pin = GPIO_PIN_4;
-	gpioinit.Mode = GPIO_MODE_ANALOG;
-	gpioinit.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOB, &gpioinit);
+  __HAL_RCC_ADC1_CLK_ENABLE();
+  
+  if(!__HAL_RCC_GPIOA_IS_CLK_ENABLED()) {
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+  }
 
-	// Configure DMA if needed.
-	// NVIC Priority / Enable.
-	return;
+  if(!__HAL_RCC_GPIOB_IS_CLK_ENABLED()) {
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+  }
+
+  if(!__HAL_RCC_GPIOC_IS_CLK_ENABLED()) {
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+  }
+
+  gpio_init.Pin = POT_ADC_PIN;
+  gpio_init.Mode = GPIO_MODE_ANALOG;
+  gpio_init.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(POT_ADC_PORT, &gpio_init);
+
+  gpio_init.Pin = PHB_IFBK_ADC_PIN | PHC_IFBK_ADC_PIN | TEMP_SENS_ADC_PIN;
+  gpio_init.Mode = GPIO_MODE_ANALOG;
+  gpio_init.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(PHB_IFBK_ADC_PORT, &gpio_init);
+
+  gpio_init.Pin = PHA_IFBK_ADC_PIN | VBUS_ADC_PIN;
+  gpio_init.Mode = GPIO_MODE_ANALOG;
+  gpio_init.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(PHA_IFBK_ADC_PORT, &gpio_init);
+
+  return;
 }
 
 void ADC_Init(void) {
-	// ADC_HandleTypeDef config. & Call to HAL_ADC_Init.
-	gsAdcHandle.Instance = ADC1;
-	gsAdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
-	gsAdcHandle.Init.Resolution = ADC_RESOLUTION_12B;
-	gsAdcHandle.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	gsAdcHandle.Init.ScanConvMode = ADC_SCAN_DISABLE;
-	gsAdcHandle.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-	gsAdcHandle.Init.LowPowerAutoWait = DISABLE;
-	gsAdcHandle.Init.ContinuousConvMode = DISABLE;
-	gsAdcHandle.Init.DiscontinuousConvMode = DISABLE;
-	gsAdcHandle.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	gsAdcHandle.Init.DMAContinuousRequests = DISABLE;
-	gsAdcHandle.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-	HAL_ADC_Init(&gsAdcHandle);
 
-	// ADC Channel Config. & Call to HAL_ADC_ConfigChannel.
-	ADC_ChannelConfTypeDef adcchconfig;
-	adcchconfig.Channel = ADC_CHANNEL_12;
-	adcchconfig.Rank = ADC_REGULAR_RANK_1;
-	adcchconfig.SamplingTime = ADC_SAMPLETIME_19CYCLES_5;
-	adcchconfig.SingleDiff = ADC_SINGLE_ENDED;
-	adcchconfig.OffsetNumber = ADC_OFFSET_NONE;
-	adcchconfig.Offset = 0;
-	HAL_ADC_ConfigChannel(&gsAdcHandle, &adcchconfig);
+  ADC_InjectionConfTypeDef sConfigInjected = {0};
+  ADC_ChannelConfTypeDef sConfig = {0};
 
+  gsAdcHandle.Instance = ADC1;
+  gsAdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+  gsAdcHandle.Init.Resolution = ADC_RESOLUTION_12B;
+  gsAdcHandle.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  gsAdcHandle.Init.ContinuousConvMode = DISABLE;
+  gsAdcHandle.Init.DiscontinuousConvMode = DISABLE;
+  gsAdcHandle.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  gsAdcHandle.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  gsAdcHandle.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  gsAdcHandle.Init.NbrOfConversion = 3;
+  gsAdcHandle.Init.DMAContinuousRequests = DISABLE;
+  gsAdcHandle.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  gsAdcHandle.Init.LowPowerAutoWait = DISABLE;
+  gsAdcHandle.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  if (HAL_ADC_Init(&gsAdcHandle) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
 
-	HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
-	// Additional calls to Cahnnel Config if multiple.
+  HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
 
-	return;
+  /*
+
+  sConfigInjected.InjectedChannel = PHA_IFBK_ADC_CHANNEL;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+  sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
+  sConfigInjected.InjectedNbrOfConversion = 3;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5;
+  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
+  sConfigInjected.AutoInjectedConv = DISABLE;
+  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+  sConfigInjected.QueueInjectedContext = ENABLE;
+  sConfigInjected.InjectedOffset = 0;
+  sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
+  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
+
+  sConfigInjected.InjectedChannel = PHB_IFBK_ADC_CHANNEL;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
+  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
+  sConfigInjected.InjectedChannel = PHC_IFBK_ADC_CHANNEL;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_3;
+  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
+
+  */
+
+  sConfig.Channel = POT_ADC_CHANNEL;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.Offset = 0;
+  HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig);
+
+  sConfig.Channel = TEMP_SENS_ADC_CHANNEL;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
+  sConfig.Channel = VBUS_ADC_CHANNEL;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&gsAdcHandle, &sConfig) != HAL_OK)
+  {
+    ADC_ErrorHandler();
+  }
+  return;
 }
 
 void ADC_Start(void) {
-	HAL_ADC_Start(&gsAdcHandle);
-	return;
+  HAL_ADC_Start(&gsAdcHandle);
+  return;
 }
 
 void ADC_WaitConv(void) {
-	HAL_ADC_PollForConversion(&gsAdcHandle, (uint32_t)100);
-	return;
+  HAL_ADC_PollForConversion(&gsAdcHandle, (uint32_t)100);
+  return;
 }
 
 uint32_t ADC_Read(void) {
-	return HAL_ADC_GetValue(&gsAdcHandle);
+  return HAL_ADC_GetValue(&gsAdcHandle);
 }
+
+
