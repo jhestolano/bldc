@@ -17,16 +17,9 @@ int main(void)
   GPIO_Init();
   ADC_Init();
   while(1) {
-    HAL_ADCEx_InjectedStart(&gsAdcHandle);
-    st = HAL_ADCEx_InjectedPollForConversion(&gsAdcHandle, 100);
-    if(st != HAL_OK) {
-      while(1);
-    }
-    for(idx = 0; idx < 3; idx++) {
-      adc_a[idx] = HAL_ADCEx_InjectedGetValue(&gsAdcHandle, (uint32_t)ADC_INJECTED_RANK_1 + idx);
-    }
-     HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
-     HAL_Delay(100);
+    HAL_ADCEx_InjectedStart_IT(&gsAdcHandle);
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
   }
 }
 

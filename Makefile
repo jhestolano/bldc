@@ -18,6 +18,7 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_adc.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_adc_ex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_dma.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_rcc_ex.c
+SRCS+=$(STM_SRC)/stm32f3xx_hal_cortex.c
 
 
 

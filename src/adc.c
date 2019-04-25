@@ -1,9 +1,23 @@
 #include "adc.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc.h"
+#include "stm32f3xx_hal_cortex.h"
 
 static void ADC_ErrorHandler(void) {
   while(1);
+  return;
+}
+
+void ADC1_IRQHandler(void) {
+  HAL_ADC_IRQHandler(&gsAdcHandle);
+}
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  uint8_t idx;
+  uint16_t adc_a[3] = {0};
+  for(idx = 0; idx < 3; idx++) {
+     adc_a[idx] = HAL_ADCEx_InjectedGetValue(&gsAdcHandle, (uint32_t)ADC_INJECTED_RANK_1 + idx);
+  }
   return;
 }
 
@@ -42,10 +56,14 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
   return;
 }
 
+
 void ADC_Init(void) {
 
   ADC_InjectionConfTypeDef sConfigInjected = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
+
+  HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(ADC1_IRQn);
 
   gsAdcHandle.Instance = ADC1;
   gsAdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
@@ -66,9 +84,7 @@ void ADC_Init(void) {
     ADC_ErrorHandler();
   }
 
-  HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
-
-
+  // HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
 
   sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
   sConfigInjected.InjectedNbrOfConversion = 3;
