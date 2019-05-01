@@ -3,6 +3,7 @@
 #include "stm32f3xx_hal_rcc_ex.h"
 #include "adc.h"
 #include "gpio.h"
+#include "pwm.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
@@ -16,11 +17,16 @@ int main(void)
   SystemClock_Config();
   GPIO_Init();
   ADC_Init();
+  PWM_Init();
+
+  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
+
   while(1) {
     HAL_ADCEx_InjectedStart_IT(&gsAdcHandle);
     HAL_Delay(100);
     HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
   }
+  
 }
 
 void SystemClock_Config(void)
@@ -44,11 +50,11 @@ void SystemClock_Config(void)
   }
   /**Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                              | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)

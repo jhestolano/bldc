@@ -22,7 +22,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 }
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
-  GPIO_InitTypeDef gpio_init;
+  GPIO_InitTypeDef gpio_init = {0};
 
   __HAL_RCC_ADC1_CLK_ENABLE();
   

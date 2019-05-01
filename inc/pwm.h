@@ -11,6 +11,10 @@
 #define VH_PWM_PIN (GPIO_PIN_9)
 #define WH_PWM_PIN (GPIO_PIN_10)
 
+#define UH_PWM_CHANNEL (TIM_CHANNEL_1)
+#define VH_PWM_CHANNEL (TIM_CHANNEL_2)
+#define WH_PWM_CHANNEL (TIM_CHANNEL_3)
+
 void PWM_Init(void);
 
 #endif
