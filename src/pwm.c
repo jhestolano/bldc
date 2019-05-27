@@ -5,44 +5,17 @@
 #include "stm32f3xx_hal_rcc_ex.h"
 #include "stm32f3xx_hal_rcc.h"
 
-
-#define PWM_TMR_CLK_HZ ((uint32_t)72000000)
+#define PWM_TMR_CLOCK_HZ ((uint32_t)72000000)
 #define PWM_TMR_FREQ_HZ ((uint32_t)30000)
-#define PWM_TMR_PERIOD (PWM_TMR_CLK_HZ / PWM_TMR_FREQ_HZ)
-
-#define PWM_CHANNEL_LAST_ELEM (0xFFFFU)
-
-const uint16_t PWMChannel_a[] = {
-  UH_PWM_CHANNEL,
-  VH_PWM_CHANNEL,
-  WH_PWM_CHANNEL,
-  PWM_CHANNEL_LAST_ELEM,
-};
+#define PWM_TMR_PERIOD (PWM_TMR_CLOCK_HZ / PWM_TMR_FREQ_HZ)
 
 void PWM_Error_Handler(void) {
   while(1);
 }
 
-/*
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_handle) {
-  // BKIN2 Functionality.
-
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  GPIO_InitStruct.Pin = M1_OCP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF12_TIM1;
-  HAL_GPIO_Init(M1_OCP_GPIO_Port, &GPIO_InitStruct);
-}
-*/
-
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_handle) {
-
-  UNUSED(tim_handle);
-
-  GPIO_InitTypeDef gpio_init = {0};
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* s_pwm_conf) {
+  UNUSED(s_pwm_conf);
+  GPIO_InitTypeDef s_pwm_gpio_conf = PWM_GPIO_CONF;
 
   if(!__HAL_RCC_TIM1_IS_CLK_ENABLED()){
       __HAL_RCC_TIM1_CLK_ENABLE();
@@ -52,55 +25,31 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_handle) {
     __HAL_RCC_GPIOA_CLK_ENABLE();
   }
 
-  gpio_init.Pin = UH_PWM_PIN | VH_PWM_PIN | WH_PWM_PIN;
-  gpio_init.Mode = GPIO_MODE_AF_PP;
-  gpio_init.Pull = GPIO_PULLDOWN;
-  gpio_init.Speed = GPIO_SPEED_FREQ_HIGH;
-  gpio_init.Alternate = GPIO_AF6_TIM1;
-  HAL_GPIO_Init(GPIOA, &gpio_init);
+  HAL_GPIO_Init(GPIOA, &s_pwm_gpio_conf);
 }
 
 void PWM_Init(void) {
-  uint8_t idx;
-  TIM_HandleTypeDef tim_handle = {0};
-  TIM_OC_InitTypeDef oc_init = {0};
 
-  tim_handle.Instance = TIM1;
-  tim_handle.Init.Prescaler =  1;
-  tim_handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-  tim_handle.Init.Period = PWM_TMR_PERIOD;
-  tim_handle.Init.RepetitionCounter = 0;
-  tim_handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
-  tim_handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  
-  /*if(HAL_TIM_Base_Init(&tim_handle) != HAL_OK) {
-    PWM_Error_Handler();
-  }*/
-  
-  if(HAL_TIM_PWM_Init(&tim_handle) != HAL_OK) {
+  TIM_HandleTypeDef s_pwm_conf = PWM_INIT_CONF;
+  TIM_BreakDeadTimeConfigTypeDef s_pwm_dt_conf = PWM_DEADTIME_CONF;
+  TIM_OC_InitTypeDef s_pwm_oc_conf = PWM_OC_CONF;
+  TIM_MasterConfigTypeDef s_master_out_conf = PWM_MASTER_OUT_CONF;
+
+  if(HAL_TIM_PWM_Init(&s_pwm_conf) != HAL_OK) {
     PWM_Error_Handler();
   }
 
-  oc_init.OCMode = TIM_OCMODE_PWM1;
-  oc_init.Pulse = PWM_TMR_PERIOD * .90;
-  oc_init.OCPolarity = TIM_OCPOLARITY_HIGH;
-  oc_init.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  oc_init.OCFastMode = TIM_OCFAST_DISABLE;
-  oc_init.OCIdleState = TIM_OCIDLESTATE_RESET;
-  oc_init.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&s_pwm_conf, &s_pwm_dt_conf) != HAL_OK) {
+    PWM_Error_Handler();
+  }
 
-  HAL_TIM_PWM_ConfigChannel(&tim_handle, &oc_init, UH_PWM_CHANNEL);
+  HAL_TIM_PWM_ConfigChannel(&s_pwm_conf, &s_pwm_oc_conf, UH_PWM_CHANNEL);
+  HAL_TIM_PWM_ConfigChannel(&s_pwm_conf, &s_pwm_oc_conf, VH_PWM_CHANNEL);
+  HAL_TIM_PWM_ConfigChannel(&s_pwm_conf, &s_pwm_oc_conf, WH_PWM_CHANNEL);
 
-  oc_init.Pulse = 0;
-  HAL_TIM_PWM_ConfigChannel(&tim_handle, &oc_init, VH_PWM_CHANNEL);
-  HAL_TIM_PWM_ConfigChannel(&tim_handle, &oc_init, WH_PWM_CHANNEL);
-
-/*
-  for(idx = 0; PWMChannel_a[idx] != PWM_CHANNEL_LAST_ELEM; idx++) {
-    if(HAL_TIM_PWM_ConfigChannel(&tim_handle, &oc_init, UH_PWM_CHANNEL) != HAL_OK) {
-      PWM_Error_Handler();
-    }
-  }*/
+  HAL_TIM_PWM_Start(&s_pwm_conf, UH_PWM_CHANNEL);
+  HAL_TIM_PWM_Start(&s_pwm_conf, VH_PWM_CHANNEL);
+  HAL_TIM_PWM_Start(&s_pwm_conf, WH_PWM_CHANNEL);
 
   return;
 }

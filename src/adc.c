@@ -3,26 +3,18 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_hal_cortex.h"
 
+ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
+
 static void ADC_ErrorHandler(void) {
   while(1);
   return;
 }
 
-void ADC1_IRQHandler(void) {
-  HAL_ADC_IRQHandler(&gsAdcHandle);
-}
-
-void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  uint8_t idx;
-  uint16_t adc_a[3] = {0};
-  for(idx = 0; idx < 3; idx++) {
-     adc_a[idx] = HAL_ADCEx_InjectedGetValue(&gsAdcHandle, (uint32_t)ADC_INJECTED_RANK_1 + idx);
-  }
-  return;
-}
-
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
-  GPIO_InitTypeDef gpio_init = {0};
+
+  GPIO_InitTypeDef s_gpioa_input_conf = GPIOA_INPUT_CONF;
+  GPIO_InitTypeDef s_gpiob_input_conf = GPIOB_INPUT_CONF;
+  GPIO_InitTypeDef s_gpioc_input_conf = GPIOC_INPUT_CONF;
 
   __HAL_RCC_ADC1_CLK_ENABLE();
   
@@ -38,20 +30,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
     __HAL_RCC_GPIOC_CLK_ENABLE();
   }
 
-  gpio_init.Pin = POT_ADC_PIN;
-  gpio_init.Mode = GPIO_MODE_ANALOG;
-  gpio_init.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(POT_ADC_PORT, &gpio_init);
-
-  gpio_init.Pin = PHB_IFBK_ADC_PIN | PHC_IFBK_ADC_PIN | TEMP_SENS_ADC_PIN;
-  gpio_init.Mode = GPIO_MODE_ANALOG;
-  gpio_init.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PHB_IFBK_ADC_PORT, &gpio_init);
-
-  gpio_init.Pin = PHA_IFBK_ADC_PIN | VBUS_ADC_PIN;
-  gpio_init.Mode = GPIO_MODE_ANALOG;
-  gpio_init.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PHA_IFBK_ADC_PORT, &gpio_init);
+  HAL_GPIO_Init(GPIOA, &s_gpioa_input_conf);
+  HAL_GPIO_Init(GPIOB, &s_gpiob_input_conf);
+  HAL_GPIO_Init(GPIOC, &s_gpioc_input_conf);
 
   return;
 }
@@ -59,60 +40,30 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
 
 void ADC_Init(void) {
 
-  ADC_InjectionConfTypeDef sConfigInjected = {0};
-  ADC_ChannelConfTypeDef sConfig = {0};
+  ADC_InjectionConfTypeDef s_pot_inj_conf = POT_ADC_INJ_CONF;
+  ADC_InjectionConfTypeDef s_temp_sens_inj_conf = TEMP_SENS_ADC_INJ_CONF;
+  ADC_InjectionConfTypeDef s_vbus_inj_conf = VBUS_ADC_INJ_CONF;
 
   HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(ADC1_IRQn);
 
-  gsAdcHandle.Instance = ADC1;
-  gsAdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
-  gsAdcHandle.Init.Resolution = ADC_RESOLUTION_12B;
-  gsAdcHandle.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  gsAdcHandle.Init.ContinuousConvMode = DISABLE;
-  gsAdcHandle.Init.DiscontinuousConvMode = DISABLE;
-  gsAdcHandle.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  gsAdcHandle.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  gsAdcHandle.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  gsAdcHandle.Init.NbrOfConversion = 3;
-  gsAdcHandle.Init.DMAContinuousRequests = DISABLE;
-  gsAdcHandle.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  gsAdcHandle.Init.LowPowerAutoWait = DISABLE;
-  gsAdcHandle.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  if (HAL_ADC_Init(&gsAdcHandle) != HAL_OK)
+  if (HAL_ADC_Init(&gs_adc_handle) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
 
-  // HAL_ADCEx_Calibration_Start(&gsAdcHandle, ADC_SINGLE_ENDED);
-
-  sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
-  sConfigInjected.InjectedNbrOfConversion = 3;
-  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5;
-  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_NONE;
-  sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
-  sConfigInjected.AutoInjectedConv = DISABLE;
-  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
-  sConfigInjected.QueueInjectedContext = DISABLE;
-  sConfigInjected.InjectedOffset = 0;
-  sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
-
-  sConfigInjected.InjectedChannel = POT_ADC_CHANNEL;
-  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
-  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+  // HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pot_inj_conf) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
 
-  sConfigInjected.InjectedChannel = TEMP_SENS_ADC_CHANNEL;
-  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
-  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_temp_sens_inj_conf) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
-  sConfigInjected.InjectedChannel = VBUS_ADC_CHANNEL;
-  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_3;
-  if (HAL_ADCEx_InjectedConfigChannel(&gsAdcHandle, &sConfigInjected) != HAL_OK)
+
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_vbus_inj_conf) != HAL_OK)
   {
     ADC_ErrorHandler();
   }
@@ -121,17 +72,29 @@ void ADC_Init(void) {
 }
 
 void ADC_Start(void) {
-  HAL_ADC_Start(&gsAdcHandle);
+  HAL_ADC_Start(&gs_adc_handle);
   return;
 }
 
 void ADC_WaitConv(void) {
-  HAL_ADC_PollForConversion(&gsAdcHandle, (uint32_t)100);
+  HAL_ADC_PollForConversion(&gs_adc_handle, (uint32_t)100);
   return;
 }
 
 uint32_t ADC_Read(void) {
-  return HAL_ADC_GetValue(&gsAdcHandle);
+  return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
+void ADC1_IRQHandler(void) {
+  HAL_ADC_IRQHandler(&gs_adc_handle);
+}
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  uint8_t idx;
+  uint16_t adc_a[3] = {0};
+  for(idx = 0; idx < 3; idx++) {
+     adc_a[idx] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, (uint32_t)ADC_INJECTED_RANK_1 + idx);
+  }
+  return;
+}
 
