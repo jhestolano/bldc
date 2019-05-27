@@ -31,6 +31,15 @@
 
 /*******************************************************************************
 * PWM INITIAL CONFIGURATION.
+********************************************************************************
+* Type: TIM_HandleTypeDef
+********************************************************************************
+* Prescaler: REG: PSC; BITS: PSC.
+* CounterMode: REG: CR1; BITS: CMS, DIR.
+* Period: REG: ARR; BITS: ARR.
+* RepetitionCounter: REG: RCR; BITS: RCR.
+* ClockDivision: REG: CR1; BITS: CKD.
+* AutoReloadPreload: REG: CR1; BITS: ARPE. 
 *******************************************************************************/
 #define PWM_INIT_CONF {                                                        \
   .Instance = TIM1,                                                            \
@@ -45,7 +54,59 @@
 }
 
 /*******************************************************************************
+* PWM OUTPUT-COMPARE CONFIGURATION.
+********************************************************************************
+* Type: TIM_OC_InitTypeDef
+********************************************************************************
+* OCMode: REG: CCMR1; BITS: OC1M, CC1S.
+* Pulse: REG: CCR1.
+* OCPolarity: REG: CCER; BITS: CC1P.
+* OCNPolarity: REG: CCER; CC1NP.
+* OCFastMode: REG: CCMR1; BITS: OC1FE.
+* OCIdleState: REG: CR2; BITS: OIS1.
+* OCNIdleState: REG: CR2; BITS: OIS1N.
+*******************************************************************************/
+#define PWM_OC_CONF {                                                          \
+  .OCMode = TIM_OCMODE_PWM1,                                                   \
+  .Pulse = PWM_TMR_PERIOD * .90,                                               \
+  .OCPolarity = TIM_OCPOLARITY_HIGH,                                           \
+  .OCNPolarity = TIM_OCNPOLARITY_HIGH,                                         \
+  .OCFastMode = TIM_OCFAST_DISABLE,                                            \
+  .OCIdleState = TIM_OCIDLESTATE_RESET,                                        \
+  .OCNIdleState = TIM_OCNIDLESTATE_RESET,                                      \
+}
+
+/*******************************************************************************
+* PWM MASTER OUTPUT CONFIGURATION.
+********************************************************************************
+* Type: TIM_MasterConfigTypeDef
+********************************************************************************
+* MasterOutputTrigger: REG: CR2; BITS: MMS.
+* MasterOutputTrigger2: REG: CR2; BITS: MMS2.
+* MasterSlaveMode: REG: SMCR; BITS: MSM.
+*******************************************************************************/
+#define PWM_MASTER_OUT_CONF {                                                  \
+  .MasterOutputTrigger = TIM_TRGO_RESET,                                       \
+  .MasterOutputTrigger2 = TIM_TRGO_RESET,                                      \
+  .MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE,                              \
+}
+
+/*******************************************************************************
 * PWM DEADTIME CONFIGURATION.
+********************************************************************************
+* Type: TIM_BreakDeadTimeConfigTypeDef
+********************************************************************************
+* OffStateRunMode: REG: BDTR; BITS: OSSR.
+* OffStateIdleMode: REG: BDTR; BITS: OSSI.
+* LockLevel: REG: BDTR; BITS: LOCK.
+* DeadTime: REG: BDTR; BITS: DTG.
+* BreakState: REG: BDTR; BITS: BKE.
+* BreakPolarity: REG: BDTR; BITS: BKP.
+* BreakFilter: REG: BDTR; BITS: BKF.
+* Break2State: REG: BDTR; BITS: BK2E.
+* Break2Polarity: REG: BDTR; BITS: BK2P.
+* Break2Filter: REG: BDTR; BITS: BK2F.
+* AutomaticOutput: REG: BDTR; BITS: AOE.
 *******************************************************************************/
 #define PWM_DEADTIME_CONF {                                                    \
   .OffStateRunMode = TIM_OSSR_ENABLE,                                          \
@@ -61,27 +122,6 @@
   .AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE,                              \
 }
 
-/*******************************************************************************
-* PWM OUTPUT-COMPARE CONFIGURATION.
-*******************************************************************************/
-#define PWM_OC_CONF {                                                          \
-  .OCMode = TIM_OCMODE_PWM1,                                                   \
-  .Pulse = PWM_TMR_PERIOD * .90,                                               \
-  .OCPolarity = TIM_OCPOLARITY_HIGH,                                           \
-  .OCNPolarity = TIM_OCNPOLARITY_HIGH,                                         \
-  .OCFastMode = TIM_OCFAST_DISABLE,                                            \
-  .OCIdleState = TIM_OCIDLESTATE_RESET,                                        \
-  .OCNIdleState = TIM_OCNIDLESTATE_RESET,                                      \
-}
-
-/*******************************************************************************
-* PWM MASTER OUTPUT CONFIGURATION.
-*******************************************************************************/
-#define PWM_MASTER_OUT_CONF {                                                  \
-  .MasterOutputTrigger = TIM_TRGO_RESET,                                       \
-  .MasterOutputTrigger2 = TIM_TRGO_RESET,                                      \
-  .MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE,                              \
-}
 /*******************************************************************************
 *******************************************************************************/
 
