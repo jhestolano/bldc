@@ -68,7 +68,7 @@
 *******************************************************************************/
 #define PWM_OC_CONF {                                                          \
   .OCMode = TIM_OCMODE_PWM1,                                                   \
-  .Pulse = PWM_TMR_PERIOD * .90,                                               \
+  .Pulse = 0,                                                                  \
   .OCPolarity = TIM_OCPOLARITY_HIGH,                                           \
   .OCNPolarity = TIM_OCNPOLARITY_HIGH,                                         \
   .OCFastMode = TIM_OCFAST_DISABLE,                                            \
@@ -82,12 +82,18 @@
 * Type: TIM_MasterConfigTypeDef
 ********************************************************************************
 * MasterOutputTrigger: REG: CR2; BITS: MMS.
+    Related to TIMER synchronization.
 * MasterOutputTrigger2: REG: CR2; BITS: MMS2.
+    Related to ADC synchronization.
 * MasterSlaveMode: REG: SMCR; BITS: MSM.
+    When enabled: The effect of an event on the trigger input (TRGI) is
+    delayed to allow a perfect synchronization between the current timer
+    and its slaves (through TRGO). It is useful if we want to synchronize
+    several timers on a single external event.    
 *******************************************************************************/
 #define PWM_MASTER_OUT_CONF {                                                  \
   .MasterOutputTrigger = TIM_TRGO_RESET,                                       \
-  .MasterOutputTrigger2 = TIM_TRGO_RESET,                                      \
+  .MasterOutputTrigger2 = TIM_TRGO2_RESET,                                     \
   .MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE,                              \
 }
 
@@ -116,7 +122,7 @@
   .BreakState = TIM_BREAK_DISABLE,                                             \
   .BreakPolarity = TIM_BREAKPOLARITY_HIGH,                                     \
   .BreakFilter = 0,                                                            \
-  .Break2State = TIM_BREAK2_ENABLE,                                            \
+  .Break2State = TIM_BREAK2_DISABLE,                                           \
   .Break2Polarity = TIM_BREAK2POLARITY_LOW,                                    \
   .Break2Filter = 7,                                                           \
   .AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE,                              \

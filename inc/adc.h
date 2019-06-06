@@ -43,7 +43,7 @@ extern ADC_HandleTypeDef gs_adc_handle;
 /*******************************************************************************
  * GPIO INPUT CONFIGURATION: POTENTIOMETER.
 *******************************************************************************/
-#define GPIOB_INPUT_CONF {                                                     \
+#define GPIOB_ADC_INPUT_CONF {                                                 \
   .Pin = POT_ADC_PIN,                                                          \
   .Mode = GPIO_MODE_ANALOG,                                                    \
   .Pull = GPIO_NOPULL,                                                         \
@@ -52,7 +52,7 @@ extern ADC_HandleTypeDef gs_adc_handle;
 /*******************************************************************************
  * GPIO INPUT CONFIGURATION: PHASE-B, PHASE-C, TEMP. SENSOR.
 *******************************************************************************/
-#define GPIOC_INPUT_CONF {                                                     \
+#define GPIOC_ADC_INPUT_CONF {                                                 \
   .Pin = PHB_IFBK_ADC_PIN | PHC_IFBK_ADC_PIN | TEMP_SENS_ADC_PIN,              \
   .Mode = GPIO_MODE_ANALOG,                                                    \
   .Pull = GPIO_NOPULL,                                                         \
@@ -61,27 +61,29 @@ extern ADC_HandleTypeDef gs_adc_handle;
 /*******************************************************************************
  * GPIO INPUT CONFIGURATION: PHASE-A, VBUS.
 *******************************************************************************/
-#define GPIOA_INPUT_CONF {                                                     \
+#define GPIOA_ADC_INPUT_CONF {                                                 \
   .Pin = PHA_IFBK_ADC_PIN | VBUS_ADC_PIN,                                      \
   .Mode = GPIO_MODE_ANALOG,                                                    \
   .Pull = GPIO_NOPULL,                                                         \
 }
 
 /*******************************************************************************
- * ADC INITIAL CONFIGURATION.
+* ADC INITIAL CONFIGURATION.
+********************************************************************************
+* Type: ADC_HandleTypeDef
 *******************************************************************************/
 #define ADC_INIT_CONF {                                                        \
   .Instance = ADC1,                                                            \
   .Init = {                                                                    \
     .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1,                                \
     .Resolution = ADC_RESOLUTION_12B,                                          \
-    .ScanConvMode = ADC_SCAN_ENABLE,                                           \
+    .ScanConvMode = ADC_EOC_SINGLE_CONV,                                       \
     .ContinuousConvMode = DISABLE,                                             \
     .DiscontinuousConvMode = DISABLE,                                          \
-    .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE,                     \
-    .ExternalTrigConv = ADC_SOFTWARE_START,                                    \
+    .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
+    .ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO,                          \
     .DataAlign = ADC_DATAALIGN_RIGHT,                                          \
-    .NbrOfConversion = 3,                                                      \
+    .NbrOfConversion = 1,                                                      \
     .DMAContinuousRequests = DISABLE,                                          \
     .EOCSelection = ADC_EOC_SINGLE_CONV,                                       \
     .LowPowerAutoWait = DISABLE,                                               \
@@ -90,57 +92,73 @@ extern ADC_HandleTypeDef gs_adc_handle;
 }
 
 /*******************************************************************************
+* ADC INJECTED CHANNEL GROUP CONFIGURATION.
+*******************************************************************************/
+#define ADC_INJ_GROUP_CONF                                                     \
+  .InjectedNbrOfConversion = 3,                                                \
+  .ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING,          \
+  .ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO2,                 \
+  .AutoInjectedConv = DISABLE,                                                 \
+  .InjectedDiscontinuousConvMode = DISABLE,                                    \
+  .QueueInjectedContext = DISABLE
+
+/*******************************************************************************
+ * ADC REGULAR CHANNEL CONFIG: POTENTIOMETER.
+********************************************************************************
+* Type: ADC_ChannelConfTypeDef
+*******************************************************************************/
+#define POT_ADC_CONF {                                                         \
+  .Channel = POT_ADC_CHANNEL,                                                  \
+  .Rank = ADC_INJECTED_RANK_1,                                                 \
+  .SingleDiff = ADC_SINGLE_ENDED,                                              \
+  .Offset = 0,                                                                 \
+  .OffsetNumber = ADC_OFFSET_NONE,                                             \
+  .SamplingTime = ADC_SAMPLETIME_19CYCLES_5,                                   \
+}
+
+/*******************************************************************************
  * ADC INJECTED CHANNEL CONFIG: POTENTIOMETER.
+********************************************************************************
+* Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
 #define POT_ADC_INJ_CONF {                                                     \
   .InjectedChannel = POT_ADC_CHANNEL,                                          \
   .InjectedRank = ADC_INJECTED_RANK_1,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
-  .InjectedNbrOfConversion = 3,                                                \
-  .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
-  .ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_NONE,            \
-  .ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START,                        \
-  .AutoInjectedConv = DISABLE,                                                 \
-  .InjectedDiscontinuousConvMode = DISABLE,                                    \
-  .QueueInjectedContext = DISABLE,                                             \
   .InjectedOffset = 0,                                                         \
   .InjectedOffsetNumber = ADC_OFFSET_NONE,                                     \
+  .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
+  ADC_INJ_GROUP_CONF,                                                          \
 }
 
 /*******************************************************************************
  * ADC INJECTED CHANNEL CONFIG: TEMP. SENSOR.
+********************************************************************************
+* Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
 #define TEMP_SENS_ADC_INJ_CONF {                                               \
   .InjectedChannel = TEMP_SENS_ADC_CHANNEL,                                    \
   .InjectedRank = ADC_INJECTED_RANK_2,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
-  .InjectedNbrOfConversion = 3,                                                \
   .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
-  .ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_NONE,            \
-  .ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START,                        \
-  .AutoInjectedConv = DISABLE,                                                 \
-  .InjectedDiscontinuousConvMode = DISABLE,                                    \
-  .QueueInjectedContext = DISABLE,                                             \
   .InjectedOffset = 0,                                                         \
   .InjectedOffsetNumber = ADC_OFFSET_NONE,                                     \
+  ADC_INJ_GROUP_CONF,                                                          \
 }
 
 /*******************************************************************************
  * ADC INJECTED CHANNEL CONFIG: VOLTAGE BUS.
+********************************************************************************
+* Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
 #define VBUS_ADC_INJ_CONF {                                                    \
   .InjectedChannel = VBUS_ADC_CHANNEL,                                         \
   .InjectedRank = ADC_INJECTED_RANK_3,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
-  .InjectedNbrOfConversion = 3,                                                \
   .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
-  .ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_NONE,            \
-  .ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START,                        \
-  .AutoInjectedConv = DISABLE,                                                 \
-  .InjectedDiscontinuousConvMode = DISABLE,                                    \
-  .QueueInjectedContext = DISABLE,                                             \
   .InjectedOffset = 0,                                                         \
   .InjectedOffsetNumber = ADC_OFFSET_NONE,                                     \
+  ADC_INJ_GROUP_CONF,                                                          \
 }
 
 /*******************************************************************************
