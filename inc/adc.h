@@ -77,11 +77,11 @@ extern ADC_HandleTypeDef gs_adc_handle;
   .Init = {                                                                    \
     .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1,                                \
     .Resolution = ADC_RESOLUTION_12B,                                          \
-    .ScanConvMode = ADC_EOC_SINGLE_CONV,                                       \
+    .ScanConvMode = ADC_SCAN_DISABLE,                                          \
     .ContinuousConvMode = DISABLE,                                             \
     .DiscontinuousConvMode = DISABLE,                                          \
     .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
-    .ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO,                          \
+    .ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO2,                         \
     .DataAlign = ADC_DATAALIGN_RIGHT,                                          \
     .NbrOfConversion = 1,                                                      \
     .DMAContinuousRequests = DISABLE,                                          \

@@ -12,9 +12,9 @@ static void ADC_ErrorHandler(void) {
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
 
-  GPIO_InitTypeDef s_gpioa_input_conf = GPIOA_INPUT_CONF;
-  GPIO_InitTypeDef s_gpiob_input_conf = GPIOB_INPUT_CONF;
-  GPIO_InitTypeDef s_gpioc_input_conf = GPIOC_INPUT_CONF;
+  GPIO_InitTypeDef s_gpioa_input_conf = GPIOA_ADC_INPUT_CONF;
+  GPIO_InitTypeDef s_gpiob_input_conf = GPIOB_ADC_INPUT_CONF;
+  GPIO_InitTypeDef s_gpioc_input_conf = GPIOC_ADC_INPUT_CONF;
 
   __HAL_RCC_ADC1_CLK_ENABLE();
   
@@ -40,10 +40,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
 
 void ADC_Init(void) {
 
+  ADC_ChannelConfTypeDef s_pot_conf = POT_ADC_CONF;
+  /*
   ADC_InjectionConfTypeDef s_pot_inj_conf = POT_ADC_INJ_CONF;
   ADC_InjectionConfTypeDef s_temp_sens_inj_conf = TEMP_SENS_ADC_INJ_CONF;
   ADC_InjectionConfTypeDef s_vbus_inj_conf = VBUS_ADC_INJ_CONF;
-
+  */
   HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(ADC1_IRQn);
 
@@ -51,8 +53,9 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler();
   }
-
+  HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf);
   // HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
+  /*
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pot_inj_conf) != HAL_OK)
   {
     ADC_ErrorHandler();
@@ -67,12 +70,12 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler();
   }
-
+  */
   return;
 }
 
 void ADC_Start(void) {
-  HAL_ADC_Start(&gs_adc_handle);
+  HAL_ADC_Start_IT(&gs_adc_handle);
   return;
 }
 
@@ -98,3 +101,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   return;
 }
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  uint32_t adcval = ADC_Read();
+  return;
+}

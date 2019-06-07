@@ -38,8 +38,14 @@ void PWM_Init(void) {
   if(HAL_TIM_PWM_Init(&s_pwm_conf) != HAL_OK) {
     PWM_Error_Handler();
   }
+  
+  /*
+  if(HAL_TIMEx_ConfigBrakDeadTime(&s_pwm_conf, &s_pwm_dt_conf) != HAL_OK) {
+    PWM_Error_Handler();
+  }
+  */
 
-  if (HAL_TIMEx_ConfigBreakDeadTime(&s_pwm_conf, &s_pwm_dt_conf) != HAL_OK) {
+  if(HAL_TIMEx_MasterConfigSynchronization(&s_pwm_conf, &s_master_out_conf)) {
     PWM_Error_Handler();
   }
 

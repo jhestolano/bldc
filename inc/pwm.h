@@ -93,7 +93,7 @@
 *******************************************************************************/
 #define PWM_MASTER_OUT_CONF {                                                  \
   .MasterOutputTrigger = TIM_TRGO_RESET,                                       \
-  .MasterOutputTrigger2 = TIM_TRGO2_RESET,                                     \
+  .MasterOutputTrigger2 = TIM_TRGO2_UPDATE,                                    \
   .MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE,                              \
 }
 

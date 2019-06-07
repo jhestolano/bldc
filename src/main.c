@@ -16,8 +16,8 @@ int main(void)
   HAL_Init();
   SystemClock_Config();
   GPIO_Init();
-  ADC_Init();
   PWM_Init();
+  ADC_Init();
 
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
 
@@ -25,6 +25,7 @@ int main(void)
     // HAL_ADCEx_InjectedStart_IT(&gsAdcHandle);
     HAL_Delay(100);
     HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
+    ADC_Start();
   }
   
 }
