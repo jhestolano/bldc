@@ -49,4 +49,6 @@
 
 void GPIO_Init(void);
 
+void GPIO_LedToggle(void);
+
 #endif

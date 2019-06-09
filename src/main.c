@@ -4,12 +4,14 @@
 #include "adc.h"
 #include "gpio.h"
 #include "pwm.h"
+#include "uart.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
 int main(void)
 {
+  uint8_t test_msg[] = "Testing...\n\r";
   uint8_t idx = 0;
   uint16_t adc_a[3] = {0};
   HAL_StatusTypeDef st;
@@ -18,14 +20,13 @@ int main(void)
   GPIO_Init();
   PWM_Init();
   ADC_Init();
-
+  UART_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
 
+  ADC_Start();
   while(1) {
-    // HAL_ADCEx_InjectedStart_IT(&gsAdcHandle);
     HAL_Delay(100);
-    HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
-    ADC_Start();
+    UART_Puts(test_msg, sizeof(test_msg));
   }
   
 }

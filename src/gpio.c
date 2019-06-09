@@ -18,3 +18,7 @@ void GPIO_Init(void) {
   return;
 }
 
+void GPIO_LedToggle(void) {
+  HAL_GPIO_TogglePin(USR_LED_PORT, USR_LED_PIN);
+  return;
+}

@@ -6,7 +6,7 @@
 #include "stm32f3xx_hal_rcc.h"
 
 #define PWM_TMR_CLOCK_HZ ((uint32_t)72000000)
-#define PWM_TMR_FREQ_HZ ((uint32_t)30000)
+#define PWM_TMR_FREQ_HZ ((uint32_t)3000)
 #define PWM_TMR_PERIOD (PWM_TMR_CLOCK_HZ / PWM_TMR_FREQ_HZ)
 
 void PWM_Error_Handler(void) {

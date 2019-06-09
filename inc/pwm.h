@@ -19,6 +19,21 @@
 #define WH_PWM_CHANNEL (TIM_CHANNEL_3)
 
 /*******************************************************************************
+* PWM REGISTER CALCULATIONS
+********************************************************************************
+(PSC + 1) * (ARR + 1) = TIM_CLK * PRD
+
+ARR: Auto-reload register value.
+PSC: Prescaler.
+TIM_CLK: Timer clock frequency (Hertz).
+PRD: Waveform period (Seconds).
+*******************************************************************************/
+//#define PWM_TMR_CLOCK_HZ ((uint32_t)72000000)
+//#define PWM_TMR_FREQ_HZ ((uint16_t)2)
+//#define PWM_TMR_PSC ((uint16_t)10000)
+//#define PWM_TMR_PERIOD (PWM_TMR_CLOCK_HZ / PWM_TMR_PSC / PWM_TMR_FREQ_HZ)
+
+/*******************************************************************************
 * PWM GPIO INITIAL CONFIGURATION.
 *******************************************************************************/
 #define PWM_GPIO_CONF {                                                        \
@@ -44,9 +59,9 @@
 #define PWM_INIT_CONF {                                                        \
   .Instance = TIM1,                                                            \
   .Init = {                                                                    \
-    .Prescaler = 1,                                                            \
+    .Prescaler = 10000,                                                        \
     .CounterMode = TIM_COUNTERMODE_UP,                                         \
-    .Period = PWM_TMR_PERIOD,                                                  \
+    .Period = 3600,                                                            \
     .RepetitionCounter = 0,                                                    \
     .ClockDivision = TIM_CLOCKDIVISION_DIV2,                                   \
     .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE,                       \

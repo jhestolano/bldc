@@ -2,6 +2,7 @@
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_hal_cortex.h"
+#include "gpio.h"
 
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
@@ -103,5 +104,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   uint32_t adcval = ADC_Read();
+  GPIO_LedToggle();
   return;
 }
