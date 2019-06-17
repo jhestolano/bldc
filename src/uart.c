@@ -6,7 +6,7 @@
 #include "stm32f3xx_hal_rcc_ex.h"
 #include "stm32f3xx_hal_rcc.h"
 
-UART_HandleTypeDef gs_uart_inif_conf = UART_INIT_CONF;
+UART_HandleTypeDef gs_uart_init_conf = UART_INIT_CONF;
 
 void UART_ErrorHandler(void) {
   while(1);
@@ -31,27 +31,19 @@ void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
 }
 
 void UART_Init(void) {
-  uint8_t hello_msg[] = "Initializing...\n\r";
-  if(HAL_UART_Init(&gs_uart_inif_conf) != HAL_OK) {
+  if(HAL_UART_Init(&gs_uart_init_conf) != HAL_OK) {
     UART_ErrorHandler();
   }
-  UART_Puts(hello_msg, sizeof(hello_msg));
+  printf("Initializing system...\n\r");
   return;
 }
 
 void UART_Putc(uint8_t ch) {
- return;
-}
-
-void UART_Puts(uint8_t const * buff, size_t len) {
-  HAL_UART_Transmit(&gs_uart_inif_conf, buff, len, HAL_MAX_DELAY);
+  char buff = ch;
+  HAL_UART_Transmit(&gs_uart_init_conf, &buff, 1, HAL_MAX_DELAY);
   return;
 }
 
-void UART_Getc(uint8_t* ch) {
-  return;
-}
-
-void UART_Gets(uint8_t* buff, size_t buff_len) {
-  return;
+void _putchar(char ch) {
+  UART_Putc(ch);
 }

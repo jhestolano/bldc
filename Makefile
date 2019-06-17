@@ -9,6 +9,7 @@ SRCS+=src/adc.c
 SRCS+=src/gpio.c
 SRCS+=src/pwm.c
 SRCS+=src/uart.c
+SRCS+=src/printf.c
 SRCS+=system/src/system_stm32f3xx.c
 SRCS+=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f302x8.s
 SRCS+=$(STM_SRC)/stm32f3xx_hal_gpio.c
@@ -38,17 +39,22 @@ TOOLS_DIR=~/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/8.2.1-1.4-20190214-0604/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
+SZ=$(TOOLS_DIR)/arm-none-eabi-size
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
 CFLAGS+=-O0
 CFLAGS+=-Wall -Wextra -Warray-bounds
-CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
+CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
+#CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4+nofp
+#CFLAGs+=mthumb-interwork
 CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
+#CFLAGS+=-mfloat-abi=soft
 CFLAGS+=--specs=nosys.specs
+CFLAGS+=-ffunction-sections -fdata-sections
 
 # Linker Files (all *.ld files)
-LFLAGS=-T./linker/stm32f30_flash.ld
+LFLAGS=-Wl,-Map,$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
 
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
@@ -64,9 +70,10 @@ $(PROJ_NAME).elf: $(SRCS)
 	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $(LFLAGS) $^ -o $@ 
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf   $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
-
+	$(SZ) $(PROJ_NAME).elf
+    
 clean:
-	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin
+	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).map
 
 flash: 
 	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
@@ -77,4 +84,4 @@ stlink:
 # before you start gdb, you must start st-util
 .PHONY: debug
 debug:
-	$(GDB) ./$(PROJ_NAME).elf
+	$(GDB) ./$(PROJ_NAME).elf --command=cmd.gdb

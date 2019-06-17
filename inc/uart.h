@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 #include "stddef.h"
+#include "printf.h"
 
 /*******************************************************************************
  * UART MACRO DEFINITIONS.
@@ -41,7 +42,7 @@
 #define UART_INIT_CONF {                                                       \
   .Instance = USART2,                                                          \
   .Init = {                                                                    \
-    .BaudRate = 115200,                                                        \
+    .BaudRate = 2000000,                                                       \
     .WordLength = UART_WORDLENGTH_8B,                                          \
     .StopBits = UART_STOPBITS_1,                                               \
     .Parity = UART_PARITY_NONE,                                                \
@@ -56,11 +57,5 @@
 void UART_Init(void);
 
 void UART_Putc(uint8_t ch);
-
-void UART_Puts(uint8_t const * buff, size_t len);
-
-void UART_Getc(uint8_t* ch);
-
-void UART_Gets(uint8_t* buff, size_t buff_len);
 
 #endif // UART_H
