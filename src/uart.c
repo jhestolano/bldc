@@ -5,6 +5,7 @@
 #include "stm32f3xx_hal_uart_ex.h"
 #include "stm32f3xx_hal_rcc_ex.h"
 #include "stm32f3xx_hal_rcc.h"
+#include <string.h>
 
 UART_HandleTypeDef gs_uart_init_conf = UART_INIT_CONF;
 
@@ -34,7 +35,6 @@ void UART_Init(void) {
   if(HAL_UART_Init(&gs_uart_init_conf) != HAL_OK) {
     UART_ErrorHandler();
   }
-  printf("Initializing system...\n\r");
   return;
 }
 
@@ -47,3 +47,8 @@ void UART_Putc(uint8_t ch) {
 void _putchar(char ch) {
   UART_Putc(ch);
 }
+
+void UART_Puts(const char* str) {
+  HAL_UART_Transmit(&gs_uart_init_conf, str, strlen(str), HAL_MAX_DELAY);
+}
+

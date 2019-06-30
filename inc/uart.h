@@ -58,4 +58,6 @@ void UART_Init(void);
 
 void UART_Putc(uint8_t ch);
 
+void UART_Puts(const char * str);
+
 #endif // UART_H

@@ -5,28 +5,28 @@
 #include "gpio.h"
 #include "pwm.h"
 #include "uart.h"
+#include "printf.h"
+#include "dbg.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
+static void HwInit(void);
 
 int main(void)
 {
-  uint8_t test_msg[] = "Testing...\n\r";
   uint8_t idx = 0;
   uint16_t adc_a[3] = {0};
   HAL_StatusTypeDef st;
   HAL_Init();
   SystemClock_Config();
   GPIO_Init();
+  UART_Init();
   PWM_Init();
   ADC_Init();
-  UART_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
-
-  ADC_Start();
+  ADC_InjectedStart();
   while(1) {
-    HAL_Delay(100);
-    UART_Puts(test_msg, sizeof(test_msg));
+    HAL_Delay(10);
   }
   
 }

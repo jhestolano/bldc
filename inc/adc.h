@@ -77,7 +77,7 @@ extern ADC_HandleTypeDef gs_adc_handle;
   .Init = {                                                                    \
     .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1,                                \
     .Resolution = ADC_RESOLUTION_12B,                                          \
-    .ScanConvMode = ADC_SCAN_DISABLE,                                          \
+    .ScanConvMode = ADC_SCAN_ENABLE,                                           \
     .ContinuousConvMode = DISABLE,                                             \
     .DiscontinuousConvMode = DISABLE,                                          \
     .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
@@ -169,6 +169,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle);
 void ADC_Init(void);
 
 void ADC_Start(void);
+
+void ADC_InjectedStart(void);
 
 void ADC_WaitConv(void);
 

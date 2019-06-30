@@ -1,3 +1,6 @@
+#ifndef DBG_H
+#define DBG_H
+
 #include <printf.h>
 
 #if defined(__INFO__) || defined(__DBG__) || defined(__WARN__) || defined(__ERR__)
@@ -23,3 +26,5 @@
 #else
 #define DBG_DEBUG(format, ...)
 #endif
+
+#endif // DBG_H

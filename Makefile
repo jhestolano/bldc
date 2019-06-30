@@ -43,13 +43,11 @@ SZ=$(TOOLS_DIR)/arm-none-eabi-size
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
-CFLAGS+=-O0
+CFLAGS+=-Os
 CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
-#CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4+nofp
 #CFLAGs+=mthumb-interwork
 CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
-#CFLAGS+=-mfloat-abi=soft
 CFLAGS+=--specs=nosys.specs
 CFLAGS+=-ffunction-sections -fdata-sections
 
@@ -59,6 +57,7 @@ LFLAGS=-Wl,-Map,$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
 DEFS=-DSTM32F302x8
+DEFS+=-D__DBG__
 
 .PHONY: $(PROJ_NAME)
 $(PROJ_NAME): $(PROJ_NAME).elf
