@@ -1,3 +1,6 @@
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc_ex.h"
@@ -11,24 +14,28 @@
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 static void HwInit(void);
+void vAssertCalled( const char *pcFile, int32_t ulLine );
+
+void tskFlashing(void* parms) {
+  TickType_t last_wake_time;
+  const TickType_t task_frq = 1000;
+  last_wake_time = xTaskGetTickCount();
+  for(;;) {
+    vTaskDelayUntil(&last_wake_time, task_frq);
+    GPIO_LedToggle();
+  }
+}
 
 int main(void)
 {
-  uint8_t idx = 0;
-  uint16_t adc_a[3] = {0};
-  HAL_StatusTypeDef st;
-  HAL_Init();
-  SystemClock_Config();
-  GPIO_Init();
-  UART_Init();
-  PWM_Init();
-  ADC_Init();
-  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
-  ADC_InjectedStart();
-  while(1) {
-    HAL_Delay(10);
+  HwInit();
+  TaskHandle_t hTskFlashing;
+  if(xTaskCreate(tskFlashing, (signed portCHAR*)"LED Task", 50, NULL, tskIDLE_PRIORITY + 1, &hTskFlashing) == pdPASS) {
+    DBG_DEBUG("Task created succesfully!\n\r");
   }
-  
+  vTaskStartScheduler();
+  for(;;){
+  }
 }
 
 void SystemClock_Config(void)
@@ -77,3 +84,35 @@ static void Error_Handler(void)
   {
   }
 }
+
+void vAssertCalled( const char *pcFile, int32_t ulLine )
+{
+volatile unsigned long ul = 0;
+
+	( void ) pcFile;
+	( void ) ulLine;
+
+	taskENTER_CRITICAL();
+	{
+		/* Set ul to a non-zero value using the debugger to step out of this
+		function. */
+    DBG_ERR("Assertion Error: %s : %d\n\r", pcFile, ulLine);
+		while( ul == 0 )
+		{
+			__NOP();
+		}
+	}
+	taskEXIT_CRITICAL();
+}
+
+void HwInit(void) {
+  HAL_Init();
+  SystemClock_Config();
+  GPIO_Init();
+  UART_Init();
+  PWM_Init();
+  ADC_Init();
+  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
+  ADC_InjectedStart();
+}
+

@@ -40,7 +40,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_it.h"
 #include "stm32f3xx_hal.h"
-
+#include "dbg.h"
+#include "FreeRTOS.h"
+#include "task.h"
 /** @addtogroup STM32F3xx_HAL_Examples
   * @{
   */
@@ -56,7 +58,9 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
+extern void vPortSVCHandler(void);
+extern void xPortSysTickHandler(void);
+extern void xPortPendSVHandler(void);
 /******************************************************************************/
 /*            Cortex-M4 Processor Exceptions Handlers                         */
 /******************************************************************************/
@@ -78,6 +82,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* Go to infinite loop when Hard Fault exception occurs */
+  DBG_ERR("Fatal: HardFault_Handler called!");
   while (1)
   {
   }
@@ -129,6 +134,7 @@ void UsageFault_Handler(void)
   */
 void SVC_Handler(void)
 {
+    vPortSVCHandler();
 }
 
 /**
@@ -147,6 +153,7 @@ void DebugMon_Handler(void)
   */
 void PendSV_Handler(void)
 {
+    xPortPendSVHandler();
 }
 
 /**
@@ -157,6 +164,9 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
+  if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xPortSysTickHandler();
+  }
 }
 
 /******************************************************************************/

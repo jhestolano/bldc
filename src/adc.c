@@ -7,8 +7,8 @@
 
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
-static void ADC_ErrorHandler(void) {
-  DBG_ERR("Error occurred while initializing ADC module.\n\r");
+static void ADC_ErrorHandler(char* errmsg) {
+  DBG_ERR("ADC: %s\n\r", errmsg);
   while(1);
   return;
 }
@@ -52,31 +52,26 @@ void ADC_Init(void) {
 
   HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(ADC1_IRQn);
-
   if (HAL_ADC_Init(&gs_adc_handle) != HAL_OK)
   {
-    DBG_ERR("Error initializing ADC module.\n\r");
-    ADC_ErrorHandler();
+    ADC_ErrorHandler("Error initializing ADC module.");
   }
   //  HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf);
   HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
 
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pot_inj_conf) != HAL_OK)
   {
-    DBG_ERR("Error initializing POT Channel.\n\r");
-    ADC_ErrorHandler();
+    ADC_ErrorHandler("Error initializing POT Channel.");
   }
 
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_temp_sens_inj_conf) != HAL_OK)
   {
-    DBG_ERR("Error initializing TEMP Channel.\n\r");
-    ADC_ErrorHandler();
+    ADC_ErrorHandler("Error initializing TEMP Channel.");
   }
 
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_vbus_inj_conf) != HAL_OK)
   {
-    DBG_ERR("Error initializing VBUS Channel.\n\r");
-    ADC_ErrorHandler();
+    ADC_ErrorHandler("Error initializing VBUS Channel.");
   }
 
   DBG_DEBUG("Done.\n\r");
@@ -103,7 +98,7 @@ uint32_t ADC_Read(void) {
 }
 
 void ADC1_IRQHandler(void) {
-  GPIO_LedToggle();
+//  GPIO_LedToggle();
   HAL_ADC_IRQHandler(&gs_adc_handle);
 }
 

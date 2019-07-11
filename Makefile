@@ -2,6 +2,7 @@ PROJ_NAME=bldc
 
 STM_DIR=../../STM32Cube_FW_F3_V1.10.0
 STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
+RTOS_DIR=../../FreeRTOSv10.2.1
 
 SRCS=src/main.c
 SRCS+=src/stm32f3xx_it.c
@@ -26,9 +27,22 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_tim_ex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
+# This is the location of port.c file.
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/MemMang/heap_2.c
+
+# This is where the actual implementation of FreeRTOS is.
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/tasks.c
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/timers.c
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/queue.c
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/list.c
+
+
 INC_DIRS=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Include
 INC_DIRS+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Inc
 INC_DIRS+=$(STM_DIR)/Drivers/CMSIS/Include
+INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/include
+INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F
 INC_DIRS+=./system/inc
 INC_DIRS+=./inc
 INC_DIRS+=.
