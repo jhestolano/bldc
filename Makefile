@@ -3,6 +3,7 @@ PROJ_NAME=bldc
 STM_DIR=../../STM32Cube_FW_F3_V1.10.0
 STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
 RTOS_DIR=../../FreeRTOSv10.2.1
+LIBS_DIR=../../libs
 
 SRCS=src/main.c
 SRCS+=src/stm32f3xx_it.c
@@ -10,7 +11,7 @@ SRCS+=src/adc.c
 SRCS+=src/gpio.c
 SRCS+=src/pwm.c
 SRCS+=src/uart.c
-SRCS+=src/printf.c
+SRCS+=src/apptask.c
 SRCS+=system/src/system_stm32f3xx.c
 SRCS+=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f302x8.s
 SRCS+=$(STM_SRC)/stm32f3xx_hal_gpio.c
@@ -26,6 +27,9 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_tim.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_tim_ex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
+
+# This is the location for printf.c file implementation from Embdedded Artistry.
+SRCS+=$(LIBS_DIR)/printf/printf.c
 
 # This is the location of port.c file.
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
@@ -43,6 +47,7 @@ INC_DIRS+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Inc
 INC_DIRS+=$(STM_DIR)/Drivers/CMSIS/Include
 INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/include
 INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F
+INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./inc
 INC_DIRS+=.
