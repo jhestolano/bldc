@@ -7,6 +7,9 @@
 #include "stm32f3xx_hal_rcc.h"
 #include <string.h>
 
+/* UART xmit delay in milliseconds. */
+#define UART_TX_DELAY (1)
+
 UART_HandleTypeDef gs_uart_init_conf = UART_INIT_CONF;
 
 void UART_ErrorHandler(void) {
@@ -40,7 +43,7 @@ void UART_Init(void) {
 
 void UART_Putc(uint8_t ch) {
   char buff = ch;
-  HAL_UART_Transmit(&gs_uart_init_conf, &buff, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&gs_uart_init_conf, &buff, 1, UART_TX_DELAY);
   return;
 }
 
@@ -49,6 +52,6 @@ void _putchar(char ch) {
 }
 
 void UART_Puts(const char* str) {
-  HAL_UART_Transmit(&gs_uart_init_conf, str, strlen(str), HAL_MAX_DELAY);
+  HAL_UART_Transmit(&gs_uart_init_conf, str, strlen(str), UART_TX_DELAY);
 }
 
