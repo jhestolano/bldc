@@ -10,27 +10,18 @@
 #include "uart.h"
 #include "printf.h"
 #include "dbg.h"
+#include "apptask.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 static void HwInit(void);
 void vAssertCalled( const char *pcFile, int32_t ulLine );
 
-void tskFlashing(void* parms) {
-  TickType_t last_wake_time;
-  const TickType_t task_frq = 1000;
-  last_wake_time = xTaskGetTickCount();
-  for(;;) {
-    vTaskDelayUntil(&last_wake_time, task_frq);
-    GPIO_LedToggle();
-  }
-}
-
 int main(void)
 {
   HwInit();
-  TaskHandle_t hTskFlashing;
-  if(xTaskCreate(tskFlashing, (signed portCHAR*)"LED Task", 50, NULL, tskIDLE_PRIORITY + 1, &hTskFlashing) == pdPASS) {
+  TaskHandle_t h_task_flash;
+  if(xTaskCreate(AppTask_Flash, (signed portCHAR*)"LED Task", APP_TASK_FLASH_STACK_SIZE, NULL, APP_TASK_FLASH_PRIO, &h_task_flash) == pdPASS) {
     DBG_DEBUG("Task created succesfully!\n\r");
   }
   vTaskStartScheduler();
@@ -113,6 +104,5 @@ void HwInit(void) {
   PWM_Init();
   ADC_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
-  ADC_InjectedStart();
 }
 
