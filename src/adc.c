@@ -1,3 +1,6 @@
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "adc.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc.h"
@@ -5,7 +8,15 @@
 #include "gpio.h"
 #include "dbg.h"
 
+#define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
+
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
+
+static DMA_HandleTypeDef gs_dma_handle = DMA_INIT_CONFIG;
+
+static uint32_t gs_adc_ch_buf[ADC_CHANNEL_MAX_E];
+
+static void adc_dma_init(void);
 
 static void ADC_ErrorHandler(char* errmsg) {
   DBG_ERR("ADC: %s\n\r", errmsg);
@@ -40,18 +51,21 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
   return;
 }
 
-
 void ADC_Init(void) {
 
-  // ADC_ChannelConfTypeDef s_pot_conf = POT_ADC_CONF;
+  ADC_ChannelConfTypeDef s_pot_conf = POT_ADC_CONF;
+  ADC_ChannelConfTypeDef s_temp_sense_conf = TEMP_SENS_ADC_CONF;
+  ADC_ChannelConfTypeDef s_vbus_conf = VBUS_ADC_CONF;
+
   ADC_InjectionConfTypeDef s_pot_inj_conf = POT_ADC_INJ_CONF;
   ADC_InjectionConfTypeDef s_temp_sens_inj_conf = TEMP_SENS_ADC_INJ_CONF;
   ADC_InjectionConfTypeDef s_vbus_inj_conf = VBUS_ADC_INJ_CONF;
 
   DBG_DEBUG("Initializing ADC module... \n\r");
 
-  HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(ADC1_IRQn, ADC_ISR_PRIO, ADC_ISR_SUBPRIO);
   HAL_NVIC_EnableIRQ(ADC1_IRQn);
+
   if (HAL_ADC_Init(&gs_adc_handle) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing ADC module.");
@@ -59,6 +73,7 @@ void ADC_Init(void) {
   //  HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf);
   HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
 
+  /*
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pot_inj_conf) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing POT Channel.");
@@ -73,13 +88,32 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler("Error initializing VBUS Channel.");
   }
+  */
+
+  if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf) != HAL_OK) {
+    DBG_ERR("Error initializing Regular POT Channel.");
+  }
+  if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_vbus_conf) != HAL_OK) {
+    DBG_ERR("Error initializing Regular VBUS Channel.");
+  }
+
+  if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_temp_sense_conf) != HAL_OK) {
+    DBG_ERR("Error initializing Regular TEMP Channel.");
+  }
+
+  adc_dma_init();
+
+  // ADC_InjectedStart();
+  ADC_Start();
 
   DBG_DEBUG("Done.\n\r");
   return;
 }
 
 void ADC_Start(void) {
-  HAL_ADC_Start_IT(&gs_adc_handle);
+  HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf, ADC_REG_CH_MAX);
+  //HAL_ADC_Start(&gs_adc_handle);
+  //HAL_ADC_Start_IT(&gs_adc_handle);
   return;
 }
 
@@ -98,22 +132,54 @@ uint32_t ADC_Read(void) {
 }
 
 void ADC1_IRQHandler(void) {
-//  GPIO_LedToggle();
   HAL_ADC_IRQHandler(&gs_adc_handle);
 }
 
+void DMA1_Channel1_IRQHandler(void) {
+  HAL_DMA_IRQHandler(&gs_dma_handle);
+}
+
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  uint8_t idx;
-  uint16_t adc_a[3] = {0};
-  for(idx = 0; idx < 3; idx++) {
-     adc_a[idx] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, (uint32_t)ADC_INJECTED_RANK_1 + idx);
-     DBG_DEBUG("ADC_INJ[%u]: %u\n\r", idx, adc_a[idx]);
-  }
+  gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
+  gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
+  gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
   return;
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  uint32_t adcval = ADC_Read();
-  DBG_DEBUG("ADC_REG: %u\n\r", adcval);
+  DBG_DEBUG("--------------\n\r");
+  size_t idx;
+  for(idx = 0; idx < ADC_REG_CH_MAX; idx++) {
+    DBG_DEBUG("ADC[%u]: %u\n\r", idx, gs_adc_ch_buf[idx]);
+  }
+  //uint32_t adcval = ADC_Read();
   return;
+}
+
+uint32_t ADC_GetData(ADC_Channel_E adc_ch_e) {
+  uint32_t adc_data = 0;
+  if(adc_ch_e  > ADC_CHANNEL_MAX_E) {
+    return 0xffffffff;
+  }
+  HAL_NVIC_DisableIRQ(ADC1_IRQn);
+  adc_data = gs_adc_ch_buf[adc_ch_e];
+  HAL_NVIC_EnableIRQ(ADC1_IRQn);
+  return adc_data;
+}
+
+static void adc_dma_init(void) {
+  DBG_DEBUG("Initializing ADC DMA...\n\r");
+
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  if(HAL_DMA_Init(&gs_dma_handle) != HAL_OK) {
+    DBG_ERR("Error initializing ADC DMA.");
+  }
+
+  __HAL_LINKDMA(&gs_adc_handle, DMA_Handle, gs_dma_handle);
+
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, ADC_DMA_ISR_PRIO, ADC_DMA_ISR_SUBPRIO);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+  DBG_DEBUG("Done.\n\r");
 }
