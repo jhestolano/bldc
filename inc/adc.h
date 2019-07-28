@@ -20,6 +20,7 @@ typedef enum {
 #define ADC_REG_CH_MAX (3)
 
 extern ADC_HandleTypeDef gs_adc_handle;
+uint32_t gs_adc_ch_buf[ADC_CHANNEL_MAX_E];
 
 /******************************************************************************
  * GENERAL MACRO DEFINITIONS.
@@ -94,27 +95,6 @@ extern ADC_HandleTypeDef gs_adc_handle;
 ********************************************************************************
 * Type: ADC_HandleTypeDef
 *******************************************************************************/
-/*
-#define ADC_INIT_CONF {                                                        \
-  .Instance = ADC1,                                                            \
-  .Init = {                                                                    \
-    .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1,                                \
-    .Resolution = ADC_RESOLUTION_12B,                                          \
-    .ScanConvMode = ADC_SCAN_ENABLE,                                           \
-    .ContinuousConvMode = DISABLE,                                             \
-    .DiscontinuousConvMode = DISABLE,                                          \
-    .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
-    .ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO2,                         \
-    .DataAlign = ADC_DATAALIGN_RIGHT,                                          \
-    .NbrOfConversion = 1,                                                      \
-    .DMAContinuousRequests = DISABLE,                                          \
-    .EOCSelection = ADC_EOC_SINGLE_CONV,                                       \
-    .LowPowerAutoWait = DISABLE,                                               \
-    .Overrun = ADC_OVR_DATA_PRESERVED,                                         \
-  },                                                                           \
-}
-*/
-
 #define ADC_INIT_CONF {                                                        \
   .Instance = ADC1,                                                            \
   .Init = {                                                                    \
@@ -132,6 +112,20 @@ extern ADC_HandleTypeDef gs_adc_handle;
     .LowPowerAutoWait = DISABLE,                                               \
     .Overrun = ADC_OVR_DATA_PRESERVED,                                         \
   },                                                                           \
+}
+/*******************************************************************************
+ * DMA CONFIGURATION FOR REGULAR CONVERSIONS.
+********************************************************************************
+* Type: DMA_HandleTypeDef 
+*******************************************************************************/
+#define DMA_INIT_CONFIG {                                                      \
+  .Instance = DMA1_Channel1,                                                   \
+  .Init.Direction = DMA_PERIPH_TO_MEMORY,                                      \
+  .Init.MemInc = DMA_MINC_ENABLE,                                              \
+  .Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD,                             \
+  .Init.MemDataAlignment = DMA_MDATAALIGN_WORD,                                \
+  .Init.Mode = DMA_CIRCULAR,                                                   \
+  .Init.Priority = DMA_PRIORITY_MEDIUM,                                        \
 }
 /*******************************************************************************
 * ADC INJECTED CHANNEL GROUP CONFIGURATION.
@@ -163,8 +157,8 @@ extern ADC_HandleTypeDef gs_adc_handle;
 ********************************************************************************
 * Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
-#define POT_ADC_INJ_CONF {                                                     \
-  .InjectedChannel = POT_ADC_CHANNEL,                                          \
+#define PHA_IFBK_ADC_INJ_CONF {                                                \
+  .InjectedChannel = PHA_IFBK_ADC_CHANNEL,                                     \
   .InjectedRank = ADC_INJECTED_RANK_1,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
   .InjectedOffset = 0,                                                         \
@@ -178,8 +172,8 @@ extern ADC_HandleTypeDef gs_adc_handle;
 ********************************************************************************
 * Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
-#define TEMP_SENS_ADC_INJ_CONF {                                               \
-  .InjectedChannel = TEMP_SENS_ADC_CHANNEL,                                    \
+#define PHB_IFBK_ADC_INJ_CONF {                                                \
+  .InjectedChannel = PHB_IFBK_ADC_CHANNEL,                                     \
   .InjectedRank = ADC_INJECTED_RANK_2,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
   .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
@@ -206,8 +200,8 @@ extern ADC_HandleTypeDef gs_adc_handle;
 ********************************************************************************
 * Type: ADC_InjectionConfTypeDef
 *******************************************************************************/
-#define VBUS_ADC_INJ_CONF {                                                    \
-  .InjectedChannel = VBUS_ADC_CHANNEL,                                         \
+#define PHC_IFBK_ADC_INJ_CONF {                                                \
+  .InjectedChannel = PHC_IFBK_ADC_CHANNEL,                                     \
   .InjectedRank = ADC_INJECTED_RANK_3,                                         \
   .InjectedSingleDiff = ADC_SINGLE_ENDED,                                      \
   .InjectedSamplingTime = ADC_SAMPLETIME_19CYCLES_5,                           \
@@ -221,27 +215,12 @@ extern ADC_HandleTypeDef gs_adc_handle;
 * Type: ADC_ChannelConfTypeDef
 *******************************************************************************/
 #define VBUS_ADC_CONF {                                                        \
-  .Channel = VBUS_ADC_CHANNEL,                                                  \
+  .Channel = VBUS_ADC_CHANNEL,                                                 \
   .Rank = ADC_REGULAR_RANK_3,                                                  \
   .SingleDiff = ADC_SINGLE_ENDED,                                              \
   .Offset = 0,                                                                 \
   .OffsetNumber = ADC_OFFSET_NONE,                                             \
   .SamplingTime = ADC_SAMPLETIME_19CYCLES_5,                                   \
-}
-
-/*******************************************************************************
- * DMA CONFIGURATION FOR REGULAR CONVERSIONS.
-********************************************************************************
-* Type: DMA_HandleTypeDef 
-*******************************************************************************/
-#define DMA_INIT_CONFIG {                                                      \
-  .Instance = DMA1_Channel1,                                                   \
-  .Init.Direction = DMA_PERIPH_TO_MEMORY,                                      \
-  .Init.MemInc = DMA_MINC_ENABLE,                                              \
-  .Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD,                             \
-  .Init.MemDataAlignment = DMA_MDATAALIGN_WORD,                                \
-  .Init.Mode = DMA_CIRCULAR,                                                   \
-  .Init.Priority = DMA_PRIORITY_MEDIUM,                                        \
 }
 
 /*******************************************************************************
