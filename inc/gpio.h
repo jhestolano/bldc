@@ -19,6 +19,9 @@
 #define BKIN_PIN (GPIO_PIN_6)
 #define BKIN_PORT (GPIO_PIN_A)
 
+#define BKIN2_PIN (GPIO_PIN_11)
+#define BKIN2_PORT (GPIOA)
+
 #define USR_LED_PIN (GPIO_PIN_5)
 #define USR_LED_PORT (GPIOA)
 
@@ -33,7 +36,6 @@
   .Mode = GPIO_MODE_IT_FALLING,                                                \
   .Pull = GPIO_NOPULL,                                                         \
 }                     
-
 /*******************************************************************************
  * GPIO USER BUTTON CONFIGURATION.
 *******************************************************************************/
@@ -42,6 +44,24 @@
   .Mode = GPIO_MODE_OUTPUT_PP,                                                 \
   .Pull = GPIO_NOPULL,                                                         \
   .Speed = GPIO_SPEED_FREQ_LOW,                                                \
+}
+/*******************************************************************************
+ * GPIO PWM ENABLE CONFIGURATION.
+*******************************************************************************/
+#define GPIOA_PWM_ENABLE_CONF {                                                \
+  .Pin = UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN,            \
+  .Mode = GPIO_MODE_OUTPUT_PP,                                                 \
+  .Pull = GPIO_PULLDOWN,                                                       \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
+}
+/*******************************************************************************
+ * GPIO BKIN2 CONFIGURATION.
+*******************************************************************************/
+#define GPIOA_BKIN2_CONF {                                                     \
+  .Pin = BKIN2_PIN,                                                            \
+  .Mode = GPIO_MODE_OUTPUT_PP,                                                 \
+  .Pull = GPIO_PULLDOWN,                                                       \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
 }
 
 /*******************************************************************************
