@@ -7,11 +7,6 @@
 #include "stm32f3xx_ll_tim.h"
 #include "dbg.h"
 
-
-#define PWM_TMR_CLOCK_HZ ((uint32_t)72000000)
-#define PWM_TMR_FREQ_HZ ((uint32_t)3000)
-#define PWM_TMR_PERIOD (PWM_TMR_CLOCK_HZ / PWM_TMR_FREQ_HZ)
-
 TIM_HandleTypeDef gs_pwm_conf = PWM_INIT_CONF;
 
 void Pwm_ErroHandler(char* errmsg) {
@@ -35,7 +30,6 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* s_pwm_conf) {
 
 void PWM_Init(void) {
 
-  //TIM_HandleTypeDef gs_pwm_conf = PWM_INIT_CONF;
   TIM_BreakDeadTimeConfigTypeDef s_pwm_dt_conf = PWM_DEADTIME_CONF;
   TIM_OC_InitTypeDef s_pwm_oc_conf = PWM_OC_CONF;
   TIM_MasterConfigTypeDef s_master_out_conf = PWM_MASTER_OUT_CONF;
@@ -55,15 +49,25 @@ void PWM_Init(void) {
     Pwm_ErroHandler("Error in MasterConfigSynchronization configuration.");
   }
 
-  HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, UH_PWM_CHANNEL);
-  HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, VH_PWM_CHANNEL);
-  HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, WH_PWM_CHANNEL);
+  if(HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, UH_PWM_CHANNEL) != HAL_OK) {
+    DBG_ERR("Error initializing U-PHASE PWM Channel.");
+  }
+
+  s_pwm_oc_conf.Pulse = 0;
+
+  if(HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, VH_PWM_CHANNEL) != HAL_OK) {
+    DBG_ERR("Error initializing V-PHASE PWM Channel.");
+  }
+  if(HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, WH_PWM_CHANNEL) != HAL_OK) {
+    DBG_ERR("Error initializing W-PHASE PWM Channel.");
+  }
 
   HAL_TIM_PWM_Start(&gs_pwm_conf, UH_PWM_CHANNEL);
   HAL_TIM_PWM_Start(&gs_pwm_conf, VH_PWM_CHANNEL);
   HAL_TIM_PWM_Start(&gs_pwm_conf, WH_PWM_CHANNEL);
 
   DBG_DEBUG("Done.\n\r");
+
   return;
 }
 

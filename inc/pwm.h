@@ -28,10 +28,14 @@ PSC: Prescaler.
 TIM_CLK: Timer clock frequency (Hertz).
 PRD: Waveform period (Seconds).
 *******************************************************************************/
-//#define PWM_TMR_CLOCK_HZ ((uint32_t)72000000)
-//#define PWM_TMR_FREQ_HZ ((uint16_t)2)
-//#define PWM_TMR_PSC ((uint16_t)10000)
-//#define PWM_TMR_PERIOD (PWM_TMR_CLOCK_HZ / PWM_TMR_PSC / PWM_TMR_FREQ_HZ)
+#define PWM_TMR_CLOCK_HZ (72000000)
+#define PWM_TMR_FRQ_HZ (3000)
+#define PWM_TMR_PSC (0)
+#define PWM_TMR_ARR (((PWM_TMR_CLOCK_HZ / PWM_TMR_FRQ_HZ) / (PWM_TMR_PSC + 1)) - 1)
+
+#if (PWM_TMR_ARR > 65535) || (PWM_TMR_ARR < 1)
+#error("Invalid PWM config: ARR register out of bounds.")
+#endif
 
 /*******************************************************************************
 * PWM GPIO INITIAL CONFIGURATION.
@@ -59,9 +63,9 @@ PRD: Waveform period (Seconds).
 #define PWM_INIT_CONF {                                                        \
   .Instance = TIM1,                                                            \
   .Init = {                                                                    \
-    .Prescaler = 10000,                                                        \
+    .Prescaler = (PWM_TMR_PSC + 1),                                            \
     .CounterMode = TIM_COUNTERMODE_UP,                                         \
-    .Period = 3600,                                                            \
+    .Period = PWM_TMR_ARR,                                                     \
     .RepetitionCounter = 0,                                                    \
     .ClockDivision = TIM_CLOCKDIVISION_DIV2,                                   \
     .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE,                       \
@@ -83,7 +87,7 @@ PRD: Waveform period (Seconds).
 *******************************************************************************/
 #define PWM_OC_CONF {                                                          \
   .OCMode = TIM_OCMODE_PWM1,                                                   \
-  .Pulse = 0,                                                                  \
+  .Pulse = (0.9 * PWM_TMR_ARR),                                                \
   .OCPolarity = TIM_OCPOLARITY_HIGH,                                           \
   .OCNPolarity = TIM_OCNPOLARITY_HIGH,                                         \
   .OCFastMode = TIM_OCFAST_DISABLE,                                            \
