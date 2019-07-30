@@ -28,6 +28,9 @@
 #define USR_BUTTON_PIN (GPIO_PIN_13)
 #define USR_BUTTON_PORT (GPIOC)
 
+#define DIAG_PIN (GPIO_PIN_6)
+#define DIAG_PORT (GPIOA)
+
 /*******************************************************************************
  * GPIO USER BUTTON CONFIGURATION.
 *******************************************************************************/
@@ -62,6 +65,14 @@
   .Mode = GPIO_MODE_OUTPUT_PP,                                                 \
   .Pull = GPIO_PULLDOWN,                                                       \
   .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
+}
+/*******************************************************************************
+ * GPIO DIAG CONFIGURATION.
+*******************************************************************************/
+#define GPIOA_DIAG_CONF {                                                      \
+  .Pin = DIAG_PIN,                                                             \
+  .Mode = GPIO_MODE_INPUT,                                                     \
+  .Pull = GPIO_NOPULL,                                                         \
 }
 
 /*******************************************************************************
