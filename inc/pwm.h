@@ -2,6 +2,22 @@
 #define PWM_H
 
 #include "stm32f3xx_hal_gpio.h"
+#include "stm32f3xx_hal_dma.h"
+#include "stm32f3xx_hal_tim.h"
+#include "stm32f3xx_hal_tim_ex.h"
+#include "stm32f3xx_hal_rcc_ex.h"
+#include "stm32f3xx_hal_rcc.h"
+#include "stm32f3xx_ll_tim.h"
+
+extern TIM_HandleTypeDef gs_pwm_conf;
+
+/*******************************************************************************
+* PWM API MACRO DEFINITIONS.
+*******************************************************************************/
+#define PWM_PH_A   (0)
+#define PWM_PH_B   (1)
+#define PWM_PH_C   (2)
+#define PWM_PH_MAX (3)
 
 /*******************************************************************************
 * PWM MACRO DEFINITIONS.
@@ -63,7 +79,7 @@ PRD: Waveform period (Seconds).
 #define PWM_INIT_CONF {                                                        \
   .Instance = TIM1,                                                            \
   .Init = {                                                                    \
-    .Prescaler = (PWM_TMR_PSC + 1),                                            \
+    .Prescaler = PWM_TMR_PSC,                                                  \
     .CounterMode = TIM_COUNTERMODE_UP,                                         \
     .Period = PWM_TMR_ARR,                                                     \
     .RepetitionCounter = 0,                                                    \

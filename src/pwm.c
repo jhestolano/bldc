@@ -7,7 +7,14 @@
 #include "stm32f3xx_ll_tim.h"
 #include "dbg.h"
 
+
 TIM_HandleTypeDef gs_pwm_conf = PWM_INIT_CONF;
+
+const uint16_t PwmChMap[] = {
+  TIM_CHANNEL_1,
+  TIM_CHANNEL_2,
+  TIM_CHANNEL_3,
+};
 
 void Pwm_ErroHandler(char* errmsg) {
   DBG_ERR("PWM: %s\n\r", errmsg);
@@ -16,7 +23,9 @@ void Pwm_ErroHandler(char* errmsg) {
 
 void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* s_pwm_conf) {
   UNUSED(s_pwm_conf);
+
   GPIO_InitTypeDef s_pwm_gpio_conf = PWM_GPIO_CONF;
+
   if(!__HAL_RCC_TIM1_IS_CLK_ENABLED()){
       __HAL_RCC_TIM1_CLK_ENABLE();
   }
@@ -53,8 +62,6 @@ void PWM_Init(void) {
     DBG_ERR("Error initializing U-PHASE PWM Channel.");
   }
 
-  s_pwm_oc_conf.Pulse = 0;
-
   if(HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, VH_PWM_CHANNEL) != HAL_OK) {
     DBG_ERR("Error initializing V-PHASE PWM Channel.");
   }
@@ -71,7 +78,18 @@ void PWM_Init(void) {
   return;
 }
 
+static uint16_t dctocnts(float dcycle) {
+  dcycle = (dcycle > 100) ? 100 : dcycle;
+  dcycle = (dcycle < 0) ? 0 : dcycle; 
+  return (dcycle / 100.) * (PWM_TMR_ARR);
+}
 
-void PWM_SetDC(uint32_t channel, uint32_t dc) {
-//  __HAL_TIM_SET_COMPARE()
+void PWM_SetDC(uint32_t channel, float dcycle) {
+  uint16_t pwmcnt = 0;
+  if(channel >= (PWM_PH_MAX)) {
+    return;
+  } 
+  pwmcnt = dctocnts(dcycle);
+  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, channel, pwmcnt);
+  return;
 }
