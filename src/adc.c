@@ -14,6 +14,8 @@ ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
 static DMA_HandleTypeDef gs_dma_handle = DMA_INIT_CONFIG;
 
+uint32_t gs_adc_ch_buf[ADC_CH_MAX_E];
+
 static void adc_dma_init(void);
 
 static void ADC_ErrorHandler(char* errmsg) {
@@ -68,7 +70,7 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler("Error initializing ADC module.");
   }
-  //  HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf);
+  
   HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
 
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK)
@@ -85,7 +87,7 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler("Error initializing PHC Channel.");
   }
-/*
+
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular POT Channel.");
   }
@@ -96,8 +98,8 @@ void ADC_Init(void) {
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_temp_sense_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular TEMP Channel.");
   }
-*/
-  //adc_dma_init();
+
+  adc_dma_init();
 
   ADC_Start();
 
@@ -106,10 +108,8 @@ void ADC_Init(void) {
 }
 
 void ADC_Start(void) {
-  //HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf[ADC_INJ_CH_MAX], ADC_REG_CH_MAX);
-  //HAL_ADC_Start(&gs_adc_handle);
-  //HAL_ADC_Start_IT(&gs_adc_handle);
-  ADC_InjectedStart();
+  HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf[ADC_INJ_CH_MAX], ADC_REG_CH_MAX);
+  HAL_ADCEx_InjectedStart_IT(&gs_adc_handle);
   return;
 }
 
@@ -136,7 +136,6 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  DBG_DEBUG("!\n\r");
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
@@ -144,13 +143,13 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-//  DBG_DEBUG("HAL_ADC_ConvCpltCallback\n\r");
+  DBG_DEBUG("HAL_ADC_ConvCpltCallback\n\r");
   return;
 }
 
-uint32_t ADC_GetData(ADC_Channel_E adc_ch_e) {
+uint32_t ADC_ReadCh(ADC_Channel_E adc_ch_e) {
   uint32_t adc_data = 0;
-  if(adc_ch_e  > ADC_CHANNEL_MAX_E) {
+  if(adc_ch_e  > ADC_CH_MAX_E) {
     return 0xffffffff;
   }
   HAL_NVIC_DisableIRQ(ADC1_IRQn);

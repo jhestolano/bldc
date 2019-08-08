@@ -9,18 +9,15 @@ typedef enum {
   ADC_PHA_IFBK_CH_E = 0,
   ADC_PHB_IFBK_CH_E,
   ADC_PHC_IFBK_CH_E,
-  ADC_VBUS_CH_E,
   ADC_POT_CH_E,
   ADC_TEMP_SENS_CH_E,
-  ADC_CHANNEL_MAX_E,
+  ADC_VBUS_CH_E,
+  ADC_CH_MAX_E,
   ADC_UNKNOWN_CH_E = 255,
 } ADC_Channel_E;
 
 #define ADC_INJ_CH_MAX (3)
 #define ADC_REG_CH_MAX (3)
-
-extern ADC_HandleTypeDef gs_adc_handle;
-uint32_t gs_adc_ch_buf[ADC_CHANNEL_MAX_E];
 
 /******************************************************************************
  * GENERAL MACRO DEFINITIONS.
@@ -226,8 +223,6 @@ uint32_t gs_adc_ch_buf[ADC_CHANNEL_MAX_E];
 /*******************************************************************************
 *******************************************************************************/
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle);
-
 void ADC_Init(void);
 
 void ADC_Start(void);
@@ -238,6 +233,6 @@ void ADC_WaitConv(void);
 
 uint32_t ADC_Read(void);
 
-uint32_t ADC_GetData(ADC_Channel_E adc_ch_e);
+uint32_t ADC_ReadCh(ADC_Channel_E adc_ch_e);
 
 #endif
