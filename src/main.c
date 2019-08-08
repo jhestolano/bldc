@@ -104,5 +104,12 @@ void HwInit(void) {
   PWM_Init();
   ADC_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
+
+  if(HAL_GPIO_ReadPin(DIAG_PORT, DIAG_PIN)) {
+    DBG_DEBUG("Diag pin enabled.\n\r"); 
+  } else {
+    DBG_ERR("Diag pin disabled!!!\n\r");
+  }
+
 }
 
