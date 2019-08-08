@@ -7,8 +7,7 @@
 #include "stm32f3xx_ll_tim.h"
 #include "dbg.h"
 
-
-TIM_HandleTypeDef gs_pwm_conf = PWM_INIT_CONF;
+static TIM_HandleTypeDef gs_pwm_conf = PWM_INIT_CONF;
 
 const uint16_t PwmChMap[] = {
   TIM_CHANNEL_1,

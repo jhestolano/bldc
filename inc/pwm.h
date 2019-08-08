@@ -9,14 +9,12 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_ll_tim.h"
 
-extern TIM_HandleTypeDef gs_pwm_conf;
-
 /*******************************************************************************
 * PWM API MACRO DEFINITIONS.
 *******************************************************************************/
-#define PWM_PH_A   (0)
-#define PWM_PH_B   (1)
-#define PWM_PH_C   (2)
+#define PWM_PH_U   (0)
+#define PWM_PH_V   (1)
+#define PWM_PH_W   (2)
 #define PWM_PH_MAX (3)
 
 /*******************************************************************************
@@ -45,7 +43,7 @@ TIM_CLK: Timer clock frequency (Hertz).
 PRD: Waveform period (Seconds).
 *******************************************************************************/
 #define PWM_TMR_CLOCK_HZ (72000000)
-#define PWM_TMR_FRQ_HZ (3000)
+#define PWM_TMR_FRQ_HZ (30000)
 #define PWM_TMR_PSC (0)
 #define PWM_TMR_ARR (((PWM_TMR_CLOCK_HZ / PWM_TMR_FRQ_HZ) / (PWM_TMR_PSC + 1)) - 1)
 
@@ -103,7 +101,7 @@ PRD: Waveform period (Seconds).
 *******************************************************************************/
 #define PWM_OC_CONF {                                                          \
   .OCMode = TIM_OCMODE_PWM1,                                                   \
-  .Pulse = (0.9 * PWM_TMR_ARR),                                                \
+  .Pulse = 0,                                                                  \
   .OCPolarity = TIM_OCPOLARITY_HIGH,                                           \
   .OCNPolarity = TIM_OCNPOLARITY_HIGH,                                         \
   .OCFastMode = TIM_OCFAST_DISABLE,                                            \
@@ -167,5 +165,7 @@ PRD: Waveform period (Seconds).
 *******************************************************************************/
 
 void PWM_Init(void);
+
+void PWM_SetDC(uint32_t channel, float dcycle);
 
 #endif
