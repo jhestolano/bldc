@@ -1,6 +1,12 @@
 *.elf
+.tmuxrc
 *.hex
 *.bin
 *.sublime-project
 *.sublime-workspace
 *.swp
+*.swo
+AppTest
+*.map
+*.txt
+tags
