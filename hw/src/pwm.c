@@ -77,20 +77,20 @@ void PWM_Init(void) {
   return;
 }
 
-uint16_t dctocnts(uint32_t dcycle) {
-  dcycle = (dcycle > 10000) ? 10000 : dcycle;
-  return (uint16_t)((dcycle * ((uint32_t)PWM_TMR_ARR)) / ((uint32_t)PWM_MAX_DC));
-}
+//uint16_t dctocnts(uint32_t dcycle) {
+//  dcycle = (dcycle > 10000) ? 10000 : dcycle;
+//  return (uint16_t)((dcycle * ((uint32_t)PWM_TMR_ARR)) / ((uint32_t)PWM_MAX_DC));
+//}
 
-void PWM_SetDC(uint32_t pwmch, uint32_t pwmdc) {
-  uint16_t pwmcnts = 0;
-  if(pwmch >= PWM_PH_MAX) {
-    return;
-  }
-  pwmcnts = dctocnts(pwmdc);
-  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, pwmch, pwmcnts);
-  return;
-}
+//void PWM_SetDC(uint32_t pwmch, uint32_t pwmdc) {
+//  uint16_t pwmcnts = 0;
+//  if(pwmch >= PWM_PH_MAX) {
+//    return;
+//  }
+//  pwmcnts = dctocnts(pwmdc);
+//  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, pwmch, pwmcnts);
+//  return;
+//}
 
 uint32_t PWM_GetDC(uint32_t pwmch) {
   uint32_t counts;
@@ -99,4 +99,12 @@ uint32_t PWM_GetDC(uint32_t pwmch) {
   }
   counts = (uint32_t)__HAL_TIM_GET_COMPARE(&gs_pwm_conf, pwmch); 
   return (uint32_t)(counts * (uint32_t)PWM_MAX_DC / ((uint32_t)PWM_TMR_ARR));
+}
+
+void PWM_SetComp(uint32_t pwmch, uint16_t pwmcnt) {
+  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, pwmch, pwmcnt);
+}
+
+uint16_t PWM_GetComp(uint32_t pwmch) {
+  return __HAL_TIM_GET_COMPARE(&gs_pwm_conf, pwmch);
 }

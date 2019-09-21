@@ -174,4 +174,8 @@ void PWM_SetDC(uint32_t pwmch, uint32_t pwmdc);
 
 uint32_t PWM_GetDC(uint32_t pwmch);
 
+void PWM_SetComp(uint32_t pwmch, uint16_t pwmcnt);
+
+uint16_t PWM_GetComp(uint32_t pwmch);
+
 #endif

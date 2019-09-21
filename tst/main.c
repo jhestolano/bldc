@@ -26,25 +26,6 @@ void setUp(void) {
 
 void tearDown(void) {}
 
-void test_MockADC_returns_ok(void) {
-  TEST_ASSERT_EQUAL_INT32(0, MockADC_SetBuffer(0, 0));
-}
-
-void test_MockADC_returns_error(void) {
-  TEST_ASSERT_EQUAL_INT32(-1, MockADC_SetBuffer(ADC_CH_MAX_E, 0));
-}
-
-void test_MockADC_returns_error_value_too_large(void) {
-  TEST_ASSERT_EQUAL_INT32(-1, MockADC_SetBuffer(0, 4096));
-}
-
-void test_MockADC_write_value(void) {
-  MockADC_SetBuffer(0, 4095);
-  MockADC_SetBuffer(ADC_CH_MAX_E - 1, 4095);
-  TEST_ASSERT_EQUAL_UINT32(gs_adc_ch_buf[0], 4095);
-  TEST_ASSERT_EQUAL_UINT32(gs_adc_ch_buf[ADC_CH_MAX_E - 1], 4095);
-}
-
 void test_ADC_read_value(void) {
   MockADC_SetBuffer(0, 10);
   MockADC_SetBuffer(ADC_CH_MAX_E - 1, 40);
@@ -117,23 +98,6 @@ void test_ADC_get_current_channels(void) {
   TEST_ASSERT_EQUAL_INT32(INT32_MAX , App_GetCurrent(IfbkPhMax_E));
 }
 
-void test_PWM_set_dc(void) {
-  PWM_SetDC(0, 10);
-  PWM_SetDC(1, 1000);
-  PWM_SetDC(2, 3000);
-  TEST_ASSERT_EQUAL_UINT16(2, gs_pwm_ch_buf[0]);
-  TEST_ASSERT_EQUAL_UINT16(239, gs_pwm_ch_buf[1]);
-//  TEST_ASSERT_EQUAL_UINT16(719, gs_pwm_ch_buf[2]);
-}
-
-void test_PWM_set_dc_out_of_range_channel(void) {
-  uint8_t idx;
-  PWM_SetDC(3, 100);
-  for(idx = 0; idx < 3; idx++) {
-    TEST_ASSERT_EQUAL_UINT16(0, gs_pwm_ch_buf[idx]);
-  }
-}
-
 void test_dctocnts_zero_duty_cycle(void) {
   TEST_ASSERT_EQUAL_UINT16(0, dctocnts(0));
 }
@@ -144,21 +108,6 @@ void test_dctocnts_max_duty_cycle(void) {
 
 void test_dctocnts_mid_range_duty_cycle(void) {
   TEST_ASSERT_EQUAL_UINT16(1175, dctocnts(4901));
-}
-
-void test_PWM_set_duty_cycle_zero(void) {
-  PWM_SetDC(0, 0);
-  TEST_ASSERT_EQUAL_UINT16(0, gs_pwm_ch_buf[0]);
-}
-
-void test_PWM_set_duty_cycle_max_value(void) {
-  PWM_SetDC(0, 10000);
-  TEST_ASSERT_EQUAL_UINT16(PWM_TMR_ARR, gs_pwm_ch_buf[0]);
-}
-
-void test_PWM_set_duty_cycle_out_of_range_value(void) {
-  PWM_SetDC(0, 10001);
-  TEST_ASSERT_EQUAL_UINT16(PWM_TMR_ARR, gs_pwm_ch_buf[0]);
 }
 
 void test_App_SetPwmDutyCycle_value(void) {
@@ -175,11 +124,8 @@ void test_App_SetPwmDutyCycle_out_of_range_channel(void) {
 }
 
 void test_App_SetPwmDutyCycle_out_of_range_value(void) {
-  uint8_t idx;
   App_SetPwmDutyCycle(PwmChA_E, 10001);
-  for(idx = 0; idx < 3; idx++) {
-    TEST_ASSERT_EQUAL_UINT16(0, gs_pwm_ch_buf[idx]);
-  }
+  TEST_ASSERT_EQUAL_UINT16(PWM_TMR_ARR, gs_pwm_ch_buf[0]);
 }
 
 void test_App_SetPwmVoltage_zero_value(void) {
@@ -220,25 +166,6 @@ void test_App_GetPwmDutyCycle_mid_range_value(void) {
   TEST_ASSERT_EQUAL_UINT32(5831, App_GetPwmDutyCycle(PwmChC_E));
 }
 
-void test_Pwm_GetDC_zero_value(void) {
-  gs_pwm_ch_buf[0] = 0;
-  TEST_ASSERT_EQUAL_UINT32(0, PWM_GetDC(0));
-}
-
-void test_PWM_GetDC_out_of_range_channel(void) {
-  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, PWM_GetDC(3));
-}
-
-void test_PWM_GetDC_max_counter(void) {
-  gs_pwm_ch_buf[0] = PWM_TMR_ARR;
-  TEST_ASSERT_EQUAL_UINT32(10000, PWM_GetDC(0));
-}
-
-void test_PWM_GetDC_mid_range_value(void) {
-  gs_pwm_ch_buf[0] = 1500;
-  TEST_ASSERT_EQUAL_UINT32(6252, PWM_GetDC(0));
-}
-
 void test_App_GetPwmVoltage_zero_value(void) {
   TEST_ASSERT_EQUAL_UINT32(0, App_GetPwmVoltage(PwmChA_E));
 }
@@ -254,10 +181,6 @@ void test_App_GetPwmVoltage_mid_range_value(void) {
 
 int main(void) {
   UNITY_BEGIN();
-  RUN_TEST(test_MockADC_returns_ok);
-  RUN_TEST(test_MockADC_returns_error);
-  RUN_TEST(test_MockADC_returns_error_value_too_large);
-  RUN_TEST(test_MockADC_write_value);
   RUN_TEST(test_ADC_read_value);
   RUN_TEST(test_ADC_read_value_out_of_range_channel);
   RUN_TEST(test_ADC_get_voltage_zero);
@@ -271,14 +194,9 @@ int main(void) {
   RUN_TEST(test_ADC_get_current_max);
   RUN_TEST(test_ADC_get_current_min);
   RUN_TEST(test_ADC_get_current_channels);
-  RUN_TEST(test_PWM_set_dc);
-  RUN_TEST(test_PWM_set_dc_out_of_range_channel);
   RUN_TEST(test_dctocnts_zero_duty_cycle);
   RUN_TEST(test_dctocnts_max_duty_cycle);
   RUN_TEST(test_dctocnts_mid_range_duty_cycle);
-  RUN_TEST(test_PWM_set_duty_cycle_zero);
-  RUN_TEST(test_PWM_set_duty_cycle_max_value);
-  RUN_TEST(test_PWM_set_duty_cycle_out_of_range_value);
   RUN_TEST(test_App_SetPwmDutyCycle_value);
   RUN_TEST(test_App_SetPwmDutyCycle_out_of_range_channel);
   RUN_TEST(test_App_SetPwmDutyCycle_out_of_range_value);
@@ -289,9 +207,6 @@ int main(void) {
   RUN_TEST(test_App_GetPwmDutyCycle_zero);
   RUN_TEST(test_App_GetPwmDutyCycle_out_of_range_channel);
   RUN_TEST(test_App_GetPwmDutyCycle_max_counter);
-  RUN_TEST(test_PWM_GetDC_out_of_range_channel);
-  RUN_TEST(test_PWM_GetDC_max_counter);
-  RUN_TEST(test_PWM_GetDC_mid_range_value);
   RUN_TEST(test_App_GetPwmDutyCycle_mid_range_value);
   RUN_TEST(test_App_GetPwmVoltage_zero_value);
   RUN_TEST(test_App_GetPwmVoltage_out_of_range_channel);

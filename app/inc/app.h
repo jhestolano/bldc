@@ -49,4 +49,6 @@ uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch);
 
 uint32_t App_GetPwmVoltage(PwmCh_E pwmch);
 
+uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch);
+
 #endif // __APP_H__
