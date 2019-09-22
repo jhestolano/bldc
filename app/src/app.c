@@ -24,11 +24,6 @@ static const uint16_t gsc_adc_ch_map[] = {
   ADC_UNKNOWN_CH_E,
 };
 
-uint16_t dctocnts(uint32_t dcycle) {
-  dcycle = (dcycle > 10000) ? 10000 : dcycle;
-  return (uint16_t)((dcycle * ((uint32_t)PWM_TMR_ARR)) / ((uint32_t)APP_PWM_MAX_DC));
-}
-
 uint32_t App_GetVoltage(VAdcCh_E vch) {
   uint32_t adccnts;
   if(vch >= VAdcChMax_E) {
@@ -53,7 +48,7 @@ void App_SetPwmDutyCycle(PwmCh_E pwmch, uint32_t pwmdc) {
     return;
   }
   pwmdc = (pwmdc > APP_PWM_MAX_DC) ? APP_PWM_MAX_DC : pwmdc;
-  pwmcnts = dctocnts(pwmdc);
+  pwmcnts = (uint16_t)((pwmdc * ((uint32_t)PWM_TMR_ARR)) / ((uint32_t)APP_PWM_MAX_DC));
   PWM_SetComp(pwmch, pwmcnts);
   return;
 }
