@@ -98,18 +98,6 @@ void test_ADC_get_current_channels(void) {
   TEST_ASSERT_EQUAL_INT32(INT32_MAX , App_GetCurrent(IfbkPhMax_E));
 }
 
-void test_dctocnts_zero_duty_cycle(void) {
-  TEST_ASSERT_EQUAL_UINT16(0, dctocnts(0));
-}
-
-void test_dctocnts_max_duty_cycle(void) {
-  TEST_ASSERT_EQUAL_UINT16(PWM_TMR_ARR, dctocnts(10000));
-}
-
-void test_dctocnts_mid_range_duty_cycle(void) {
-  TEST_ASSERT_EQUAL_UINT16(1175, dctocnts(4901));
-}
-
 void test_App_SetPwmDutyCycle_value(void) {
   App_SetPwmDutyCycle(0, 10);
   TEST_ASSERT_EQUAL_UINT16(2, gs_pwm_ch_buf[0]);
@@ -194,9 +182,6 @@ int main(void) {
   RUN_TEST(test_ADC_get_current_max);
   RUN_TEST(test_ADC_get_current_min);
   RUN_TEST(test_ADC_get_current_channels);
-  RUN_TEST(test_dctocnts_zero_duty_cycle);
-  RUN_TEST(test_dctocnts_max_duty_cycle);
-  RUN_TEST(test_dctocnts_mid_range_duty_cycle);
   RUN_TEST(test_App_SetPwmDutyCycle_value);
   RUN_TEST(test_App_SetPwmDutyCycle_out_of_range_channel);
   RUN_TEST(test_App_SetPwmDutyCycle_out_of_range_value);
