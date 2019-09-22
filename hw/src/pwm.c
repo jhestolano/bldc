@@ -77,21 +77,6 @@ void PWM_Init(void) {
   return;
 }
 
-//uint16_t dctocnts(uint32_t dcycle) {
-//  dcycle = (dcycle > 10000) ? 10000 : dcycle;
-//  return (uint16_t)((dcycle * ((uint32_t)PWM_TMR_ARR)) / ((uint32_t)PWM_MAX_DC));
-//}
-
-//void PWM_SetDC(uint32_t pwmch, uint32_t pwmdc) {
-//  uint16_t pwmcnts = 0;
-//  if(pwmch >= PWM_PH_MAX) {
-//    return;
-//  }
-//  pwmcnts = dctocnts(pwmdc);
-//  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, pwmch, pwmcnts);
-//  return;
-//}
-
 uint32_t PWM_GetDC(uint32_t pwmch) {
   uint32_t counts;
   if(pwmch >= PWM_PH_MAX) {
