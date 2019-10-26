@@ -167,6 +167,21 @@ void test_App_GetPwmVoltage_mid_range_value(void) {
   TEST_ASSERT_EQUAL_UINT32(4996, App_GetPwmVoltage(PwmChB_E));
 }
 
+void test_App_GetBusVoltage_zero_value(void) {
+  MockADC_SetBuffer(ADC_VBUS_CH_E, 0);
+  TEST_ASSERT_EQUAL_UINT32(0, App_GetBusVoltage());
+}
+
+void test_App_GetBusVoltage_mid_range_value(void) {
+  MockADC_SetBuffer(ADC_VBUS_CH_E, 100);
+  TEST_ASSERT_EQUAL_UINT32(1532, App_GetBusVoltage());
+}
+
+void test_App_GetBusVoltage_max_range_value(void) {
+  MockADC_SetBuffer(ADC_VBUS_CH_E, 4095);
+  TEST_ASSERT_EQUAL_UINT32(63201, App_GetBusVoltage());
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_ADC_read_value);
@@ -196,5 +211,7 @@ int main(void) {
   RUN_TEST(test_App_GetPwmVoltage_zero_value);
   RUN_TEST(test_App_GetPwmVoltage_out_of_range_channel);
   RUN_TEST(test_App_GetPwmVoltage_mid_range_value);
+  RUN_TEST(test_App_GetBusVoltage_zero_value);
+  RUN_TEST(test_App_GetBusVoltage_mid_range_value);
   return UNITY_END();
 }
