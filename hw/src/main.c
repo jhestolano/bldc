@@ -1,6 +1,5 @@
 #include "FreeRTOS.h"
 #include "task.h"
-
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc_ex.h"
@@ -11,6 +10,7 @@
 #include "printf.h"
 #include "dbg.h"
 #include "apptask.h"
+#include "app.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
@@ -20,8 +20,11 @@ void vAssertCalled( const char *pcFile, int32_t ulLine );
 int main(void)
 {
   HwInit();
-  TaskHandle_t h_task_flash;
-  if(xTaskCreate(AppTask_Flash, (signed portCHAR*)"LED Task", APP_TASK_FLASH_STACK_SIZE, NULL, APP_TASK_FLASH_PRIO, &h_task_flash) == pdPASS) {
+  App_SetPwmDutyCycle(PwmChA_E, 0);
+  App_SetPwmDutyCycle(PwmChB_E, 0);
+  App_SetPwmDutyCycle(PwmChC_E, 0);
+  TaskHandle_t h_task_slog;
+  if(xTaskCreate(AppTask_SLog, (signed portCHAR*)"SLog Task", APP_TASK_SLOG_STACK_SIZE, NULL, APP_TASK_SLOG_PRIO, &h_task_slog) == pdPASS) {
     DBG_DEBUG("Task created succesfully!\n\r");
   }
   vTaskStartScheduler();
@@ -110,6 +113,5 @@ void HwInit(void) {
   } else {
     DBG_ERR("Diag pin disabled!!!\n\r");
   }
-
 }
 
