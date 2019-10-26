@@ -77,3 +77,8 @@ uint32_t App_GetPwmVoltage(PwmCh_E pwmch) {
   dcycle = App_GetPwmDutyCycle(pwmch);
   return (uint32_t)((dcycle * (uint32_t)APP_PARAMS_PWM_VOLTS) / (uint32_t)APP_PWM_MAX_DC);
 }
+
+uint32_t App_GetBusVoltage(void) {
+  uint32_t vbusadc = App_GetVoltage(VAdcChVBus_E);
+  return (uint32_t)(vbusadc * (uint32_t)APP_PARAMS_VBUS_DIV / (uint32_t)1000);
+}
