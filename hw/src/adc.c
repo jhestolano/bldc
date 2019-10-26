@@ -7,6 +7,7 @@
 #include "stm32f3xx_hal_cortex.h"
 #include "gpio.h"
 #include "dbg.h"
+#include "app.h"
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
 
@@ -128,7 +129,10 @@ uint32_t ADC_Read(void) {
 }
 
 void ADC1_IRQHandler(void) {
+  uint32_t pot;
   HAL_ADC_IRQHandler(&gs_adc_handle);
+  pot = gs_adc_ch_buf[ADC_POT_CH_E];
+  App_SetPwmDutyCycle(PwmChA_E, 10000 * pot / 4095);
 }
 
 void DMA1_Channel1_IRQHandler(void) {
