@@ -10,9 +10,9 @@
 #define APP_PARAMS_IFBK_BIAS_ADC_COUNTS (1934) /* Zerro current bias in ADC counts. */
 #define APP_PARAMS_PWM_VOLTS (12000) /* PWM maximum voltage [mVolts]. */
 #define APP_PARAMS_VBUS_DIV (19152) /* Resistor divider scaled by 1000. */
-#define APP_PARAMS_MOTOR_R (28000) /* Motor winding resistance [mOhms]. */
-#define APP_PARAMS_MOTOR_TAU (12) /* Motor electric time constant scaled by 1000. */
-#define APP_PARAMS_MOTOR_L (89) /* Motor winding inductance [mH]. */
+#define APP_PARAMS_MOTOR_R (19000) /* Motor winding resistance [mOhms]. */
+#define APP_PARAMS_MOTOR_TAU (12) /* Motor electric time constant scaled by 10000. */
+#define APP_PARAMS_MOTOR_L (23) /* Motor winding inductance [mH]. */
 #define APP_PARAMS_ITGT_TS (200) /* Current response closed loop [ms]. */
 
 typedef enum {

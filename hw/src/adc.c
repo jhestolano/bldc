@@ -128,11 +128,40 @@ uint32_t ADC_Read(void) {
   return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
+
 void ADC1_IRQHandler(void) {
+  static float ierr;
+  const float kp = 0.46;
+  const float ki = 380.;
+  float itgt, iact, err, volts;
   uint32_t pot;
   HAL_ADC_IRQHandler(&gs_adc_handle);
-  pot = gs_adc_ch_buf[ADC_POT_CH_E];
-  App_SetPwmDutyCycle(PwmChA_E, 10000 * pot / 4095);
+  pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
+  iact = App_GetCurrent(IfbkPhC_E);
+  itgt = (float)pot;
+  err = itgt - iact;
+
+  volts = kp * err + ki * ierr;
+
+//  if(volts > 12.) {
+//    volts = 12.;
+//  }
+//
+//  if(volts < 1) {
+//    volts = 0.;
+//  }
+
+  App_SetPwmVoltage(PwmChA_E, volts);
+  
+  ierr += err / 31e3;
+
+  if(ierr > 30) {
+    ierr = 31;
+  }
+
+  if (ierr < -30) {
+    ierr = -30;
+  }
 }
 
 void DMA1_Channel1_IRQHandler(void) {
