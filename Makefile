@@ -11,6 +11,7 @@ SRCS+=hw/src/adc.c
 SRCS+=hw/src/gpio.c
 SRCS+=hw/src/pwm.c
 SRCS+=hw/src/uart.c
+SRCS+=hw/src/tmr.c
 SRCS+=hw/src/apptask.c
 SRCS+=app/src/app.c
 SRCS+=system/src/system_stm32f3xx.c

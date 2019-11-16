@@ -6,6 +6,10 @@
 #include "stm32f3xx_hal_dma.h"
 #include "stm32f3xx_hal_adc.h"
 #include "stm32f3xx_hal_adc_ex.h"
+#include "stm32f3xx_hal_cortex.h"
+
+#define __ADC_DISABLE_ISR() HAL_NVIC_DisableIRQ(ADC1_IRQn)
+#define __ADC_ENABLE_ISR() HAL_NVIC_EnableIRQ(ADC1_IRQn)
 
 typedef enum {
   ADC_PHA_IFBK_CH_E = 0,

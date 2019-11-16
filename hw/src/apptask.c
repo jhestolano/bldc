@@ -6,13 +6,15 @@
 #include "uart.h"
 #include "pwm.h"
 #include "app.h"
+#include "tmr.h"
 
 #define SLOG_SIGBUF_SIZE (5)
 
 static void _slog(uint32_t* sigbuf) {
   sigbuf[0] = (uint32_t)App_GetVoltage(VAdcChPot_E);
   sigbuf[1] = (uint32_t)App_GetCurrent(IfbkPhA_E);
-  sigbuf[2] = (uint32_t)App_GetCurrent(IfbkPhB_E);
+//  sigbuf[2] = (uint32_t)App_GetCurrent(IfbkPhB_E);
+  sigbuf[2] = TMR_GetCount();
   sigbuf[3] = (uint32_t)App_GetCurrent(IfbkPhC_E);
   sigbuf[4] = (uint32_t)App_GetPwmVoltage(PwmChA_E);
 }
@@ -32,3 +34,4 @@ void AppTask_SLog(void* params) {
     vTaskDelayUntil(&last_wake_time, APP_TASK_SLOG_TS);
   }
 }
+

@@ -5,6 +5,7 @@
 #include "stm32f3xx_hal_rcc_ex.h"
 #include "adc.h"
 #include "gpio.h"
+#include "tmr.h"
 #include "pwm.h"
 #include "uart.h"
 #include "printf.h"
@@ -104,6 +105,7 @@ void HwInit(void) {
   SystemClock_Config();
   GPIO_Init();
   UART_Init();
+  TMR_Init();
   PWM_Init();
   ADC_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
