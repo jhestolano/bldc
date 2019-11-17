@@ -79,7 +79,8 @@ LFLAGS=-Wl,-Map,$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
 DEFS=-DSTM32F302x8
-DEFS+=-D__DBG__
+#DEFS+=-D__DBG__
+DEFS+=-D__SLOG__
 
 .PHONY: $(PROJ_NAME)
 $(PROJ_NAME): $(PROJ_NAME).elf

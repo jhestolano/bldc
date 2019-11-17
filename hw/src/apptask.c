@@ -10,6 +10,7 @@
 
 #define SLOG_SIGBUF_SIZE (5)
 
+#ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
   sigbuf[0] = (uint32_t)App_GetVoltage(VAdcChPot_E);
   sigbuf[1] = (uint32_t)App_GetCurrent(IfbkPhA_E);
@@ -34,4 +35,13 @@ void AppTask_SLog(void* params) {
     vTaskDelayUntil(&last_wake_time, APP_TASK_SLOG_TS);
   }
 }
+#endif
 
+void AppTask_500ms(void* params) {
+  TickType_t last_wake_time = xTaskGetTickCount();
+
+  for(;;) {
+    GPIO_LedToggle();
+    vTaskDelayUntil(&last_wake_time, APP_TASK_500MS);
+  }
+}
