@@ -25,9 +25,15 @@ int main(void)
   App_SetPwmDutyCycle(PwmChB_E, 0);
   App_SetPwmDutyCycle(PwmChC_E, 0);
   TaskHandle_t h_task_slog;
+
+#ifdef __SLOG__
   if(xTaskCreate(AppTask_SLog, (signed portCHAR*)"SLog Task", APP_TASK_SLOG_STACK_SIZE, NULL, APP_TASK_SLOG_PRIO, &h_task_slog) == pdPASS) {
     DBG_DEBUG("Task created succesfully!\n\r");
   }
+#endif
+
+  xTaskCreate(AppTask_500ms, NULL, APP_TASK_500MS_STACK_SIZE, NULL, APP_TASK_500MS_PRIO, NULL);
+
   vTaskStartScheduler();
   for(;;){
   }
