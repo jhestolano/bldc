@@ -128,28 +128,18 @@ uint32_t ADC_Read(void) {
   return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
-
-void ADC1_IRQHandler(void) {
+void pidctrl(void) {
   static float ierr;
   const float kp = 0.46;
   const float ki = 380.;
   float itgt, iact, err, volts;
   uint32_t pot;
-  HAL_ADC_IRQHandler(&gs_adc_handle);
   pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
   iact = App_GetCurrent(IfbkPhC_E);
   itgt = (float)pot;
   err = itgt - iact;
 
   volts = kp * err + ki * ierr;
-
-//  if(volts > 12.) {
-//    volts = 12.;
-//  }
-//
-//  if(volts < 1) {
-//    volts = 0.;
-//  }
 
   App_SetPwmVoltage(PwmChA_E, volts);
   
@@ -164,6 +154,10 @@ void ADC1_IRQHandler(void) {
   }
 }
 
+void ADC1_IRQHandler(void) {
+  HAL_ADC_IRQHandler(&gs_adc_handle);
+}
+
 void DMA1_Channel1_IRQHandler(void) {
   HAL_DMA_IRQHandler(&gs_dma_handle);
 }
@@ -172,11 +166,12 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
+  pidctrl();
   return;
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  DBG_DEBUG("HAL_ADC_ConvCpltCallback\n\r");
+//  DBG_DEBUG("HAL_ADC_ConvCpltCallback\n\r");
   return;
 }
 
