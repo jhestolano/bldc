@@ -30,6 +30,9 @@
 
 #define DIAG_PIN (GPIO_PIN_6)
 #define DIAG_PORT (GPIOA)
+#define DIAG_IT_PRIO (3)
+#define DIAG_IT_SUBPRIO (0)
+#define DIAG_IT_EXTI_IRQn (EXTI9_5_IRQn)
 
 /*******************************************************************************
  * GPIO USER BUTTON CONFIGURATION.
@@ -71,8 +74,9 @@
 *******************************************************************************/
 #define GPIOA_DIAG_CONF {                                                      \
   .Pin = DIAG_PIN,                                                             \
-  .Mode = GPIO_MODE_INPUT,                                                     \
+  .Mode = GPIO_MODE_IT_FALLING,                                                \
   .Pull = GPIO_NOPULL,                                                         \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
 }
 
 /*******************************************************************************
