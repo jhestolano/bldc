@@ -82,3 +82,8 @@ uint32_t App_GetBusVoltage(void) {
   uint32_t vbusadc = App_GetVoltage(VAdcChVBus_E);
   return (uint32_t)(vbusadc * (uint32_t)APP_PARAMS_VBUS_DIV / (uint32_t)1000);
 }
+
+int32_t App_GetTemp(void) {
+  uint32_t vtemp = App_GetVoltage(VAdcChTemp_E);
+  return APP_PARAMS_TEMP_GAIN * (int32_t)(vtemp - APP_PARAMS_TEMP_V_BIAS) + (int32_t)APP_PARAMS_TEMP_BIAS;
+}

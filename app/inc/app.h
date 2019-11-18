@@ -14,6 +14,9 @@
 #define APP_PARAMS_MOTOR_TAU (12) /* Motor electric time constant scaled by 10000. */
 #define APP_PARAMS_MOTOR_L (23) /* Motor winding inductance [mH]. */
 #define APP_PARAMS_ITGT_TS (200) /* Current response closed loop [ms]. */
+#define APP_PARAMS_TEMP_BIAS (25000) /* Temperature bias [mdegC]. */
+#define APP_PARAMS_TEMP_V_BIAS (1055) /* Temperature voltage bias [mV]. */
+#define APP_PARAMS_TEMP_GAIN (43) /* Sensor gain [mdegC / mV]. */
 
 typedef enum {
   IfbkPhA_E = 0,
@@ -55,5 +58,7 @@ void App_SetPwmVoltage(PwmCh_E pwmch, uint32_t mvolts);
 uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch);
 
 uint32_t App_GetPwmVoltage(PwmCh_E pwmch);
+
+int32_t App_GetTemp(void);
 
 #endif // __APP_H__
