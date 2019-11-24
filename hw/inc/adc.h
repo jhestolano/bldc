@@ -11,6 +11,12 @@
 #define __ADC_DISABLE_ISR() HAL_NVIC_DisableIRQ(ADC1_IRQn)
 #define __ADC_ENABLE_ISR() HAL_NVIC_EnableIRQ(ADC1_IRQn)
 
+#define ADC_CH_BUF_LEN (50)
+
+extern uint8_t gFlagAdcBufFull;
+
+extern int32_t gAdcChBuf[ADC_CH_BUF_LEN];
+
 typedef enum {
   ADC_PHA_IFBK_CH_E = 0,
   ADC_PHB_IFBK_CH_E,
@@ -109,7 +115,7 @@ typedef enum {
     .ContinuousConvMode = ENABLE,                                              \
     .DiscontinuousConvMode = DISABLE,                                          \
     .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
-    .ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_TRGO2,                         \
+    .ExternalTrigConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO,                     \
     .DataAlign = ADC_DATAALIGN_RIGHT,                                          \
     .NbrOfConversion = 3,                                                      \
     .DMAContinuousRequests = ENABLE,                                           \
@@ -138,7 +144,7 @@ typedef enum {
 #define ADC_INJ_GROUP_CONF                                                     \
   .InjectedNbrOfConversion = 3,                                                \
   .ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING,          \
-  .ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO2,                 \
+  .ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO,                  \
   .AutoInjectedConv = DISABLE,                                                 \
   .InjectedDiscontinuousConvMode = DISABLE,                                    \
   .QueueInjectedContext = DISABLE

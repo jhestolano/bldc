@@ -11,6 +11,10 @@
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
 
+uint8_t gFlagAdcBufFull;
+
+int32_t gAdcChBuf[ADC_CH_BUF_LEN];
+
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
 static DMA_HandleTypeDef gs_dma_handle = DMA_INIT_CONFIG;
@@ -130,8 +134,8 @@ uint32_t ADC_Read(void) {
 
 void pidctrl(void) {
   static float ierr;
-  const float kp = 0.46;
-  const float ki = 380.;
+  const float kp = 1.6e-6f;
+  const float ki = 8.e3f;
   float itgt, iact, err, volts;
   uint32_t pot;
   pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
@@ -143,14 +147,14 @@ void pidctrl(void) {
 
   App_SetPwmVoltage(PwmChA_E, volts);
   
-  ierr += err / 31e3;
+  ierr += err / 30.e3f;
 
-  if(ierr > 30) {
-    ierr = 31;
+  if(ierr > 30.f) {
+    ierr = 30.f;
   }
 
-  if (ierr < -30) {
-    ierr = -30;
+  if (ierr < -30.f) {
+    ierr = -30.f;
   }
 }
 
@@ -163,10 +167,24 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  static uint16_t idx;
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
   pidctrl();
+//  GPIO_LedToggle();
+  /*
+  if(gFlagAdcBufFull != 1) {
+    App_SetPwmVoltage(PwmChA_E, 5000);
+    gAdcChBuf[idx++] = gs_adc_ch_buf[ADC_PHC_IFBK_CH_E];
+    if(idx >= (uint16_t)ADC_CH_BUF_LEN) {
+      gFlagAdcBufFull = 1;
+      idx = 0;
+    }
+  } else {
+    App_SetPwmVoltage(PwmChA_E, 0);
+  }
+  */
   return;
 }
 
