@@ -49,7 +49,7 @@ PRD: Waveform period (Seconds).
 #define PWM_TMR_CLOCK_HZ (72000000)
 #define PWM_TMR_FRQ_HZ (30000)
 #define PWM_TMR_PSC (0)
-#define PWM_TMR_ARR (((PWM_TMR_CLOCK_HZ / PWM_TMR_FRQ_HZ) / (PWM_TMR_PSC + 1)) - 1)
+#define PWM_TMR_ARR (((PWM_TMR_CLOCK_HZ / (2 * PWM_TMR_FRQ_HZ)) / (PWM_TMR_PSC + 1)) - 1)
 
 #if (PWM_TMR_ARR > 65535) || (PWM_TMR_ARR < 1)
 #error("Invalid PWM config: ARR register out of bounds.")
@@ -82,7 +82,7 @@ PRD: Waveform period (Seconds).
   .Instance = TIM1,                                                            \
   .Init = {                                                                    \
     .Prescaler = PWM_TMR_PSC,                                                  \
-    .CounterMode = TIM_COUNTERMODE_UP,                                         \
+    .CounterMode = TIM_COUNTERMODE_CENTERALIGNED1,                             \
     .Period = PWM_TMR_ARR,                                                     \
     .RepetitionCounter = 0,                                                    \
     .ClockDivision = TIM_CLOCKDIVISION_DIV2,                                   \
@@ -129,8 +129,8 @@ PRD: Waveform period (Seconds).
     several timers on a single external event.    
 *******************************************************************************/
 #define PWM_MASTER_OUT_CONF {                                                  \
-  .MasterOutputTrigger = TIM_TRGO_RESET,                                       \
-  .MasterOutputTrigger2 = TIM_TRGO2_UPDATE,                                    \
+  .MasterOutputTrigger = TIM_TRGO_OC4REF,                                      \
+  .MasterOutputTrigger2 = TIM_TRGO2_RESET,                                     \
   .MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE,                              \
 }
 

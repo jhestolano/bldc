@@ -68,6 +68,15 @@ void PWM_Init(void) {
     DBG_ERR("Error initializing W-PHASE PWM Channel.");
   }
 
+  /* This PWM is used to trigger the ADC conversion Conversion
+     right at max counter value. Precise Pulse value might be
+     calibrated if needed later. */
+  s_pwm_oc_conf.OCMode = TIM_OCMODE_PWM2; 
+  s_pwm_oc_conf.Pulse = PWM_TMR_ARR - 1;  
+  if(HAL_TIM_PWM_ConfigChannel(&gs_pwm_conf, &s_pwm_oc_conf, TIM_CHANNEL_4) != HAL_OK) {
+    DBG_ERR("Error initializing W-PHASE PWM Channel.");
+  }
+
   HAL_TIM_PWM_Start(&gs_pwm_conf, UH_PWM_CHANNEL);
   HAL_TIM_PWM_Start(&gs_pwm_conf, VH_PWM_CHANNEL);
   HAL_TIM_PWM_Start(&gs_pwm_conf, WH_PWM_CHANNEL);
