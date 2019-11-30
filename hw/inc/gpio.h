@@ -22,8 +22,11 @@
 #define BKIN2_PIN (GPIO_PIN_11)
 #define BKIN2_PORT (GPIOA)
 
-#define USR_LED_PIN (GPIO_PIN_5)
-#define USR_LED_PORT (GPIOA)
+#define GREEN_LED_PIN (GPIO_PIN_5)
+#define GREEN_LED_PORT (GPIOA)
+
+#define RED_LED_PIN (GPIO_PIN_2)
+#define RED_LED_PORT (GPIOB)
 
 #define USR_BUTTON_PIN (GPIO_PIN_13)
 #define USR_BUTTON_PORT (GPIOC)
@@ -43,10 +46,10 @@
   .Pull = GPIO_NOPULL,                                                         \
 }                     
 /*******************************************************************************
- * GPIO USER BUTTON CONFIGURATION.
+ * GPIO GREEN LED CONFIGURATION.
 *******************************************************************************/
 #define GPIOA_OUTPUT_CONF {                                                    \
-  .Pin = USR_LED_PIN,                                                          \
+  .Pin = RED_LED_PIN,                                                        \
   .Mode = GPIO_MODE_OUTPUT_PP,                                                 \
   .Pull = GPIO_NOPULL,                                                         \
   .Speed = GPIO_SPEED_FREQ_LOW,                                                \
