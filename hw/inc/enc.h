@@ -11,6 +11,35 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_ll_tim.h"
 
+#define ENC_CH_A (TIM_CHANNEL_1)
+#define ENC_CH_B (TIM_CHANNEL_2)
+#define ENC_CH_ALL (TIM_CHANNEL_ALL)
+
+#define ENC_CH_A_PIN (GPIO_PIN_15)
+#define ENC_CH_A_PORT (GPIOA)
+
+#define ENC_CH_B_PIN (GPIO_PIN_3)
+#define ENC_CH_B_PORT (GPIOB)
+
+#define ENC_CH_IDX_PIN (GPIO_PIN_10)
+#define ENC_CH_IDX_PORT (GPIOB)
+
+#define ENC_CH_A_GPIO_CONF {                                                   \
+  .Pin = ENC_CH_A_PIN,                                                         \
+  .Mode = GPIO_MODE_AF_PP,                                                     \
+  .Pull = GPIO_NOPULL,                                                         \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
+  .Alternate = GPIO_AF1_TIM2,                                                  \
+}   
+
+#define ENC_CH_B_GPIO_CONF {                                                   \
+  .Pin = ENC_CH_B_PIN,                                                         \
+  .Mode = GPIO_MODE_AF_PP,                                                     \
+  .Pull = GPIO_NOPULL,                                                         \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
+  .Alternate = GPIO_AF1_TIM2,                                                  \
+}   
+
 #define TIM_ENC_INIT_CONF {                                                    \
   .Instance = TIM2,                                                            \
   .Init = {                                                                    \
@@ -23,17 +52,16 @@
   },                                                                           \
 }
 
-
 #define ENC_INIT_CONF {                                                        \
   .EncoderMode = TIM_ENCODERMODE_TI12,                                         \
-  .IC1Polarity = TIM_ICPOLARITY_BOTHEDGE,                                      \
+  .IC1Polarity = TIM_ICPOLARITY_RISING,                                        \
   .IC1Selection = TIM_ICSELECTION_DIRECTTI,                                    \
   .IC1Prescaler = TIM_ICPSC_DIV1,                                              \
-  .IC1Filter = 0x00,                                                           \
-  .IC2Polarity = TIM_ICPOLARITY_BOTHEDGE,                                      \
+  .IC1Filter = 0,                                                              \
+  .IC2Polarity = TIM_ICPOLARITY_RISING,                                        \
   .IC2Selection = TIM_ICSELECTION_DIRECTTI,                                    \
   .IC2Prescaler = TIM_ICPSC_DIV1,                                              \
-  .IC2Filter = 0x00,                                                           \
+  .IC2Filter = 0,                                                              \
 };
 
 void ENC_Init(void);
