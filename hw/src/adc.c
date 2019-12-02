@@ -134,8 +134,8 @@ uint32_t ADC_Read(void) {
 
 void pidctrl(void) {
   static float ierr;
-  const float kp = 1.6e-6f;
-  const float ki = 8.e3f;
+  const float kp = 0.9582;
+  const float ki = 945.39;
   float itgt, iact, err, volts;
   uint32_t pot;
   pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
@@ -149,13 +149,13 @@ void pidctrl(void) {
   
   ierr += err / 30.e3f;
 
-  if(ierr > 30.f) {
-    ierr = 30.f;
-  }
-
-  if (ierr < -30.f) {
-    ierr = -30.f;
-  }
+//  if(ierr > 30.f) {
+//    ierr = 30.f;
+//  }
+//
+//  if (ierr < -30.f) {
+//    ierr = -30.f;
+//  }
 }
 
 void ADC1_IRQHandler(void) {
@@ -172,19 +172,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
   pidctrl();
-//  GPIO_LedToggle();
-  /*
-  if(gFlagAdcBufFull != 1) {
-    App_SetPwmVoltage(PwmChA_E, 5000);
-    gAdcChBuf[idx++] = gs_adc_ch_buf[ADC_PHC_IFBK_CH_E];
-    if(idx >= (uint16_t)ADC_CH_BUF_LEN) {
-      gFlagAdcBufFull = 1;
-      idx = 0;
-    }
-  } else {
-    App_SetPwmVoltage(PwmChA_E, 0);
-  }
-  */
   return;
 }
 
