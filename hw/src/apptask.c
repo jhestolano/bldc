@@ -8,6 +8,7 @@
 #include "app.h"
 #include "tmr.h"
 #include "gpio.h"
+#include "enc.h"
 
 #define SLOG_SIGBUF_SIZE (4)
 
@@ -18,7 +19,7 @@ static void _slog(uint32_t* sigbuf) {
   sigbuf[1] = (uint32_t)App_GetTemp();
 //  sigbuf[2] = TMR_GetCount();
 //  sigbuf[0] = gAdcChBuf[idx++];
-  sigbuf[2] = (uint32_t)App_GetPwmVoltage(PwmChA_E);
+  sigbuf[2] = (uint32_t)ENC_GetCnt();
   sigbuf[3] = (uint32_t)App_GetCurrent(IfbkPhC_E);
 }
 
