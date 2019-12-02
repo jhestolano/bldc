@@ -7,6 +7,7 @@
 #include "gpio.h"
 #include "tmr.h"
 #include "pwm.h"
+#include "enc.h"
 #include "uart.h"
 #include "printf.h"
 #include "dbg.h"
@@ -113,6 +114,7 @@ void HwInit(void) {
   UART_Init();
   TMR_Init();
   PWM_Init();
+  ENC_Init();
   ADC_Init();
   HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
 
