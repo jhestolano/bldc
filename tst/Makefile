@@ -5,6 +5,7 @@ SRCS=./main.c
 SRCS+=../app/src/app.c
 SRCS+=./src/mock_pwm.c
 SRCS+=./src/mock_adc.c
+SRCS+=./src/mock_enc.c
 SRCS+=../Unity/unity.c
 
 INC_DIRS=.

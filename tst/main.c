@@ -2,9 +2,9 @@
 #include "app.h"
 #include "adc.h"
 #include "pwm.h"
+#include "enc.h"
 #include <string.h> 
 #include <stdio.h>
-
 /********************************************************************************
   EXTERN FUNCTIONS & VARS.
 ********************************************************************************/
@@ -17,6 +17,8 @@ extern uint32_t dctocnts(uint32_t dcycle);
 extern uint32_t gs_adc_ch_buf[ADC_CH_MAX_E];
 
 extern uint16_t gs_pwm_ch_buf[PWM_PH_MAX]; 
+
+extern uint16_t gs_enc_cnt;
 /*******************************************************************************/
 
 void setUp(void) {
@@ -100,7 +102,7 @@ void test_ADC_get_current_channels(void) {
 
 void test_App_SetPwmDutyCycle_value(void) {
   App_SetPwmDutyCycle(0, 10);
-  TEST_ASSERT_EQUAL_UINT16(2, gs_pwm_ch_buf[0]);
+  TEST_ASSERT_EQUAL_UINT16(1, gs_pwm_ch_buf[0]);
 }
 
 void test_App_SetPwmDutyCycle_out_of_range_channel(void) {
@@ -123,7 +125,7 @@ void test_App_SetPwmVoltage_zero_value(void) {
 
 void test_App_SetPwmVoltage_mid_range_value(void) {
   App_SetPwmVoltage(PwmChB_E, 5001);
-  TEST_ASSERT_EQUAL_UINT16(999, gs_pwm_ch_buf[1]);
+  TEST_ASSERT_EQUAL_UINT16(499, gs_pwm_ch_buf[1]);
 }
 
 void test_App_SetPwmVoltage_max_value(void) {
@@ -150,8 +152,8 @@ void test_App_GetPwmDutyCycle_max_counter(void) {
 }
 
 void test_App_GetPwmDutyCycle_mid_range_value(void) {
-  gs_pwm_ch_buf[2] = 1399;
-  TEST_ASSERT_EQUAL_UINT32(5831, App_GetPwmDutyCycle(PwmChC_E));
+  gs_pwm_ch_buf[2] = 500;
+  TEST_ASSERT_EQUAL_UINT32(4170, App_GetPwmDutyCycle(PwmChC_E));
 }
 
 void test_App_GetPwmVoltage_zero_value(void) {
@@ -164,7 +166,7 @@ void test_App_GetPwmVoltage_out_of_range_channel(void) {
 
 void test_App_GetPwmVoltage_mid_range_value(void) {
   gs_pwm_ch_buf[1] = 999; 
-  TEST_ASSERT_EQUAL_UINT32(4996, App_GetPwmVoltage(PwmChB_E));
+  TEST_ASSERT_EQUAL_UINT32(9997, App_GetPwmVoltage(PwmChB_E));
 }
 
 void test_App_GetBusVoltage_zero_value(void) {
@@ -195,6 +197,31 @@ void test_App_GetTemp_mid_buffer(void) {
 void test_App_GetTemp_max_buffer(void) {
   MockADC_SetBuffer(ADC_TEMP_SENS_CH_E, 4095);
   TEST_ASSERT_EQUAL_INT32(121535, App_GetTemp());
+}
+
+void test_App_GetMotorPosition_zero_value(void) {
+  gs_enc_cnt = 0;
+  TEST_ASSERT_EQUAL_INT16(0, App_GetPosition());
+}
+
+void test_App_GetMotorPosition_mid_pos_value(void) {
+  gs_enc_cnt = 412;
+  TEST_ASSERT_EQUAL_INT32(3708, App_GetPosition());
+}
+
+void test_App_GetMotorPosition_max_pos_value(void) {
+  gs_enc_cnt = INT16_MAX;
+  TEST_ASSERT_EQUAL_INT32(294903, App_GetPosition());
+}
+
+void test_App_GetMotorPosition_mid_neg_value(void) {
+  gs_enc_cnt = 65236; /* Represents -300 */
+  TEST_ASSERT_EQUAL_INT32(-2700, App_GetPosition());
+}
+
+void test_App_GetMotorPosition_max_neg_value(void) {
+  gs_enc_cnt = INT16_MAX + 1;
+  TEST_ASSERT_EQUAL_INT32(-294912, App_GetPosition());
 }
 
 int main(void) {
@@ -231,5 +258,10 @@ int main(void) {
   RUN_TEST(test_App_GetTemp_zero_buffer);
   RUN_TEST(test_App_GetTemp_mid_buffer);
   RUN_TEST(test_App_GetTemp_max_buffer);
+  RUN_TEST(test_App_GetMotorPosition_zero_value);
+  RUN_TEST(test_App_GetMotorPosition_mid_pos_value);
+  RUN_TEST(test_App_GetMotorPosition_max_pos_value);
+  RUN_TEST(test_App_GetMotorPosition_mid_neg_value);
+  RUN_TEST(test_App_GetMotorPosition_max_neg_value);
   return UNITY_END();
 }
