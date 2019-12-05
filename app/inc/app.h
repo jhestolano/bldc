@@ -17,6 +17,8 @@
 #define APP_PARAMS_TEMP_BIAS (25000) /* Temperature bias [mdegC]. */
 #define APP_PARAMS_TEMP_V_BIAS (1055) /* Temperature voltage bias [mV]. */
 #define APP_PARAMS_TEMP_GAIN (43) /* Sensor gain [mdegC / mV]. */
+#define APP_PARAMS_ENC_COUNTS (400) /* Encoder counts per revolution (4x mode) */
+#define APP_PARAMS_ENC_RES (9) /* Encoder resolution in 0.1 resolution. */
 
 typedef enum {
   IfbkPhA_E = 0,
@@ -60,5 +62,7 @@ uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch);
 uint32_t App_GetPwmVoltage(PwmCh_E pwmch);
 
 int32_t App_GetTemp(void);
+
+int32_t App_GetPosition(void);
 
 #endif // __APP_H__

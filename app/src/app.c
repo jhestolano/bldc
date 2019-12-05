@@ -1,6 +1,7 @@
 #include "app.h"
 #include "pwm.h"
 #include "adc.h"
+#include "enc.h"
 #include "stdio.h"
 
 #define APP_PWM_MAX_DC (10000) 
@@ -86,4 +87,9 @@ uint32_t App_GetBusVoltage(void) {
 int32_t App_GetTemp(void) {
   uint32_t vtemp = App_GetVoltage(VAdcChTemp_E);
   return APP_PARAMS_TEMP_GAIN * (int32_t)(vtemp - APP_PARAMS_TEMP_V_BIAS) + (int32_t)APP_PARAMS_TEMP_BIAS;
+}
+
+int32_t App_GetPosition(void) {
+  int16_t cnts = (int16_t)ENC_GetCnt();
+  return (int32_t)(cnts * APP_PARAMS_ENC_RES);
 }
