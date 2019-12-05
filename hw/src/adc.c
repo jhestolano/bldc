@@ -133,29 +133,18 @@ uint32_t ADC_Read(void) {
 }
 
 void pidctrl(void) {
-  static float ierr;
-  const float kp = 0.9582;
-  const float ki = 945.39;
+  static float kierr;
+  const float kp = 95.82f;
+  const float ki = 94539.0f;
   float itgt, iact, err, volts;
   uint32_t pot;
   pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
   iact = App_GetCurrent(IfbkPhC_E);
   itgt = (float)pot;
   err = itgt - iact;
-
-  volts = kp * err + ki * ierr;
-
+  kierr += ki * err;
+  volts = kp * err + kierr / 30.e3f;
   App_SetPwmVoltage(PwmChA_E, volts);
-  
-  ierr += err / 30.e3f;
-
-//  if(ierr > 30.f) {
-//    ierr = 30.f;
-//  }
-//
-//  if (ierr < -30.f) {
-//    ierr = -30.f;
-//  }
 }
 
 void ADC1_IRQHandler(void) {
