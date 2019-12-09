@@ -22,19 +22,13 @@ void vAssertCalled( const char *pcFile, int32_t ulLine );
 int main(void)
 {
   HwInit();
-  App_SetPwmDutyCycle(PwmChA_E, 0);
-  App_SetPwmDutyCycle(PwmChB_E, 0);
-  App_SetPwmDutyCycle(PwmChC_E, 0);
-  TaskHandle_t h_task_slog;
-
 #ifdef __SLOG__
-  if(xTaskCreate(AppTask_SLog, (signed portCHAR*)"SLog Task", APP_TASK_SLOG_STACK_SIZE, NULL, APP_TASK_SLOG_PRIO, &h_task_slog) == pdPASS) {
+  if(xTaskCreate(AppTask_SLog, (signed portCHAR*)"SLog Task", APP_TASK_SLOG_STACK_SIZE, NULL, APP_TASK_SLOG_PRIO, NULL) == pdPASS) {
     DBG_DEBUG("Task created succesfully!\n\r");
   }
 #endif
-
-  xTaskCreate(AppTask_500ms, NULL, APP_TASK_500MS_STACK_SIZE, NULL, APP_TASK_500MS_PRIO, NULL);
-
+//  xTaskCreate(AppTask_500ms, NULL, APP_TASK_500MS_STACK_SIZE, NULL, APP_TASK_500MS_PRIO, NULL);
+  xTaskCreate(AppTask_MotorControl, NULL, APP_TASK_MOTOR_CONTROL_STACK_SIZE, NULL, APP_TASK_MOTOR_CONTROL_PRIO, NULL);
   vTaskStartScheduler();
   for(;;){
   }
@@ -116,8 +110,6 @@ void HwInit(void) {
   PWM_Init();
   ENC_Init();
   ADC_Init();
-  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
-
   if(HAL_GPIO_ReadPin(DIAG_PORT, DIAG_PIN)) {
     DBG_DEBUG("Diag pin enabled.\n\r"); 
   } else {
