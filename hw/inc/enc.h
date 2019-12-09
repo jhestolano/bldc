@@ -23,6 +23,9 @@
 
 #define ENC_CH_IDX_PIN (GPIO_PIN_10)
 #define ENC_CH_IDX_PORT (GPIOB)
+#define ENC_CH_IDX_IT_IRQn (EXTI15_10_IRQn)
+#define ENC_CH_IDX_IT_PRIO (3)
+#define ENC_CH_IDX_IT_SUBPRIO (1)
 
 #define ENC_CH_A_GPIO_CONF {                                                   \
   .Pin = ENC_CH_A_PIN,                                                         \
@@ -38,6 +41,13 @@
   .Pull = GPIO_NOPULL,                                                         \
   .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
   .Alternate = GPIO_AF1_TIM2,                                                  \
+}   
+
+#define ENC_CH_IDX_GPIO_CONF {                                                 \
+  .Pin = ENC_CH_IDX_PIN,                                                       \
+  .Mode = GPIO_MODE_IT_RISING,                                                 \
+  .Pull = GPIO_PULLUP,                                                         \
+  .Speed = GPIO_SPEED_FREQ_HIGH,                                               \
 }   
 
 #define TIM_ENC_INIT_CONF {                                                    \
