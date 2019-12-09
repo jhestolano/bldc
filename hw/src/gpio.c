@@ -1,6 +1,19 @@
 #include "gpio.h"
 #include "stm32f3xx_hal_cortex.h"
 #include "dbg.h"
+#include "enc.h"
+
+typedef struct _gpio_pin_map {
+  uint16_t pin;
+  GPIO_TypeDef* port;
+} _gpio_pin_map_s;
+
+static const _gpio_pin_map_s gsc_gpio_pin_map[] = {
+  {.pin = UH_PWM_ENABLE_PIN, .port = UH_PWM_ENABLE_PORT},
+  {.pin = VH_PWM_ENABLE_PIN, .port = VH_PWM_ENABLE_PORT},
+  {.pin = WH_PWM_ENABLE_PIN, .port = WH_PWM_ENABLE_PORT},
+  {.pin = BKIN2_PIN, .port = BKIN2_PORT},
+};
 
 void GPIO_Init(void) {
 
@@ -24,20 +37,24 @@ void GPIO_Init(void) {
   HAL_NVIC_SetPriority(DIAG_IT_EXTI_IRQn, DIAG_IT_PRIO, DIAG_IT_SUBPRIO);
   HAL_NVIC_EnableIRQ(DIAG_IT_EXTI_IRQn);
 
-  /* Enable motor driver. */
+  /* Start motor unarmed. Wait for Motor interface to enable it. */
   HAL_GPIO_Init(BKIN2_PORT, &s_gpioa_bkin2_conf);
-  HAL_GPIO_WritePin(BKIN2_PORT, BKIN2_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(BKIN2_PORT, BKIN2_PIN, GPIO_PIN_RESET);
 
   HAL_GPIO_WritePin(GREEN_LED_PORT, GREEN_LED_PIN, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(XH_PWM_ENABLE_PORT, UH_PWM_ENABLE_PIN | VH_PWM_ENABLE_PIN | WH_PWM_ENABLE_PIN, GPIO_PIN_RESET);
 
   return;
 }
 
 void GPIO_LedToggle(void) {
   HAL_GPIO_TogglePin(RED_LED_PORT, RED_LED_PIN);
-//  HAL_GPIO_TogglePin(BKIN2_PORT, BKIN2_PIN);
   return;
+}
+
+void GPIO_DiagCallback(void) {
+  HAL_GPIO_WritePin(BKIN2_PORT, BKIN2_PIN, GPIO_PIN_RESET);
+  DBG_ERR("Driver overtemperature detected!!!");
 }
 
 void EXTI9_5_IRQHandler(void) {
@@ -45,7 +62,23 @@ void EXTI9_5_IRQHandler(void) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin) {
-  /* If overcurrent detected, shutdown driver. */
-  HAL_GPIO_WritePin(BKIN2_PORT, BKIN2_PIN, GPIO_PIN_RESET);
-  DBG_ERR("Driver overtemperature detected!!!");
+  switch(gpio_pin) {
+    case DIAG_PIN: 
+      GPIO_DiagCallback();
+      break;
+#ifdef CONF_ENC_CH_IDX_ENBL
+    case ENC_CH_IDX_PIN:
+      ENC_ChIdxCallback();
+      break;
+#endif
+  }
 }
+
+void GPIO_Set(uint16_t pin) {
+  HAL_GPIO_WritePin(gsc_gpio_pin_map[pin].port, gsc_gpio_pin_map[pin].pin, GPIO_PIN_SET);
+}
+
+void GPIO_Reset(uint16_t pin){
+  HAL_GPIO_WritePin(gsc_gpio_pin_map[pin].port, gsc_gpio_pin_map[pin].pin, GPIO_PIN_RESET);
+}
+

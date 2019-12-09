@@ -7,6 +7,12 @@
 /*******************************************************************************
  * GPIO MACRO DEFINITIONS.
 *******************************************************************************/
+#define GPIO_PH_A     (0)
+#define GPIO_PH_B     (1)
+#define GPIO_PH_C     (2)
+#define GPIO_BKIN2    (3)
+#define GPIO_CH_MAX   (4)
+
 #define UH_PWM_ENABLE_PIN (GPIO_PIN_10)
 #define VH_PWM_ENABLE_PIN (GPIO_PIN_11)
 #define WH_PWM_ENABLE_PIN (GPIO_PIN_12)
@@ -35,6 +41,7 @@
 #define DIAG_PORT (GPIOA)
 #define DIAG_IT_PRIO (3)
 #define DIAG_IT_SUBPRIO (0)
+/* GPIOA Pin6 lies between 9-5 interrupt lines. */
 #define DIAG_IT_EXTI_IRQn (EXTI9_5_IRQn)
 
 /*******************************************************************************
@@ -88,5 +95,9 @@
 void GPIO_Init(void);
 
 void GPIO_LedToggle(void);
+
+void GPIO_Set(uint16_t pin);
+
+void GPIO_Reset(uint16_t pin);
 
 #endif
