@@ -1,6 +1,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
-
+#include "mtrif.h"
 #include "adc.h"
 #include "stm32f3xx_hal_gpio.h"
 #include "stm32f3xx_hal_rcc.h"
@@ -8,6 +8,8 @@
 #include "gpio.h"
 #include "dbg.h"
 #include "app.h"
+
+extern MtrIf_S* AppTask_GetMtrIf(void);
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
 
@@ -132,7 +134,7 @@ uint32_t ADC_Read(void) {
   return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
-void pidctrl(void) {
+int32_t pidctrl(void) {
   static float kierr;
   const float kp = 95.82f;
   const float ki = 94539.0f;
@@ -144,7 +146,7 @@ void pidctrl(void) {
   err = itgt - iact;
   kierr += ki * err;
   volts = kp * err + kierr / 30.e3f;
-  App_SetPwmVoltage(PwmChA_E, volts);
+  return (int32_t)volts;
 }
 
 void ADC1_IRQHandler(void) {
@@ -156,16 +158,17 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  static uint16_t idx;
+  int32_t vin;
+  MtrIf_S* ptr_mtr_if = AppTask_GetMtrIf();
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-  pidctrl();
+  vin = pidctrl();
+  MtrIf_SetVin(ptr_mtr_if, vin);
   return;
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-//  DBG_DEBUG("HAL_ADC_ConvCpltCallback\n\r");
   return;
 }
 
