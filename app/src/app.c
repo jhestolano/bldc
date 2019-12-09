@@ -2,6 +2,7 @@
 #include "pwm.h"
 #include "adc.h"
 #include "enc.h"
+#include "gpio.h"
 #include "stdio.h"
 
 #define APP_PWM_MAX_DC (10000) 
@@ -23,6 +24,14 @@ static const uint16_t gsc_adc_ch_map[] = {
   ADC_VBUS_CH_E,
   ADC_CH_MAX_E,
   ADC_UNKNOWN_CH_E,
+};
+
+static const uint16_t gsc_gpio_ch_map[] = {
+  GPIO_PH_A,
+  GPIO_PH_B,
+  GPIO_PH_C,
+  GPIO_BKIN2,
+  GPIO_CH_MAX,
 };
 
 uint32_t App_GetVoltage(VAdcCh_E vch) {
@@ -61,6 +70,12 @@ void App_SetPwmVoltage(PwmCh_E pwmch, uint32_t mvolts) {
   return;
 }
 
+void App_SetPwmVoltageAll(uint32_t mvolts) {
+  App_SetPwmDutyCycle(PwmChA_E, mvolts);
+  App_SetPwmDutyCycle(PwmChB_E, mvolts);
+  App_SetPwmDutyCycle(PwmChC_E, mvolts);
+}
+
 uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch) {
   uint32_t counts;
   if(pwmch >= PwmChMax_E) {
@@ -93,3 +108,42 @@ int32_t App_GetPosition(void) {
   int16_t cnts = (int16_t)ENC_GetCnt();
   return (int32_t)(cnts * APP_PARAMS_ENC_RES);
 }
+
+void App_DisarmPhase(GpioCh_E pin) {
+  if(pin >= GpioChMax_E) {
+    return;
+  }
+  GPIO_Reset(gsc_gpio_ch_map[pin]);  
+}
+
+void App_ArmPhase(GpioCh_E pin) {
+  if(pin >= GpioChMax_E) {
+    return;
+  }
+  GPIO_Set(gsc_gpio_ch_map[pin]);  
+}
+
+void App_ArmDrive(void) {
+  GPIO_Set(GpioChBkIn2_E);
+}
+
+void App_DisarmDrive(void) {
+  GPIO_Reset(GpioChBkIn2_E);
+}
+
+void App_DisarmMotor(void) {
+  App_DisarmDrive();
+  App_DisarmPhase(GpioChA_E);
+  App_DisarmPhase(GpioChB_E);
+  App_DisarmPhase(GpioChC_E);
+  App_SetPwmVoltageAll(0);
+}
+
+void App_ArmMotor(void) {
+  App_ArmDrive();
+  App_ArmPhase(GpioChA_E);
+  App_ArmPhase(GpioChB_E);
+  App_ArmPhase(GpioChC_E);
+  App_SetPwmVoltageAll(0);
+}
+

@@ -18,7 +18,8 @@
 #define APP_PARAMS_TEMP_V_BIAS (1055) /* Temperature voltage bias [mV]. */
 #define APP_PARAMS_TEMP_GAIN (43) /* Sensor gain [mdegC / mV]. */
 #define APP_PARAMS_ENC_COUNTS (400) /* Encoder counts per revolution (4x mode) */
-#define APP_PARAMS_ENC_RES (9) /* Encoder resolution in 0.1 resolution. */
+#define APP_PARAMS_ENC_RES (9) /* Encoder resolution in 0.1 deg resolution. */
+#define APP_PARAMS_POS_RES (10) /* Represents 0.1 deg resolution of position signal. */
 
 typedef enum {
   IfbkPhA_E = 0,
@@ -47,6 +48,15 @@ typedef enum {
   PwmChUnknown_E = 255,
 } PwmCh_E;
 
+typedef enum {
+  GpioChA_E = 0,
+  GpioChB_E,
+  GpioChC_E,
+  GpioChBkIn2_E,
+  GpioChMax_E,
+  GpioChUnknown_E = 255,
+} GpioCh_E;
+
 int32_t App_GetCurrent(IfbkPh_E ifbk);
 
 uint32_t App_GetVoltage(VAdcCh_E vch);
@@ -57,6 +67,8 @@ void App_SetPwmDutyCycle(PwmCh_E pwmch, uint32_t pwmdc);
 
 void App_SetPwmVoltage(PwmCh_E pwmch, uint32_t mvolts);
 
+void App_SetPwmVoltageAll(uint32_t mvolts);
+
 uint32_t App_GetPwmDutyCycle(PwmCh_E pwmch);
 
 uint32_t App_GetPwmVoltage(PwmCh_E pwmch);
@@ -64,5 +76,9 @@ uint32_t App_GetPwmVoltage(PwmCh_E pwmch);
 int32_t App_GetTemp(void);
 
 int32_t App_GetPosition(void);
+
+void App_DisarmMotor(void);
+
+void App_ArmMotor(void);
 
 #endif // __APP_H__
