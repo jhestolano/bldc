@@ -91,14 +91,14 @@ uint32_t PWM_GetDC(uint32_t pwmch) {
   if(pwmch >= PWM_PH_MAX) {
     return UINT32_MAX;
   }
-  counts = (uint32_t)__HAL_TIM_GET_COMPARE(&gs_pwm_conf, pwmch); 
+  counts = (uint32_t)PWM_GetComp(pwmch); 
   return (uint32_t)(counts * (uint32_t)PWM_MAX_DC / ((uint32_t)PWM_TMR_ARR));
 }
 
 void PWM_SetComp(uint32_t pwmch, uint16_t pwmcnt) {
-  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, pwmch, pwmcnt);
+  __HAL_TIM_SET_COMPARE(&gs_pwm_conf, PwmChMap[pwmch], pwmcnt);
 }
 
 uint16_t PWM_GetComp(uint32_t pwmch) {
-  return __HAL_TIM_GET_COMPARE(&gs_pwm_conf, pwmch);
+  return __HAL_TIM_GET_COMPARE(&gs_pwm_conf, PwmChMap[pwmch]);
 }
