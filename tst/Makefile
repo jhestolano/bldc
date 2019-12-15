@@ -1,11 +1,11 @@
 PROJ_NAME=AppTest
 
 SRCS=./main.c
-#SRCS+=./ut_app.c
 SRCS+=../app/src/app.c
 SRCS+=./src/mock_pwm.c
 SRCS+=./src/mock_adc.c
 SRCS+=./src/mock_enc.c
+SRCS+=./src/mock_gpio.c
 SRCS+=../Unity/unity.c
 
 INC_DIRS=.
@@ -26,7 +26,6 @@ INCLUDE = $(addprefix -I,$(INC_DIRS))
 .PHONY: $(PROJ_NAME)
 $(PROJ_NAME): $(SRCS)
 	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $^ -o $@
-#	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $^ -o $@ $(LIBS) 
     
 clean:
 	rm -f *.o $(PROJ_NAME)

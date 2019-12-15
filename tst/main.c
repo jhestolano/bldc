@@ -19,6 +19,8 @@ extern uint32_t gs_adc_ch_buf[ADC_CH_MAX_E];
 extern uint16_t gs_pwm_ch_buf[PWM_PH_MAX]; 
 
 extern uint16_t gs_enc_cnt;
+
+extern uint16_t gs_gpio_pin;
 /*******************************************************************************/
 
 void setUp(void) {
@@ -224,6 +226,51 @@ void test_App_GetMotorPosition_max_neg_value(void) {
   TEST_ASSERT_EQUAL_INT32(-294912, App_GetPosition());
 }
 
+void test_App_ArmPhase_valid(void) {
+  App_ArmPhase(GpioChA_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChA_E, gs_gpio_pin);
+  App_ArmPhase(GpioChB_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChB_E, gs_gpio_pin);
+  App_ArmPhase(GpioChC_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChC_E, gs_gpio_pin);
+}
+
+void test_App_ArmPhase_invalid(void) {
+  gs_gpio_pin = 200;
+  /* gs_gpio_pin is unmodified because function rejects
+     invalid phase and returns without attempting write. */
+  App_ArmPhase(100);
+  TEST_ASSERT_EQUAL_UINT16(200, gs_gpio_pin);
+}
+
+void test_App_DisarmPhase_valid(void) {
+  gs_gpio_pin = 100;
+  App_DisarmPhase(GpioChA_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChA_E, gs_gpio_pin);
+  App_DisarmPhase(GpioChB_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChB_E, gs_gpio_pin);
+  App_DisarmPhase(GpioChC_E);
+  TEST_ASSERT_EQUAL_UINT16(GpioChC_E, gs_gpio_pin);
+}
+
+void test_App_DisarmPhase_invalid(void) {
+  gs_gpio_pin = 199;
+  App_DisarmPhase(100);
+  TEST_ASSERT_EQUAL_UINT16(199, gs_gpio_pin);
+}
+
+void test_App_ArmDrive(void) {
+  gs_gpio_pin = 200;
+  App_ArmDrive();
+  TEST_ASSERT_EQUAL_UINT16(gs_gpio_pin, GpioChBkIn2_E);
+}
+
+void test_App_DisarmDrive(void) {
+  gs_gpio_pin = 200;
+  App_DisarmDrive();
+  TEST_ASSERT_EQUAL_UINT16(gs_gpio_pin, GpioChBkIn2_E);
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_ADC_read_value);
@@ -263,5 +310,11 @@ int main(void) {
   RUN_TEST(test_App_GetMotorPosition_max_pos_value);
   RUN_TEST(test_App_GetMotorPosition_mid_neg_value);
   RUN_TEST(test_App_GetMotorPosition_max_neg_value);
+  RUN_TEST(test_App_ArmPhase_valid);
+  RUN_TEST(test_App_ArmPhase_invalid);
+  RUN_TEST(test_App_DisarmPhase_valid);
+  RUN_TEST(test_App_DisarmPhase_invalid);
+  RUN_TEST(test_App_ArmDrive);
+  RUN_TEST(test_App_DisarmDrive);
   return UNITY_END();
 }
