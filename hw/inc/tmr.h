@@ -10,22 +10,27 @@ typedef uint8_t TmrCh_T;
 *******************************************************************************/
 #define TMR_CH_GENERAL  ((TmrCh_T)0)
 #define TMR_CH_GENERAL_INSTANCE (TIM2)
+#define TMR_CH_GENERAL_IRQn (TIM2_IRQn)
 
 #define TMR_CH_INC_TICK ((TmrCh_T)1)
 #define TMR_CH_INC_TICK_INSTANCE (TIM6)
+#define TMR_CH_INC_TICK_IRQn (TIM6_DAC_IRQn)
+
+#define TMR_ENC_LOCK() HAL_NVIC_DisableIRQ(TMR_CH_INC_TICK_IRQn)
+#define TMR_ENC_UNLOCK() HAL_NVIC_EnableIRQ(TMR_CH_INC_TICK_IRQn)
 
 #define TMR_CH_MAX      ((TmrCh_T)2)
 
 #define TMR_IT_CONF {                                                         \
   {                                                                           \
     .tmr = TMR_CH_GENERAL,                                                    \
-    .irqn = TIM2_IRQn,                                                        \
+    .irqn = TMR_CH_GENERAL_IRQn,                                              \
     .prio = 8,                                                                \
     .subprio = 1,                                                             \
   },                                                                          \
   {                                                                           \
     .tmr = TMR_CH_INC_TICK,                                                   \
-    .irqn = TIM6_DAC_IRQn,                                                    \
+    .irqn = TMR_CH_INC_TICK_IRQn,                                             \
     .prio = 8,                                                                \
     .subprio = 0,                                                             \
   },                                                                          \
@@ -69,6 +74,6 @@ void TMR_Stop(TmrCh_T tmrch);
 
 void TMR_Reset(TmrCh_T tmrch);
 
-uint32_t TMR_GetCount(TmrCh_T tmrch);
+uint32_t TMR_GetCnt(TmrCh_T tmrch);
 
 #endif

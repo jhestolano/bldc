@@ -1,4 +1,5 @@
 #include "enc.h"
+#include "tmr.h"
 #include "stm32f3xx_hal_dma.h"
 #include "stm32f3xx_hal_tim.h"
 #include "stm32f3xx_hal_tim_ex.h"
@@ -9,6 +10,13 @@
 #include "dbg.h"
 
 static TIM_HandleTypeDef gs_tim_enc_conf = TIM_ENC_INIT_CONF;
+
+typedef struct ENC_Handle {
+  int32_t counts;
+  int8_t dir;
+} ENC_Handle_S;
+
+static ENC_Handle_S gs_enc_handle;
 
 static void ENC_ErrorHandler(char* errmsg) {
   DBG_ERR("ENC: %s", errmsg);
@@ -21,6 +29,8 @@ void ENC_Init(void) {
   if(HAL_TIM_Encoder_Init(&gs_tim_enc_conf, &s_enc_conf) != HAL_OK) {
     ENC_ErrorHandler("Error initializing encoder interface!\n\r");
   }
+  gs_enc_handle.dir = ENC_DIR_UNKNOWN;
+  gs_enc_handle.counts = 0;
   ENC_Start();
   DBG_DEBUG("Done.\n\r");
 }
@@ -53,12 +63,17 @@ void ENC_Start(void) {
   HAL_TIM_Encoder_Start(&gs_tim_enc_conf, ENC_CH_ALL);
 }
 
-uint16_t ENC_GetCnt(void) {
-  return __HAL_TIM_GET_COUNTER(&gs_tim_enc_conf);
+int32_t ENC_GetCnt(void) {
+  int32_t ret;
+  int16_t counts_reg = (int16_t)__HAL_TIM_GET_COUNTER(&gs_tim_enc_conf);
+  TMR_ENC_LOCK();
+  ret = (int32_t)counts_reg + gs_enc_handle.counts;
+  TMR_ENC_UNLOCK();
+  return ret;
 }
 
-void ENC_SetCnt(uint16_t cnt) {
-  __HAL_TIM_SET_COUNTER(&gs_tim_enc_conf, cnt);
+void ENC_SetCnt(int16_t cnt) {
+  __HAL_TIM_SET_COUNTER(&gs_tim_enc_conf, (uint16_t)cnt);
 }
 
 void ENC_DeInit(void) {
@@ -74,3 +89,20 @@ void ENC_ChIdxCallback(void) {
   DBG_DEBUG("Index callback!\n\r");  
 }
 #endif
+
+void ENC_TmrCallback(void) {
+/* Function to handle encoder unwrapping when encoder
+   does not have index channel. Called by TMR module @ 1ms. */
+  int16_t counts = (int16_t)ENC_GetCnt();   
+  if(counts > gs_enc_handle.counts) {
+    gs_enc_handle.dir = ENC_DIR_FWD;
+  } else if (counts < gs_enc_handle.counts) {
+    gs_enc_handle.dir = ENC_DIR_REV;
+  } else {
+    gs_enc_handle.dir = ENC_DIR_UNKNOWN;
+  }
+  if((counts >= ENC_COUNTS_THRESHOLD) || (counts <= -ENC_COUNTS_THRESHOLD)) {
+    gs_enc_handle.counts += counts;
+    ENC_SetCnt(0);
+  }
+}

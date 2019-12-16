@@ -5,6 +5,7 @@
 #include "stm32f3xx_hal_tim_ex.h"
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_hal.h"
+#include "enc.h"
 
 /*******************************************************************************
 ** Private data type definitions.
@@ -74,8 +75,8 @@ void TMR_Reset(TmrCh_T tmr) {
   }
 }
 
-uint32_t TMR_GetCount(TmrCh_T tmr) {
-  uint32_t count;
+uint32_t TMR_GetCnt(TmrCh_T tmr) {
+  uint32_t count = UINT32_MAX;
   if(TMR_IS_VALID(tmr)) {
     count = (uint32_t)__HAL_TIM_GET_COUNTER(&gs_tim_init_conf_a[tmr]);
   }
@@ -83,8 +84,8 @@ uint32_t TMR_GetCount(TmrCh_T tmr) {
 }
 
 void TMR_IncTickCallback(void) {
-  HAL_TickInc();
-  GPIO_LedToggle();
+  HAL_IncTick();
+  ENC_TmrCallback();
 }
 
 

@@ -11,6 +11,16 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_ll_tim.h"
 
+#define ENC_DIR_UNKNOWN (0)
+#define ENC_DIR_FWD (1)
+#define ENC_DIR_REV (-1)
+
+/* Number of counts over which (positive or negative)
+   the TIM counter is reset so that overflow does not occur.
+   The current count is stored under the encoder handle
+   structure. */
+#define ENC_COUNTS_THRESHOLD (30000)
+
 #define ENC_CH_A (TIM_CHANNEL_1)
 #define ENC_CH_B (TIM_CHANNEL_2)
 #define ENC_CH_ALL (TIM_CHANNEL_ALL)
@@ -78,8 +88,10 @@ void ENC_Init(void);
 
 void ENC_Start(void);
 
-uint16_t ENC_GetCnt(void);
+int32_t ENC_GetCnt(void);
 
 void ENC_DeInit(void);
+
+void ENC_TmrCallback(void);
 
 #endif // _ENC_H_
