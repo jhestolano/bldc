@@ -20,9 +20,12 @@
 #define APP_PARAMS_ENC_COUNTS (400) /* Encoder counts per revolution (4x mode) */
 #define APP_PARAMS_ENC_RES (9) /* Encoder resolution in 0.1 deg resolution. */
 #define APP_PARAMS_POS_RES (10) /* Represents 0.1 deg resolution of position signal. */
+#define APP_PARAMS_MOTOR_J (110) /* Motor inertia in g/mm^2 units. Actual: 1.10127e-7 kg/m^2 */
+#define APP_PARAMS_MOTOR_KEMF (103) /* Motor back emf constant in mN*m*s/rad units. Actual: 1.10127e-5 N*m*s/rad */
+#define APP_PARAMS_MOTOR_KF (11012) /* Motor friction in g*mm^2*s/rad. Actual: 1.10127e-5 */
 
 typedef enum {
-  IfbkPhA_E = 0,
+  IfbkPhA_E,
   IfbkPhB_E,
   IfbkPhC_E,
   IfbkPhMax_E,
@@ -80,5 +83,13 @@ int32_t App_GetPosition(void);
 void App_DisarmMotor(void);
 
 void App_ArmMotor(void);
+
+void App_ArmPhase(GpioCh_E gpio);
+
+void App_DisarmPhase(GpioCh_E gpio);
+
+void App_ArmDrive(void);
+
+void App_DisarmDrive(void);
 
 #endif // __APP_H__

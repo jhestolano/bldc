@@ -105,7 +105,7 @@ int32_t App_GetTemp(void) {
 }
 
 int32_t App_GetPosition(void) {
-  int16_t cnts = (int16_t)ENC_GetCnt();
+  int32_t cnts = (int32_t)ENC_GetCnt();
   return (int32_t)(cnts * APP_PARAMS_ENC_RES);
 }
 
