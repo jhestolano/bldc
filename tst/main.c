@@ -18,7 +18,7 @@ extern uint32_t gs_adc_ch_buf[ADC_CH_MAX_E];
 
 extern uint16_t gs_pwm_ch_buf[PWM_PH_MAX]; 
 
-extern uint16_t gs_enc_cnt;
+extern int32_t gs_enc_cnt;
 
 extern uint16_t gs_gpio_pin;
 /*******************************************************************************/
@@ -217,13 +217,13 @@ void test_App_GetMotorPosition_max_pos_value(void) {
 }
 
 void test_App_GetMotorPosition_mid_neg_value(void) {
-  gs_enc_cnt = 65236; /* Represents -300 */
-  TEST_ASSERT_EQUAL_INT32(-2700, App_GetPosition());
+  gs_enc_cnt = -3000; 
+  TEST_ASSERT_EQUAL_INT32(-27000, App_GetPosition());
 }
 
 void test_App_GetMotorPosition_max_neg_value(void) {
-  gs_enc_cnt = INT16_MAX + 1;
-  TEST_ASSERT_EQUAL_INT32(-294912, App_GetPosition());
+  gs_enc_cnt = -30000;
+  TEST_ASSERT_EQUAL_INT32(-270000, App_GetPosition());
 }
 
 void test_App_ArmPhase_valid(void) {
