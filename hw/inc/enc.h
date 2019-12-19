@@ -65,7 +65,7 @@
   .Init = {                                                                    \
     .Prescaler = 0,                                                            \
     .CounterMode = TIM_COUNTERMODE_UP,                                         \
-    .Period = UINT16_MAX,                                                      \
+    .Period = UINT32_MAX,                                                      \
     .RepetitionCounter = 0,                                                    \
     .ClockDivision = TIM_CLOCKDIVISION_DIV1,                                   \
     .AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE,                       \
