@@ -64,12 +64,7 @@ void ENC_Start(void) {
 }
 
 int32_t ENC_GetCnt(void) {
-  int32_t ret;
-  int16_t counts_reg = (int16_t)__HAL_TIM_GET_COUNTER(&gs_tim_enc_conf);
-  TMR_ENC_LOCK();
-  ret = (int32_t)counts_reg + gs_enc_handle.counts;
-  TMR_ENC_UNLOCK();
-  return ret;
+  return (int32_t)__HAL_TIM_GET_COUNTER(&gs_tim_enc_conf);
 }
 
 void ENC_SetCnt(int16_t cnt) {
