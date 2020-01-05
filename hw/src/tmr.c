@@ -85,7 +85,7 @@ uint32_t TMR_GetCnt(TmrCh_T tmr) {
 
 void TMR_IncTickCallback(void) {
   HAL_IncTick();
-  ENC_TmrCallback();
+//  ENC_TmrCallback();
 }
 
 
