@@ -1,19 +1,19 @@
 %% Alias type definitions.
 %% Current units.
 Ifbk = Simulink.AliasType;
-Ifbk.BaseType = 'fixdt(1,32,1e-3,0)';
+Ifbk.BaseType = 'single';
 
 %% Volt units.
 Volts = Simulink.AliasType;
-Volts.BaseType = 'fixdt(1,32,1e-3,0)';
+Volts.BaseType = 'single';
 
 %% Degree units.
 Degs = Simulink.AliasType;
-Degs.BaseType = 'fixdt(1, 32, 1e-1, 0)';
+Degs.BaseType = 'single';
 
 %% Degrees per second units.
 Degs_s = Simulink.AliasType;
-Degs_s.BaseType = 'fixdt(1, 32, 1e-1, 0)';
+Degs_s.BaseType = 'single';
 
 %% Parameter definitions.
 %% PID-P term.
@@ -23,7 +23,7 @@ Ifbk_PI_Kp = Simulink.Parameter;
 % PID_Kp.CoderInfo.CustomStorageClass =  'Const';
 Ifbk_PI_Kp.StorageClass = 'Auto';
 Ifbk_PI_Kp.Description = 'PI proportional term for current controller.';
-Ifbk_PI_Kp.DataType = 'fixdt(1, 32, 1e-3, 0)';
+Ifbk_PI_Kp.DataType = 'single';
 Ifbk_PI_Kp.Min = [];
 Ifbk_PI_Kp.Max = [];
 Ifbk_PI_Kp.DocUnits = '';
@@ -36,7 +36,7 @@ Ifbk_PI_Ki = Simulink.Parameter;
 % PID_Ki.CoderInfo.CustomStorageClass =  'Const';
 Ifbk_PI_Ki.StorageClass = 'Auto';
 Ifbk_PI_Ki.Description = 'PI integral term for current controller.';
-Ifbk_PI_Ki.DataType =  'fixdt(1, 32 , 1e-3, 0)';
+Ifbk_PI_Ki.DataType =  'single';
 Ifbk_PI_Ki.Min = [];
 Ifbk_PI_Ki.Max = [];
 Ifbk_PI_Ki.DocUnits = '';
@@ -49,7 +49,7 @@ Spd_PI_Kp = Simulink.Parameter;
 % Spd_PI_Kp.CoderInfo.CustomStorageClass =  'Const';
 Spd_PI_Kp.StorageClass = 'Auto';
 Spd_PI_Kp.Description = 'PI proportional term for speed controller.';
-Spd_PI_Kp.DataType = 'fixdt(0, 32, 1e-9, 0)';
+Spd_PI_Kp.DataType = 'single';
 Spd_PI_Kp.Min = [];
 Spd_PI_Kp.Max = [];
 Spd_PI_Kp.DocUnits = '';
@@ -62,7 +62,7 @@ Spd_PI_Ki = Simulink.Parameter;
 % Spd_PI_Ki.CoderInfo.CustomStorageClass =  'Const';
 Spd_PI_Ki.StorageClass = 'Auto';
 Spd_PI_Ki.Description = 'PI integral term for speed controller.';
-Spd_PI_Ki.DataType =  'fixdt(0, 32 , 1e-9, 0)';
+Spd_PI_Ki.DataType =  'single';
 Spd_PI_Ki.Min = [];
 Spd_PI_Ki.Max = [];
 Spd_PI_Ki.DocUnits = '';
@@ -75,7 +75,7 @@ Pos_PI_Kp = Simulink.Parameter;
 % Pos_PI_Kp.CoderInfo.CustomStorageClass =  'Const';
 Pos_PI_Kp.StorageClass = 'Auto';
 Pos_PI_Kp.Description = 'PI proportional term for position controller.';
-Pos_PI_Kp.DataType = 'fixdt(0, 32, 1e-1, 0)';
+Pos_PI_Kp.DataType = 'single';
 Pos_PI_Kp.Min = [];
 Pos_PI_Kp.Max = [];
 Pos_PI_Kp.DocUnits = '';
@@ -88,7 +88,7 @@ Pos_PI_Ki = Simulink.Parameter;
 % Pos_PI_Ki.CoderInfo.CustomStorageClass =  'Const';
 Pos_PI_Ki.StorageClass = 'Auto';
 Pos_PI_Ki.Description = 'PI integral term for position controller.';
-Pos_PI_Ki.DataType =  'fixdt(0, 32 , 1e-1, 0)';
+Pos_PI_Ki.DataType =  'single';
 Pos_PI_Ki.Min = [];
 Pos_PI_Ki.Max = [];
 Pos_PI_Ki.DocUnits = '';
@@ -101,7 +101,7 @@ Pos_SMDiff_Kp = Simulink.Parameter;
 % Pos_SMDiff_Kp.CoderInfo.CustomStorageClass =  'Const';
 Pos_SMDiff_Kp.StorageClass = 'Auto';
 Pos_SMDiff_Kp.Description = 'Proportional gain for motor position sliding mode differentiator.';
-Pos_SMDiff_Kp.DataType = 'fixdt(0, 32, 1e-1, 0)';
+Pos_SMDiff_Kp.DataType = 'single';
 Pos_SMDiff_Kp.Min = [];
 Pos_SMDiff_Kp.Max = [];
 Pos_SMDiff_Kp.DocUnits = '';
@@ -114,7 +114,7 @@ Pos_SMDiff_Ki = Simulink.Parameter;
 % Pos_SMDiff_Kp.CoderInfo.CustomStorageClass =  'Const';
 Pos_SMDiff_Ki.StorageClass = 'Auto';
 Pos_SMDiff_Ki.Description = 'Integral gain for motor position sliding mode differentiator.';
-Pos_SMDiff_Ki.DataType = 'fixdt(0, 32, 1e-1, 0)';
+Pos_SMDiff_Ki.DataType = 'single';
 Pos_SMDiff_Ki.Min = [];
 Pos_SMDiff_Ki.Max = [];
 Pos_SMDiff_Ki.DocUnits = '';
@@ -127,7 +127,7 @@ Pos_SMDiff_Filt = Simulink.Parameter;
 % Pos_SMDiff_Filt.CoderInfo.CustomStorageClass =  'Const';
 Pos_SMDiff_Filt.StorageClass = 'Auto';
 Pos_SMDiff_Filt.Description = 'Filter constant for sliding mode differentiator.';
-Pos_SMDiff_Filt.DataType = 'fixdt(0, 32, 1e-6, 0)';
+Pos_SMDiff_Filt.DataType = 'single';
 Pos_SMDiff_Filt.Min = [];
 Pos_SMDiff_Filt.Max = [];
 Pos_SMDiff_Filt.DocUnits = '';
@@ -140,11 +140,24 @@ Ts_1n4 = Simulink.Parameter;
 % Ts_1n4.CoderInfo.CustomStorageClass =  'Const';
 Ts_1n4.StorageClass = 'Auto';
 Ts_1n4.Description = 'Time step representing 1e-4s. Useful for discrete time systems that take execution rate.';
-Ts_1n4.DataType = 'fixdt(0, 32, 1e-6, 0)';
+Ts_1n4.DataType = 'single';
 Ts_1n4.Min = [];
 Ts_1n4.Max = [];
 Ts_1n4.DocUnits = '';
 Ts_1n4.Value = 1e-4;
+
+%% SM differentiator filter constant. Calculated as: tau / (ts + tau).
+Spd_SMDiff_Filt_K = Simulink.Parameter;
+% Spd_SMDiff_Filt_K.CoderInfo.StorageClass = 'Custom';
+% Spd_SMDiff_Filt_K.CoderInfo.Alias = '';
+% Spd_SMDiff_Filt_K.CoderInfo.CustomStorageClass =  'Const';
+Spd_SMDiff_Filt_K.StorageClass = 'Auto';
+Spd_SMDiff_Filt_K.Description = ' SM differentiator filter constant. Calculated as: tau / (ts + tau).';
+Spd_SMDiff_Filt_K.DataType = 'single';
+Spd_SMDiff_Filt_K.Min = [];
+Spd_SMDiff_Filt_K.Max = [];
+Spd_SMDiff_Filt_K.DocUnits = '';
+Spd_SMDiff_Filt_K.Value = 0.9615;
 
 %% Signal definitions
 
@@ -160,7 +173,7 @@ IfbkPhA.Dimensions = 1;
 IfbkPhA.Complexity =  'auto';
 IfbkPhA.SampleTime = -1;
 IfbkPhA.SamplingMode =  'auto';
-IfbkPhA.InitialValue = '0';
+IfbkPhA.InitialValue = '';
 % Generate GetSet function:
 IfbkPhA.CoderInfo.StorageClass =  'Custom';
 IfbkPhA.CoderInfo.CustomStorageClass =  'GetSet';
@@ -180,7 +193,7 @@ PwmChA.Dimensions = 1;
 PwmChA.Complexity =  'auto';
 PwmChA.SampleTime = -1;
 PwmChA.SamplingMode =  'auto';
-PwmChA.InitialValue = '0';
+PwmChA.InitialValue = '';
 % Generate GetSet function:
 PwmChA.CoderInfo.StorageClass =  'Custom';
 PwmChA.CoderInfo.CustomStorageClass =  'GetSet';
@@ -200,13 +213,34 @@ MtrPos.Dimensions = 1;
 MtrPos.Complexity =  'auto';
 MtrPos.SampleTime = -1;
 MtrPos.SamplingMode =  'auto';
-MtrPos.InitialValue = '0';
+MtrPos.InitialValue = '';
 % Generate GetSet function:
-% MtrPos.CoderInfo.StorageClass =  'Custom';
-% MtrPos.CoderInfo.CustomStorageClass =  'GetSet';
-% MtrPos.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
-% MtrPos.CoderInfo.CustomAttributes.GetFunction = 'App_GetMtrPos';
-% MtrPos.CoderInfo.CustomAttributes.SetFunction = '';
+MtrPos.CoderInfo.StorageClass =  'Custom';
+MtrPos.CoderInfo.CustomStorageClass =  'GetSet';
+MtrPos.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
+MtrPos.CoderInfo.CustomAttributes.GetFunction = 'App_GetMtrPos';
+MtrPos.CoderInfo.CustomAttributes.SetFunction = '';
+
+%% Motor position target.
+MtrPosTgt = Simulink.Signal;
+MtrPosTgt.CoderInfo.Alias = '';
+MtrPosTgt.Description = 'Motor position target';
+MtrPosTgt.DataType =  'Degs';
+MtrPosTgt.Min = [];
+MtrPosTgt.Max = [];
+MtrPosTgt.DocUnits = 'deg';
+MtrPosTgt.Dimensions = 1;
+MtrPosTgt.Complexity =  'auto';
+MtrPosTgt.SampleTime = -1;
+MtrPosTgt.SamplingMode =  'auto';
+MtrPosTgt.InitialValue = '';
+% Generate GetSet function:
+MtrPosTgt.CoderInfo.StorageClass =  'Custom';
+MtrPosTgt.CoderInfo.CustomStorageClass =  'GetSet';
+MtrPosTgt.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
+MtrPosTgt.CoderInfo.CustomAttributes.GetFunction = 'App_GetMtrPosTgt';
+MtrPosTgt.CoderInfo.CustomAttributes.SetFunction = 'App_SetMtrPosTgt';
+
 
 %% Motor speed.
 MtrSpd = Simulink.Signal;
@@ -220,13 +254,13 @@ MtrSpd.Dimensions = 1;
 MtrSpd.Complexity =  'auto';
 MtrSpd.SampleTime = -1;
 MtrSpd.SamplingMode =  'auto';
-MtrSpd.InitialValue = '0';
+MtrSpd.InitialValue = '';
 % Generate GetSet function:
-% MtrSpd.CoderInfo.StorageClass =  'Custom';
-% MtrSpd.CoderInfo.CustomStorageClass =  'GetSet';
-% MtrSpd.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
-% MtrSpd.CoderInfo.CustomAttributes.SetFunction = 'App_SetMtrSpd';
-% MtrSpd.CoderInfo.CustomAttributes.GetFunction = '';
+MtrSpd.CoderInfo.StorageClass =  'Custom';
+MtrSpd.CoderInfo.CustomStorageClass =  'GetSet';
+MtrSpd.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
+MtrSpd.CoderInfo.CustomAttributes.SetFunction = 'App_SetMtrSpd';
+MtrSpd.CoderInfo.CustomAttributes.GetFunction = 'App_GetMtrSpd';
 
 %% Motor speed filtered.
 MtrSpdFil = Simulink.Signal;
@@ -240,10 +274,10 @@ MtrSpdFil.Dimensions = 1;
 MtrSpdFil.Complexity =  'auto';
 MtrSpdFil.SampleTime = -1;
 MtrSpdFil.SamplingMode =  'auto';
-MtrSpdFil.InitialValue = '0';
+MtrSpdFil.InitialValue = '';
 % Generate GetSet function:
-% MtrSpdFil.CoderInfo.StorageClass =  'Custom';
-% MtrSpdFil.CoderInfo.CustomStorageClass =  'GetSet';
-% MtrSpdFil.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
-% MtrSpdFil.CoderInfo.CustomAttributes.SetFunction = 'App_SetMtrSpdFil';
-% MtrSpdFil.CoderInfo.CustomAttributes.GetFunction = '';
+MtrSpdFil.CoderInfo.StorageClass =  'Custom';
+MtrSpdFil.CoderInfo.CustomStorageClass =  'GetSet';
+MtrSpdFil.CoderInfo.CustomAttributes.HeaderFile = 'app.h';
+MtrSpdFil.CoderInfo.CustomAttributes.SetFunction = 'App_SetMtrSpdFil';
+MtrSpdFil.CoderInfo.CustomAttributes.GetFunction = '';
