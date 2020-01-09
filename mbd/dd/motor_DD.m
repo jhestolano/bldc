@@ -3,7 +3,7 @@ L = 0.02395;
 K = 0.10369;
 J = 1.10127e-7;
 Kf = 1.10127e-5;
-Acc_Max = 1e4;
+Acc_Max = 1e4 * 180 / pi;
 
 Ts = 0.001;
 PID_Ki = 4 * R / Ts;
@@ -20,4 +20,5 @@ SPD_LIN_KP = 2 * 2e1;
 SPD_LIN_KI = SPD_LIN_KP ^ 2 / 4;
 
 Ts_pos = 0.1;
-Pos_Kp = 4 / Ts_pos;
+% Pos_Kp = (4 / Ts_pos);
+Pos_Kp = 3000; % Something went wrong with units when converting to degrees.

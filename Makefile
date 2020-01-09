@@ -32,6 +32,9 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_tim_ex.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
+# Generated code.
+SRCS+=mbd/codegen/spdobs_ert_rtw/spdobs.c
+
 # This is the location for printf.c file implementation from Embdedded Artistry.
 SRCS+=$(LIBS_DIR)/printf/printf.c
 
@@ -55,6 +58,7 @@ INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
+INC_DIRS+=./mbd/codegen/spdobs_ert_rtw
 INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/gnu-mcu-eclipse/stlink/build/Release
@@ -73,7 +77,7 @@ CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
 #CFLAGs+=mthumb-interwork
 CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS+=--specs=nosys.specs
-CFLAGS+=-ffunction-sections -fdata-sections
+CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
 
 # Linker Files (all *.ld files)
 LFLAGS=-Wl,-Map,$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
