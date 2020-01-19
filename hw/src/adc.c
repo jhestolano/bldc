@@ -8,6 +8,8 @@
 #include "gpio.h"
 #include "dbg.h"
 #include "app.h"
+#include "math.h"
+#include "ctrl.h"
 
 extern MtrIf_S* AppTask_GetMtrIf(void);
 
@@ -134,21 +136,6 @@ uint32_t ADC_Read(void) {
   return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
-int32_t pidctrl(void) {
-  static float kierr;
-  const float kp = 95.82f;
-  const float ki = 94539.0f;
-  float itgt, iact, err, volts;
-  uint32_t pot;
-  pot = (gs_adc_ch_buf[ADC_POT_CH_E] >> 3);
-  iact = App_GetCurrent(IfbkPhC_E);
-  itgt = (float)pot;
-  err = itgt - iact;
-  kierr += ki * err;
-  volts = kp * err + kierr / 30.e3f;
-  return (int32_t)volts;
-}
-
 void ADC1_IRQHandler(void) {
   HAL_ADC_IRQHandler(&gs_adc_handle);
 }
@@ -158,13 +145,19 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  int32_t vin;
+  float pwm, mtrspd, mtrspdfil;
   MtrIf_S* ptr_mtr_if = AppTask_GetMtrIf();
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-  vin = pidctrl();
-  MtrIf_SetVin(ptr_mtr_if, vin);
+//  Ctrl_30Khz_Step((float)App_GetPosition(), (float)App_GetCurrent(IfbkPhC_E),
+//        (float)MtrIf_GetIfbkTgt(ptr_mtr_if), &pwm, &mtrspd, &mtrspdfil);
+  rtU.MtrPos = (float)App_GetPosition();
+  rtU.MtrPosTgt = 0.0f;
+  rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E);
+  Trig_30Khz();
+  MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA);
+  MtrIf_SetSpd(ptr_mtr_if, (int32_t)rtY.MtrSpdFil);
   return;
 }
 
