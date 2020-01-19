@@ -33,7 +33,9 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
-SRCS+=mbd/codegen/spdobs_ert_rtw/spdobs.c
+#SRCS+=mbd/codegen/ctrl_1khz_ert_rtw/ctrl_1khz.c
+#SRCS+=mbd/codegen/ctrl_30khz_ert_rtw/ctrl_30khz.c
+SRCS+=mbd/codegen/ctrl_ert_rtw/ctrl.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
 SRCS+=$(LIBS_DIR)/printf/printf.c
@@ -58,12 +60,14 @@ INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
-INC_DIRS+=./mbd/codegen/spdobs_ert_rtw
+INC_DIRS+=./mbd/codegen/ctrl_1khz_ert_rtw
+INC_DIRS+=./mbd/codegen/ctrl_30khz_ert_rtw
+INC_DIRS+=./mbd/codegen/ctrl_ert_rtw
 INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/gnu-mcu-eclipse/stlink/build/Release
 
-TOOLS_DIR=~/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/8.2.1-1.4-20190214-0604/bin
+TOOLS_DIR=~/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
