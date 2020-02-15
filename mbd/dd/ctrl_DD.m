@@ -53,20 +53,24 @@ Spd_PI_Kp.DataType = 'single';
 Spd_PI_Kp.Min = [];
 Spd_PI_Kp.Max = [];
 Spd_PI_Kp.DocUnits = '';
-Spd_PI_Kp.Value = 7.688314981375182e-06;
+Spd_PI_Kp.Value = Spd_Kp;
+%Spd_PI_Kp.Value = 7.688314981375182e-06;
+
 
 %% PID-I term.
 Spd_PI_Ki = Simulink.Parameter;
 % Spd_PI_Ki.CoderInfo.StorageClass = 'Custom';
 % Spd_PI_Ki.CoderInfo.Alias = '';
-% Spd_PI_Ki.CoderInfo.CustomStorageClass =  'Const';
+% Spd_PI_Ki.CoderInfo.CustomStorage0.5Class =  'Const';
 Spd_PI_Ki.StorageClass = 'Auto';
 Spd_PI_Ki.Description = 'PI integral term for speed controller.';
 Spd_PI_Ki.DataType =  'single';
 Spd_PI_Ki.Min = [];
 Spd_PI_Ki.Max = [];
 Spd_PI_Ki.DocUnits = '';
-Spd_PI_Ki.Value = 7.688314981375182e-04;
+Spd_PI_Ki.Value = Spd_Ki;
+%Spd_PI_Ki.Value = 7.688314981375182e-04;
+
 
 %% PID-P term.
 Pos_PI_Kp = Simulink.Parameter;
@@ -79,7 +83,7 @@ Pos_PI_Kp.DataType = 'single';
 Pos_PI_Kp.Min = [];
 Pos_PI_Kp.Max = [];
 Pos_PI_Kp.DocUnits = '';
-Pos_PI_Kp.Value = 53;
+Pos_PI_Kp.Value = Pos_Kp;
 
 %% PID-I term.
 Pos_PI_Ki = Simulink.Parameter;
