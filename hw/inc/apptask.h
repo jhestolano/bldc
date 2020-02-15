@@ -13,7 +13,7 @@
 
 #define APP_TASK_MOTOR_CONTROL_TS (1)
 #define APP_TASK_MOTOR_CONTROL_PRIO (3)
-#define APP_TASK_MOTOR_CONTROL_STACK_SIZE (100)
+#define APP_TASK_MOTOR_CONTROL_STACK_SIZE (300)
 
 void AppTask_SLog(void* params);
 

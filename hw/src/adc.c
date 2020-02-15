@@ -153,11 +153,9 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 //  Ctrl_30Khz_Step((float)App_GetPosition(), (float)App_GetCurrent(IfbkPhC_E),
 //        (float)MtrIf_GetIfbkTgt(ptr_mtr_if), &pwm, &mtrspd, &mtrspdfil);
   rtU.MtrPos = (float)App_GetPosition();
-  rtU.MtrPosTgt = 0.0f;
   rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E);
   Trig_30Khz();
   MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA);
-  MtrIf_SetSpd(ptr_mtr_if, (int32_t)rtY.MtrSpdFil);
   return;
 }
 
