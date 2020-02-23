@@ -14,3 +14,12 @@ tags
 *.js
 *.html
 *.dmr
+*.autosave
+*.css
+*.png
+*.gif
+*.tmw
+*.rsp
+*.swn
+*.swp
+mbd/cache
