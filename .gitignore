@@ -10,3 +10,7 @@ AppTest
 *.map
 *.txt
 tags
+*.mat
+*.js
+*.html
+*.dmr
