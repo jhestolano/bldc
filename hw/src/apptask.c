@@ -13,16 +13,18 @@
 #include "ctrl.h"
 #include "math.h"
 
-#define SLOG_SIGBUF_SIZE (4)
+#define SLOG_SIGBUF_SIZE (8)
 
 static MtrIf_S gs_mtr_if = {0};
 
 #ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
-  sigbuf[0] = (uint32_t)App_GetCurrent(IfbkPhC_E);
-  sigbuf[1] = (uint32_t)MtrIf_GetPos(&gs_mtr_if);
-  sigbuf[2] = (uint32_t)MtrIf_GetPosTgt(&gs_mtr_if);
-  sigbuf[3] = (uint32_t)MtrIf_GetSpd(&gs_mtr_if);
+  sigbuf[0] = (int32_t)App_GetCurrent(IfbkPhC_E);
+  sigbuf[1] = (int32_t)MtrIf_GetPos(&gs_mtr_if);
+  sigbuf[2] = (int32_t)MtrIf_GetPosTgt(&gs_mtr_if);
+  sigbuf[3] = (int32_t)MtrIf_GetSpd(&gs_mtr_if);
+  sigbuf[4] = (int32_t)rtY.MtrPosEst;
+  sigbuf[5] = (int32_t)rtY.MtrDisEst;
 }
 
 void AppTask_SLog(void* params) {
@@ -56,13 +58,12 @@ void AppTask_MotorControl(void* params) {
   uint32_t cnt = 0;
   for(;;) {
 //    Ctrl_1Khz_Step(MtrIf_GetPosTgt(&gs_mtr_if), MtrIf_GetSpd(&gs_mtr_if), &itgt);
-    rtU.MtrPosTgt = 4500;
-//    rtU.MtrPosTgt = 4500 * sin((float)cnt * 1e-3 * 2 * 3.14159);
+    rtU.MtrPosTgt = 45000;
     cnt++;
     Trig_1Khz();
     MtrIf_SetSpd(&gs_mtr_if, rtY.MtrSpdFil);
     MtrIf_SetIfbkTgt(&gs_mtr_if, (int32_t)rtY.IfbkPhATgt);
-    MtrIf_SetPosTgt(&gs_mtr_if, (int32_t)rtU.MtrPosTgt);
+    MtrIf_SetPosTgt(&gs_mtr_if, (int32_t)rtY.MtrPosRef);
     vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }
 }
