@@ -163,6 +163,17 @@ Spd_SMDiff_Filt_K.Max = [];
 Spd_SMDiff_Filt_K.DocUnits = '';
 Spd_SMDiff_Filt_K.Value = 0.9615;
 
+%% Encoder definition.
+Pos_EncCounts = Simulink.Parameter;
+Pos_EncCounts.StorageClass = 'Auto';
+Pos_EncCounts.Description = 'Encoder counts';
+Pos_EncCounts.DataType = 'single';
+Pos_EncCounts.Min = [];
+Pos_EncCounts.Max = [];
+Pos_EncCounts.DocUnits = '';
+Pos_EncCounts.Value = 400.;
+
+
 %% Signal definitions
 
 %% Current feedback Phase-A.
