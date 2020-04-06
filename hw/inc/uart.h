@@ -52,6 +52,24 @@
 }
 
 /*******************************************************************************
+ * DMA CONFIGURATION FOR SIGNAL DEBUG
+********************************************************************************
+* Type: DMA_HandleTypeDef 
+*******************************************************************************/
+#define DMA_UART_INIT_CONF {                                                   \
+  .Instance = DMA1_Channel7,                                                   \
+  .Init.Direction = DMA_MEMORY_TO_PERIPH,                                      \
+  .Init.MemInc = DMA_MINC_ENABLE,                                              \
+  .Init.PeriphInc = DMA_PINC_DISABLE,                                          \
+  .Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE,                             \
+  .Init.MemDataAlignment = DMA_MDATAALIGN_BYTE,                                \
+  .Init.Mode = DMA_NORMAL,                                                     \
+  .Init.Priority = DMA_PRIORITY_LOW,                                           \
+}
+
+#define UART_DMA_TX_PRIO (5)
+#define UART_DMA_TX_SUBPRIO (0)
+/*******************************************************************************
 *******************************************************************************/
 
 void UART_Init(void);
@@ -59,5 +77,7 @@ void UART_Init(void);
 void UART_Putc(uint8_t ch);
 
 void UART_Puts(const char * str);
+
+void UART_DMAPutBytes(uint8_t* bufdata, size_t bufsz);
 
 #endif // UART_H
