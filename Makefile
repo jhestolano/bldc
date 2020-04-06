@@ -80,7 +80,7 @@ CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
 #CFLAGs+=mthumb-interwork
 CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS+=--specs=nosys.specs
+CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
 CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
 
 # Linker Files (all *.ld files)
