@@ -150,8 +150,6 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-//  Ctrl_30Khz_Step((float)App_GetPosition(), (float)App_GetCurrent(IfbkPhC_E),
-//        (float)MtrIf_GetIfbkTgt(ptr_mtr_if), &pwm, &mtrspd, &mtrspdfil);
   rtU.MtrPos = (float)App_GetPosition();
   rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E);
   Trig_30Khz();
