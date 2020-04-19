@@ -1,3 +1,4 @@
 [submodule "serialplot"]
 	path = serialplot
 	url = https://github.com/hyOzd/serialplot.git
+  ignore = dirty
