@@ -9,6 +9,9 @@
 #define MTRIF_POS_PH (PwmChA_E)
 #define MTRIF_NEG_PH (PwmChC_E)
 
+#define MTRIF_POS_PH_IFBK (IfbkPhA_E)
+#define MTRIF_NEG_PH_IFBK (IfbkPhC_E)
+
 /* Might need to add other interrupts that might share data. */
 #define MTRIF_LOCK() __disable_irq()
 #define MTRIF_UNLOCK() __enable_irq()
@@ -35,6 +38,10 @@ typedef struct MtrIf {
 void MtrIf_Init(MtrIf_S* mtrif);
 
 void MtrIf_SetVin(MtrIf_S*, int32_t vin);
+
+int32_t MtrIf_GetVin(void);
+
+int32_t MtrIf_GetCurrent(void);
 
 int32_t MtrIf_GetPos(MtrIf_S* mtrif);
 

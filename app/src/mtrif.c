@@ -25,6 +25,18 @@ void MtrIf_SetVin(MtrIf_S* mtrif, int32_t vin) {
   }
 }
 
+int32_t MtrIf_GetVin(void) {
+  int32_t vin = (int32_t)App_GetPwmVoltage(MTRIF_POS_PH)
+               -(int32_t)App_GetPwmVoltage(MTRIF_NEG_PH);
+  return vin;
+}
+
+int32_t MtrIf_GetCurrent(void) {
+  int32_t current = App_GetCurrent(MTRIF_POS_PH_IFBK)
+                  - App_GetCurrent(MTRIF_NEG_PH_IFBK);
+  return current;
+}
+
 int32_t MtrIf_GetPos(MtrIf_S* mtrif) {
   return App_GetPosition();
 }

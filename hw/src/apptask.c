@@ -14,20 +14,21 @@
 #include "ctrl.h"
 #include "math.h"
 
-#define SLOG_SIGBUF_SIZE (8)
+#define SLOG_SIGBUF_SIZE (10)
 
 static MtrIf_S gs_mtr_if = {0};
 
 #ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
   sigbuf[0] = 0x00CD00AB;
-  sigbuf[1] = (int32_t)App_GetCurrent(IfbkPhC_E);
+  sigbuf[1] = (int32_t)MtrIf_GetCurrent();
   sigbuf[2] = (int32_t)MtrIf_GetPos(&gs_mtr_if);
   sigbuf[3] = (int32_t)MtrIf_GetPosTgt(&gs_mtr_if);
   sigbuf[4] = (int32_t)MtrIf_GetSpd(&gs_mtr_if);
   sigbuf[5] = (int32_t)rtY.MtrPosEst;
   sigbuf[6] = (int32_t)rtY.MtrDisEst;
   sigbuf[7] = (int32_t)rtY.IfbkPhATgt;
+  sigbuf[8] = (int32_t)MtrIf_GetVin();
 }
 
 void AppTask_SLog(void* params) {
@@ -41,6 +42,21 @@ void AppTask_SLog(void* params) {
 }
 #endif
 
+#ifdef ENBL_MOTOR_IDENT
+void motor_ident_run(MtrIf_S* mtr_if ) {
+  const int32_t Vin[] = {-11999, 12000};
+  const uint32_t TCycleMillis = 500;
+  const uint32_t TSampleMillis = 1;
+  static uint32_t cnt;
+  static uint32_t idx;
+  if(cnt++ >= (uint32_t)(TCycleMillis / TSampleMillis)) {
+    idx ^= 1;
+    MtrIf_SetVin(mtr_if, Vin[idx]);    
+    cnt = 0;
+  }
+}
+#endif
+
 void AppTask_500ms(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   for(;;) {
@@ -49,27 +65,19 @@ void AppTask_500ms(void* params) {
 }
 
 void AppTask_MotorControl(void* params) {
-  float itgt, spd, spdtgt;
-  const int32_t PosTgtArr[] = {45000, -0, 100.0, 30000, 0, -10000, 0.};
   TickType_t last_wake_time = xTaskGetTickCount();
   MtrIf_Init(&gs_mtr_if);
-  uint32_t cnt = 0;
-  uint32_t idx = 0;
   for(;;) {
-//    Ctrl_1Khz_Step(MtrIf_GetPosTgt(&gs_mtr_if), MtrIf_GetSpd(&gs_mtr_if), &itgt);
-    rtU.MtrPosTgt = PosTgtArr[idx];
-    cnt++;
-    if(cnt >= 2000) {
-      idx++;
-      cnt = 0;
-      if(idx > sizeof(PosTgtArr) / sizeof(uint32_t)) {
-        idx = 0;
-      }
-    }
     Trig_1Khz();
     MtrIf_SetSpd(&gs_mtr_if, rtY.MtrSpdFil);
+#ifndef ENBL_MOTOR_IDENT
     MtrIf_SetIfbkTgt(&gs_mtr_if, (int32_t)rtY.IfbkPhATgt);
     MtrIf_SetPosTgt(&gs_mtr_if, (int32_t)rtY.MtrPosRef);
+#else
+    MtrIf_SetIfbkTgt(&gs_mtr_if, 0);
+    MtrIf_SetPosTgt(&gs_mtr_if, 0);
+    motor_ident_run(&gs_mtr_if);
+#endif
     vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }
 }

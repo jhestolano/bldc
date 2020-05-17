@@ -3,7 +3,14 @@
 
 #include "mtrif.h"
 
+#ifndef ENBL_MOTOR_IDENT
 #define APP_TASK_SLOG_TS (10)
+#else
+/* When motor identification is enabled, it is useful
+ * to transmit data faster to capture fast dybamics. */
+#define APP_TASK_SLOG_TS (1)
+#endif
+
 #define APP_TASK_SLOG_PRIO (2)
 #define APP_TASK_SLOG_STACK_SIZE (100)
 

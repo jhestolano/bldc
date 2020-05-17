@@ -92,4 +92,6 @@ void App_ArmDrive(void);
 
 void App_DisarmDrive(void);
 
+int32_t App_GetCurrent(IfbkPh_E);
+
 #endif // __APP_H__

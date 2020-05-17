@@ -153,7 +153,9 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   rtU.MtrPos = (float)App_GetPosition();
   rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E);
   Trig_30Khz();
+#ifndef ENBL_MOTOR_IDENT
   MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA);
+#endif
   return;
 }
 
