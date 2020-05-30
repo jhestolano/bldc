@@ -33,8 +33,6 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
-#SRCS+=mbd/codegen/ctrl_1khz_ert_rtw/ctrl_1khz.c
-#SRCS+=mbd/codegen/ctrl_30khz_ert_rtw/ctrl_30khz.c
 SRCS+=mbd/codegen/ctrl_ert_rtw/ctrl.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
@@ -60,14 +58,12 @@ INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
-INC_DIRS+=./mbd/codegen/ctrl_1khz_ert_rtw
-INC_DIRS+=./mbd/codegen/ctrl_30khz_ert_rtw
 INC_DIRS+=./mbd/codegen/ctrl_ert_rtw
 INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/gnu-mcu-eclipse/stlink/build/Release
 
-TOOLS_DIR=~/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/bin
+TOOLS_DIR=~/opt/gcc-arm-none-eabi-9-2020-q2/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
@@ -75,7 +71,7 @@ SZ=$(TOOLS_DIR)/arm-none-eabi-size
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
-CFLAGS+=-Os
+CFLAGS+=-O0
 CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
 #CFLAGs+=mthumb-interwork
@@ -109,6 +105,7 @@ clean:
 	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).map
 
 flash: 
+	killall st-util
 	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
 
 stlink:
