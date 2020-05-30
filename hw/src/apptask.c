@@ -57,13 +57,6 @@ void motor_ident_run(MtrIf_S* mtr_if ) {
 }
 #endif
 
-void AppTask_500ms(void* params) {
-  TickType_t last_wake_time = xTaskGetTickCount();
-  for(;;) {
-    vTaskDelayUntil(&last_wake_time, APP_TASK_500MS);
-  }
-}
-
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   MtrIf_Init(&gs_mtr_if);

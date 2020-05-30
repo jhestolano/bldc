@@ -27,7 +27,6 @@ int main(void)
     DBG_DEBUG("Task created succesfully!\n\r");
   }
 #endif
-//  xTaskCreate(AppTask_500ms, NULL, APP_TASK_500MS_STACK_SIZE, NULL, APP_TASK_500MS_PRIO, NULL);
   xTaskCreate(AppTask_MotorControl, NULL, APP_TASK_MOTOR_CONTROL_STACK_SIZE, NULL, APP_TASK_MOTOR_CONTROL_PRIO, NULL);
   vTaskStartScheduler();
   for(;;){
