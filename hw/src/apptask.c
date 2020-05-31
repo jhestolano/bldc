@@ -44,7 +44,7 @@ void AppTask_SLog(void* params) {
 
 #ifdef ENBL_MOTOR_IDENT
 void motor_ident_run(MtrIf_S* mtr_if ) {
-  const int32_t Vin[] = {-11999, 12000};
+  const int32_t Vin[] = {-3000, 3000};
   const uint32_t TCycleMillis = 500;
   const uint32_t TSampleMillis = 1;
   static uint32_t cnt;
@@ -56,13 +56,6 @@ void motor_ident_run(MtrIf_S* mtr_if ) {
   }
 }
 #endif
-
-void AppTask_500ms(void* params) {
-  TickType_t last_wake_time = xTaskGetTickCount();
-  for(;;) {
-    vTaskDelayUntil(&last_wake_time, APP_TASK_500MS);
-  }
-}
 
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
