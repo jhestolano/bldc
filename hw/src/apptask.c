@@ -18,6 +18,8 @@
 
 static MtrIf_S gs_mtr_if = {0};
 
+static uint32_t TmrCntGenCh;
+
 #ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
   sigbuf[0] = 0x00CD00AB;
@@ -29,6 +31,7 @@ static void _slog(uint32_t* sigbuf) {
   sigbuf[6] = (int32_t)rtY.MtrDisEst;
   sigbuf[7] = (int32_t)rtY.IfbkPhATgt;
   sigbuf[8] = (int32_t)MtrIf_GetVin();
+  sigbuf[9] = (int32_t)TmrCntGenCh;
 }
 
 void AppTask_SLog(void* params) {
@@ -51,7 +54,7 @@ void motor_ident_run(MtrIf_S* mtr_if ) {
   static uint32_t idx;
   if(cnt++ >= (uint32_t)(TCycleMillis / TSampleMillis)) {
     idx ^= 1;
-    MtrIf_SetVin(mtr_if, Vin[idx]);    
+    MtrIf_SetVin(mtr_if, Vin[idx]);
     cnt = 0;
   }
 }
