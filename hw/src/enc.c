@@ -11,13 +11,6 @@
 
 static TIM_HandleTypeDef gs_tim_enc_conf = TIM_ENC_INIT_CONF;
 
-typedef struct ENC_Handle {
-  int32_t counts;
-  int8_t dir;
-} ENC_Handle_S;
-
-static ENC_Handle_S gs_enc_handle;
-
 static void ENC_ErrorHandler(char* errmsg) {
   DBG_ERR("ENC: %s", errmsg);
   while(1);
@@ -29,8 +22,6 @@ void ENC_Init(void) {
   if(HAL_TIM_Encoder_Init(&gs_tim_enc_conf, &s_enc_conf) != HAL_OK) {
     ENC_ErrorHandler("Error initializing encoder interface!\n\r");
   }
-  gs_enc_handle.dir = ENC_DIR_UNKNOWN;
-  gs_enc_handle.counts = 0;
   ENC_Start();
   DBG_DEBUG("Done.\n\r");
 }
@@ -84,20 +75,3 @@ void ENC_ChIdxCallback(void) {
   DBG_DEBUG("Index callback!\n\r");  
 }
 #endif
-
-void ENC_TmrCallback(void) {
-/* Function to handle encoder unwrapping when encoder
-   does not have index channel. Called by TMR module @ 1ms. */
-  int16_t counts = (int16_t)ENC_GetCnt();   
-  if(counts > gs_enc_handle.counts) {
-    gs_enc_handle.dir = ENC_DIR_FWD;
-  } else if (counts < gs_enc_handle.counts) {
-    gs_enc_handle.dir = ENC_DIR_REV;
-  } else {
-    gs_enc_handle.dir = ENC_DIR_UNKNOWN;
-  }
-  if((counts >= ENC_COUNTS_THRESHOLD) || (counts <= -ENC_COUNTS_THRESHOLD)) {
-    gs_enc_handle.counts += counts;
-    ENC_SetCnt(0);
-  }
-}
