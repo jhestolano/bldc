@@ -23,6 +23,7 @@ typedef struct TMR_IT_Config {
 *******************************************************************************/
 static TIM_HandleTypeDef gs_tim_init_conf_a[TMR_CH_MAX] = {
   TMR_INC_TICK,
+  TMR_GENERAL_CONF,
 };
 
 static const TMR_IT_Config_S tmr_config_a[TMR_CH_MAX] = TMR_IT_CONF;
@@ -33,6 +34,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* s_tim_conf) {
   UNUSED(s_tim_conf);
   if(!__HAL_RCC_TIM6_IS_CLK_ENABLED()) {
     __HAL_RCC_TIM6_CLK_ENABLE();
+  }
+  if(!__HAL_RCC_TIM17_IS_CLK_ENABLED()) {
+    __HAL_RCC_TIM17_CLK_ENABLE();
   }
 }
 
@@ -45,7 +49,9 @@ void TMR_Init(void) {
         tmr_config_a[idx].SubPrio);
     HAL_NVIC_EnableIRQ(tmr_config_a[idx].IRQn);
   }
-  //TMR_Start(TMR_CH_INC_TICK);
+  /* Only start timer needed for HAL tick. Other timers */
+  /* must be started manually. */
+  TMR_Start(TMR_CH_INC_TICK);
 }
 
 void TMR_Start(TmrCh_T tmr) {
@@ -106,4 +112,9 @@ void TIM2_IRQHandler(void) {
 void TIM6_DAC_IRQHandler(void) {
 /* HAL_IncTick interrupt function. */
   HAL_TIM_IRQHandler(&gs_tim_init_conf_a[TMR_CH_INC_TICK]);
+}
+
+void TIM17_IRQHandler(void) {
+  /* General purpose timer. */
+  HAL_TIM_IRQHandler(&gs_tim_init_conf_a[TMR_CH_GENERAL]);
 }
