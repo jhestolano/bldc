@@ -6,22 +6,22 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_hal.h"
 #include "enc.h"
+#include "dbg.h"
 
 /*******************************************************************************
 ** Private data type definitions.
 *******************************************************************************/
 typedef struct TMR_IT_Config {
-  TmrCh_T tmr;
-  IRQn_Type irqn;
-  uint32_t prio;
-  uint32_t subprio;
+  TmrCh_T Tmr;
+  IRQn_Type IRQn;
+  uint32_t Prio;
+  uint32_t SubPrio;
 } TMR_IT_Config_S;
 
 /*******************************************************************************
 ** Global data definitions.
 *******************************************************************************/
 static TIM_HandleTypeDef gs_tim_init_conf_a[TMR_CH_MAX] = {
-  TMR_INIT_CONF,
   TMR_INC_TICK,
 };
 
@@ -31,9 +31,6 @@ static const TMR_IT_Config_S tmr_config_a[TMR_CH_MAX] = TMR_IT_CONF;
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* s_tim_conf) {
   UNUSED(s_tim_conf);
-  if(!__HAL_RCC_TIM2_IS_CLK_ENABLED()) {
-    __HAL_RCC_TIM2_CLK_ENABLE();
-  }
   if(!__HAL_RCC_TIM6_IS_CLK_ENABLED()) {
     __HAL_RCC_TIM6_CLK_ENABLE();
   }
@@ -43,12 +40,12 @@ void TMR_Init(void) {
   size_t idx;
   for(idx = 0; idx < TMR_CH_MAX; idx++) {
     HAL_TIM_Base_Init(&gs_tim_init_conf_a[idx]);
-    HAL_NVIC_SetPriority(tmr_config_a[idx].irqn,
-        tmr_config_a[idx].prio,
-        tmr_config_a[idx].subprio);
-    HAL_NVIC_EnableIRQ(tmr_config_a[idx].irqn);
+    HAL_NVIC_SetPriority(tmr_config_a[idx].IRQn,
+        tmr_config_a[idx].Prio,
+        tmr_config_a[idx].SubPrio);
+    HAL_NVIC_EnableIRQ(tmr_config_a[idx].IRQn);
   }
-  TMR_Start(TMR_CH_INC_TICK);
+  //TMR_Start(TMR_CH_INC_TICK);
 }
 
 void TMR_Start(TmrCh_T tmr) {
@@ -85,7 +82,6 @@ uint32_t TMR_GetCnt(TmrCh_T tmr) {
 
 void TMR_IncTickCallback(void) {
   HAL_IncTick();
-//  ENC_TmrCallback();
 }
 
 
@@ -103,7 +99,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* tim) {
 *******************************************************************************/
 void TIM2_IRQHandler(void) {
   /* General purpose timer to measure execution times. */
-  HAL_TIM_IRQHandler(&gs_tim_init_conf_a[TMR_CH_GENERAL]);
+  DBG_DEBUG("TIM2 IRQ handler fired!");
+  while(1);
 }
 
 void TIM6_DAC_IRQHandler(void) {
