@@ -107,8 +107,6 @@ clean:
 	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).map
 
 flash:
-	if pgrep "st-util" ; then
-	fi
 	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
 
 stlink:
@@ -117,5 +115,6 @@ stlink:
 # before you start gdb, you must start st-util
 .PHONY: debug
 debug:
+	$(ST_LINK_DIR)/src/gdbserver/st-util &
 	$(GDB) ./$(PROJ_NAME).elf --command=cmd.gdb
 	killall st-util
