@@ -34,6 +34,7 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
 SRCS+=mbd/codegen/ctrl_ert_rtw/ctrl.c
+SRCS+=mbd/codegen/rlsq/rlsq.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
 SRCS+=$(LIBS_DIR)/printf/printf.c
@@ -59,6 +60,7 @@ INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
 INC_DIRS+=./mbd/codegen/ctrl_ert_rtw
+INC_DIRS+=./mbd/codegen/rlsq
 INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/gnu-mcu-eclipse/stlink/build/Release
@@ -104,7 +106,9 @@ $(PROJ_NAME).elf: $(SRCS)
 clean:
 	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).map
 
-flash: 
+flash:
+	if pgrep "st-util" ; then
+	fi
 	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
 
 stlink:

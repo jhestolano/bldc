@@ -13,12 +13,21 @@
 #include "enc.h"
 #include "ctrl.h"
 #include "math.h"
+#include "rlsq.h"
 
 #define SLOG_SIGBUF_SIZE (10)
 
 static MtrIf_S gs_mtr_if = {0};
 
 static uint32_t TmrCntGenCh;
+
+typedef struct {
+  float Params[3];
+  float Err;
+  float SpdEst;
+} RLSQ_S;
+
+static RLSQ_S RLSQ_Output;
 
 #ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
@@ -62,7 +71,9 @@ void motor_ident_run(MtrIf_S* mtr_if ) {
 
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
+  TMR_Start(TMR_CH_GENERAL);
   MtrIf_Init(&gs_mtr_if);
+  RLSQ_Init();
   for(;;) {
     Trig_1Khz();
     MtrIf_SetSpd(&gs_mtr_if, rtY.MtrSpdFil);
@@ -73,6 +84,15 @@ void AppTask_MotorControl(void* params) {
     MtrIf_SetIfbkTgt(&gs_mtr_if, 0);
     MtrIf_SetPosTgt(&gs_mtr_if, 0);
     motor_ident_run(&gs_mtr_if);
+
+    /* Measure execution time. */
+    TMR_Reset(TMR_CH_GENERAL);
+    RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(),
+        MtrIf_GetVin(), rtY.MtrSpdFil,
+        &RLSQ_Output.Params[0], &RLSQ_Output.Err);
+    TmrCntGenCh = TMR_GetCnt(TMR_CH_GENERAL);
+    /* End measurement. */
+
 #endif
     vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }
