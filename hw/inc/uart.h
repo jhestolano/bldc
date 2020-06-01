@@ -42,7 +42,7 @@
 #define UART_INIT_CONF {                                                       \
   .Instance = USART2,                                                          \
   .Init = {                                                                    \
-    .BaudRate = 2000000,                                                       \
+    .BaudRate = 115200,                                                        \
     .WordLength = UART_WORDLENGTH_8B,                                          \
     .StopBits = UART_STOPBITS_1,                                               \
     .Parity = UART_PARITY_NONE,                                                \
