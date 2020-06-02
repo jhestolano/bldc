@@ -33,7 +33,7 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
-SRCS+=mbd/codegen/ctrl_ert_rtw/ctrl.c
+SRCS+=mbd/codegen/ctrl/ctrl.c
 SRCS+=mbd/codegen/rlsq/rlsq.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
@@ -59,7 +59,7 @@ INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
-INC_DIRS+=./mbd/codegen/ctrl_ert_rtw
+INC_DIRS+=./mbd/codegen/ctrl
 INC_DIRS+=./mbd/codegen/rlsq
 INC_DIRS+=.
 
@@ -122,5 +122,5 @@ stlink:
 .PHONY: debug
 debug:
 	#$(ST_LINK_DIR)/src/gdbserver/st-util &
-	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=cmd.gdb
+	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=./debug/cmd.gdb
 	killall st-util
