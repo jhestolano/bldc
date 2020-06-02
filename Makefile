@@ -71,6 +71,7 @@ OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 OBJDUMP=$(TOOLS_DIR)/arm-none-eabi-objdump
 GDB=$(TOOLS_DIR)/arm-none-eabi-gdb-py
 SZ=$(TOOLS_DIR)/arm-none-eabi-size
+BUILD_DIR=./build
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
@@ -83,7 +84,7 @@ CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
 CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
 
 # Linker Files (all *.ld files)
-LFLAGS=-Wl,-Map,$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
+LFLAGS=-Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
 
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
@@ -99,16 +100,20 @@ $(PROJ_NAME): $(PROJ_NAME).elf
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(PROJ_NAME).elf: $(SRCS)
-	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $(LFLAGS) $^ -o $@ 
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf   $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
-	$(SZ) $(PROJ_NAME).elf
-    
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $(LFLAGS) $^ -o $(BUILD_DIR)/$@
+	$(OBJCOPY) -O ihex $(BUILD_DIR)/$(PROJ_NAME).elf   $(BUILD_DIR)/$(PROJ_NAME).hex
+	$(OBJCOPY) -O binary $(BUILD_DIR)/$(PROJ_NAME).elf $(BUILD_DIR)/$(PROJ_NAME).bin
+	$(SZ) $(BUILD_DIR)/$(PROJ_NAME).elf
+
+dump:
+	$(OBJDUMP) -D --source $(BUILD_DIR)/$(PROJ_NAME).elf > $(BUILD_DIR)/$(PROJ_NAME).dump
+	
 clean:
-	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).map
+	rm -f *.o $(BUILD_DIR)/$(PROJ_NAME).elf $(BUILD_DIR)/$(PROJ_NAME).hex $(BUILD_DIR)/$(PROJ_NAME).bin $(BUILD_DIR)/$(PROJ_NAME).map $(BUILD_DIR)/$(PROJ_NAME).dump
 
 flash:
-	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
+	$(ST_LINK_DIR)/st-flash write $(BUILD_DIR)/$(PROJ_NAME).bin 0x8000000
 
 stlink:
 	$(ST_LINK_DIR)/src/gdbserver/st-util -p4242
@@ -117,5 +122,5 @@ stlink:
 .PHONY: debug
 debug:
 	#$(ST_LINK_DIR)/src/gdbserver/st-util &
-	$(GDB) ./$(PROJ_NAME).elf --command=cmd.gdb
+	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=cmd.gdb
 	killall st-util
