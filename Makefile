@@ -68,15 +68,16 @@ ST_LINK_DIR=~/opt/gnu-mcu-eclipse/stlink/build/Release
 TOOLS_DIR=~/opt/gcc-arm-none-eabi-9-2020-q2/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
-GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
+OBJDUMP=$(TOOLS_DIR)/arm-none-eabi-objdump
+GDB=$(TOOLS_DIR)/arm-none-eabi-gdb-py
 SZ=$(TOOLS_DIR)/arm-none-eabi-size
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
-CFLAGS+=-Os
+CFLAGS+=-Og
 CFLAGS+=-Wall -Wextra -Warray-bounds
-CFLAGS+=-mlittle-endian -mthumb -mcpu=cortex-m4
-#CFLAGs+=mthumb-interwork
+CFLAGS+=-mlittle-endian -mcpu=cortex-m4
+CFLAGS+=-mthumb-interwork -mthumb
 CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
 CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
@@ -110,11 +111,11 @@ flash:
 	$(ST_LINK_DIR)/st-flash write $(PROJ_NAME).bin 0x8000000
 
 stlink:
-	$(ST_LINK_DIR)/src/gdbserver/st-util
+	$(ST_LINK_DIR)/src/gdbserver/st-util -p4242
 
 # before you start gdb, you must start st-util
 .PHONY: debug
 debug:
-	$(ST_LINK_DIR)/src/gdbserver/st-util &
+	#$(ST_LINK_DIR)/src/gdbserver/st-util &
 	$(GDB) ./$(PROJ_NAME).elf --command=cmd.gdb
 	killall st-util
