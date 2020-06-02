@@ -145,16 +145,15 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  float pwm, mtrspd, mtrspdfil;
-  MtrIf_S* ptr_mtr_if = AppTask_GetMtrIf();
+  /* MtrIf_S* ptr_mtr_if = AppTask_GetMtrIf(); */
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-  rtU.MtrPos = (float)App_GetPosition();
-  rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E);
-  Trig_30Khz();
+  /* rtU.MtrPos = (float)App_GetPosition(); */
+  /* rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E); */
+  /* Trig_30Khz(); */
 #ifndef ENBL_MOTOR_IDENT
-  MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA);
+  /* MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA); */
 #endif
   return;
 }

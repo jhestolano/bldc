@@ -2,24 +2,19 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "apptask.h"
-#include "adc.h"
 #include "dbg.h"
 #include "uart.h"
-#include "pwm.h"
 #include "app.h"
 #include "tmr.h"
-#include "gpio.h"
 #include "mtrif.h"
-#include "enc.h"
 #include "ctrl.h"
-#include "math.h"
 #include "rlsq.h"
 
 #define SLOG_SIGBUF_SIZE (10)
 
-static MtrIf_S gs_mtr_if = {0};
+/* static MtrIf_S gs_mtr_if = {0}; */
 
-static uint32_t TmrCntGenCh;
+/* static uint32_t TmrCntGenCh; */
 
 typedef struct {
   float Params[3];
@@ -27,21 +22,21 @@ typedef struct {
   float SpdEst;
 } RLSQ_S;
 
-static volatile RLSQ_S RLSQ_Output;
+/* static volatile RLSQ_S RLSQ_Output; */
 
 #ifdef __SLOG__
 static void _slog(uint32_t* sigbuf) {
   sigbuf[0] = 0x00CD00AB;
   sigbuf[1] = (int32_t)MtrIf_GetCurrent();
-  sigbuf[2] = (int32_t)MtrIf_GetPos(&gs_mtr_if);
-  sigbuf[3] = (int32_t)MtrIf_GetSpd(&gs_mtr_if);
+  /* sigbuf[2] = (int32_t)MtrIf_GetPos(&gs_mtr_if); */
+  /* sigbuf[3] = (int32_t)MtrIf_GetSpd(&gs_mtr_if); */
   sigbuf[4] = (int32_t)MtrIf_GetVin();
-  sigbuf[5] = (int32_t)TmrCntGenCh;
-  sigbuf[6] = (int32_t)RLSQ_Output.Params[0];
-  sigbuf[7] = (int32_t)RLSQ_Output.Params[1];
-  sigbuf[8] = (int32_t)RLSQ_Output.Params[2];
-  sigbuf[9] = (int32_t)RLSQ_Output.Err;
-  sigbuf[10] = (int32_t)RLSQ_Output.SpdEst;
+  /* sigbuf[5] = (int32_t)TmrCntGenCh; */
+  /* sigbuf[6] = (int32_t)(1.0e3f * RLSQ_Output.Params[0]); */
+  /* sigbuf[7] = (int32_t)(1.0e3f * RLSQ_Output.Params[1]); */
+  /* sigbuf[8] = (int32_t)(1.0e3f * RLSQ_Output.Params[2]); */
+  /* sigbuf[9] = (int32_t)RLSQ_Output.Err; */
+  /* sigbuf[10] = (int32_t)RLSQ_Output.SpdEst; */
 }
 
 void AppTask_SLog(void* params) {
@@ -72,26 +67,26 @@ void motor_ident_run(MtrIf_S* mtr_if ) {
 
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
-  MtrIf_Init(&gs_mtr_if);
+  /* MtrIf_Init(&gs_mtr_if); */
   RLSQ_Init();
   for(;;) {
-    Trig_1Khz();
-    MtrIf_SetSpd(&gs_mtr_if, rtY.MtrSpdFil);
+    /* Trig_1Khz(); */
+    /* MtrIf_SetSpd(&gs_mtr_if, rtY.MtrSpdFil); */
 #ifndef ENBL_MOTOR_IDENT
-    MtrIf_SetIfbkTgt(&gs_mtr_if, (int32_t)rtY.IfbkPhATgt);
-    MtrIf_SetPosTgt(&gs_mtr_if, (int32_t)rtY.MtrPosRef);
+    /* MtrIf_SetIfbkTgt(&gs_mtr_if, (int32_t)rtY.IfbkPhATgt); */
+    /* MtrIf_SetPosTgt(&gs_mtr_if, (int32_t)rtY.MtrPosRef); */
 #else
-    MtrIf_SetIfbkTgt(&gs_mtr_if, 0);
-    MtrIf_SetPosTgt(&gs_mtr_if, 0);
-    motor_ident_run(&gs_mtr_if);
+    /* MtrIf_SetIfbkTgt(&gs_mtr_if, 0); */
+    /* MtrIf_SetPosTgt(&gs_mtr_if, 0); */
+    /* motor_ident_run(&gs_mtr_if); */
 
     /* Measure execution time. */
     TMR_Reset(TMR_CH_GENERAL);
     TMR_Start(TMR_CH_GENERAL);
-    RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(),
-        MtrIf_GetVin(), rtY.MtrSpdFil,
-        &RLSQ_Output.Params[0], &RLSQ_Output.Err);
-    TmrCntGenCh = TMR_GetCnt(TMR_CH_GENERAL);
+    /* RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(), */
+    /*     MtrIf_GetVin(), MtrIf_GetSpd(&gs_mtr_if), */
+    /*     &RLSQ_Output.Params[0], &RLSQ_Output.Err); */
+    /* TmrCntGenCh = TMR_GetCnt(TMR_CH_GENERAL); */
     TMR_Stop(TMR_CH_GENERAL);
     /* End measurement. */
 
@@ -100,6 +95,6 @@ void AppTask_MotorControl(void* params) {
   }
 }
 
-MtrIf_S* AppTask_GetMtrIf(void) {
-  return &gs_mtr_if;
-}
+/* MtrIf_S* AppTask_GetMtrIf(void) { */
+/*   return &gs_mtr_if; */
+/* } */
