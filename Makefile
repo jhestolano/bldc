@@ -48,6 +48,7 @@ SRCS+=$(RTOS_DIR)/FreeRTOS/Source/tasks.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/timers.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/queue.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/list.c
+SRCS+=$(RTOS_DIR)/FreeRTOS/Source/stream_buffer.c
 
 
 INC_DIRS=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Include

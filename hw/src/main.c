@@ -1,4 +1,5 @@
 #include "FreeRTOS.h"
+#include "stream_buffer.h"
 #include "task.h"
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_gpio.h"
@@ -21,16 +22,38 @@ void vAssertCalled( const char *pcFile, int32_t ulLine );
 
 int main(void)
 {
+  StreamBufferHandle_t buff_motor_control = xStreamBufferCreate (
+      APP_TASK_MOTOR_CONTROL_N_SIGNALS * sizeof(int32_t),
+      /* Read buffer when all signals have been transmitted. */
+      /* This should happen regardless, sin the OS is not */
+      /* in preemptive mode. */
+      APP_TASK_MOTOR_CONTROL_N_SIGNALS * sizeof(int32_t)
+  );
   HwInit();
 #ifdef __SLOG__
-  if(xTaskCreate(AppTask_SLog, (signed portCHAR*)"SLog Task", APP_TASK_SLOG_STACK_SIZE, NULL, APP_TASK_SLOG_PRIO, NULL) == pdPASS) {
-    DBG_DEBUG("Task created succesfully!\n\r");
-  }
+  xTaskCreate (
+      AppTask_SLog,
+      (signed portCHAR*)"SignalLog",
+      APP_TASK_SLOG_STACK_SIZE,
+      /* pvParameters. */
+      (void*)buff_motor_control,
+      APP_TASK_SLOG_PRIO,
+      /* pxCreatedTask. */
+      NULL
+  );
 #endif
-  xTaskCreate(AppTask_MotorControl, NULL, APP_TASK_MOTOR_CONTROL_STACK_SIZE, NULL, APP_TASK_MOTOR_CONTROL_PRIO, NULL);
+  xTaskCreate (
+      AppTask_MotorControl,
+      (signed portCHAR*)"MotorControl",
+      APP_TASK_MOTOR_CONTROL_STACK_SIZE,
+      /* pvParameters. */
+      (void*)buff_motor_control,
+      APP_TASK_MOTOR_CONTROL_PRIO,
+      /* pxCreatedTask. */
+      NULL
+  );
   vTaskStartScheduler();
-  for(;;){
-  }
+  for(;;) {  }
 }
 
 void SystemClock_Config(void)
@@ -92,6 +115,10 @@ volatile unsigned long ul = 0;
     /* Set ul to a non-zero value using the debugger to step out of this
        function. */
     DBG_ERR("Assertion Error: %s : %d\n\r", pcFile, ulLine);
+
+    /* Invoke debugger if this line is reached. */
+    __asm("BKPT #0\n");
+
     while( ul == 0 )
     {
       __NOP();

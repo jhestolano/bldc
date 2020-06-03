@@ -11,13 +11,9 @@
 #include "math.h"
 #include "ctrl.h"
 
-extern MtrIf_S* AppTask_GetMtrIf(void);
+/* extern MtrIf_S* AppTask_GetMtrIf(void); */
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
-
-uint8_t gFlagAdcBufFull;
-
-int32_t gAdcChBuf[ADC_CH_BUF_LEN];
 
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
