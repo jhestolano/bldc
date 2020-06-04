@@ -123,7 +123,7 @@ typedef enum {
 /*******************************************************************************
  * DMA CONFIGURATION FOR REGULAR CONVERSIONS.
 ********************************************************************************
-* Type: DMA_HandleTypeDef 
+* Type: DMA_HandleTypeDef
 *******************************************************************************/
 #define DMA_INIT_CONFIG {                                                      \
   .Instance = DMA1_Channel1,                                                   \
