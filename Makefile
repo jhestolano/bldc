@@ -122,6 +122,6 @@ stlink:
 # before you start gdb, you must start st-util
 .PHONY: debug
 debug:
-	#$(ST_LINK_DIR)/src/gdbserver/st-util &
+	$(ST_LINK_DIR)/src/gdbserver/st-util &
 	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=./debug/cmd.gdb
 	killall st-util
