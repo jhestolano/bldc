@@ -110,8 +110,8 @@ typedef enum {
     .ScanConvMode = ADC_SCAN_ENABLE,                                           \
     .ContinuousConvMode = ENABLE,                                              \
     .DiscontinuousConvMode = DISABLE,                                          \
-    .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING,                   \
-    .ExternalTrigConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO,                     \
+    .ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE,                     \
+    .ExternalTrigConv = ADC_SOFTWARE_START,                                    \
     .DataAlign = ADC_DATAALIGN_RIGHT,                                          \
     .NbrOfConversion = 3,                                                      \
     .DMAContinuousRequests = ENABLE,                                           \

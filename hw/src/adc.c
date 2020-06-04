@@ -76,22 +76,22 @@ void ADC_Init(void) {
     ADC_ErrorHandler("Error initializing ADC module.");
   }
   
-  HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
+  /* HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED); */
 
-  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK)
-  {
-    ADC_ErrorHandler("Error initializing PHA Channel.");
-  }
+  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK) */
+  /* { */
+  /*   ADC_ErrorHandler("Error initializing PHA Channel."); */
+  /* } */
 
-  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phb_ifbk_conf) != HAL_OK)
-  {
-    ADC_ErrorHandler("Error initializing PHB Channel.");
-  }
+  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phb_ifbk_conf) != HAL_OK) */
+  /* { */
+  /*   ADC_ErrorHandler("Error initializing PHB Channel."); */
+  /* } */
 
-  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phc_ifbk_conf) != HAL_OK)
-  {
-    ADC_ErrorHandler("Error initializing PHC Channel.");
-  }
+  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phc_ifbk_conf) != HAL_OK) */
+  /* { */
+  /*   ADC_ErrorHandler("Error initializing PHC Channel."); */
+  /* } */
 
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular POT Channel.");
@@ -113,8 +113,9 @@ void ADC_Init(void) {
 }
 
 void ADC_Start(void) {
+  /* HAL_ADC_Start_IT(&gs_adc_handle); */
   HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf[ADC_INJ_CH_MAX], ADC_REG_CH_MAX);
-  HAL_ADCEx_InjectedStart_IT(&gs_adc_handle);
+  /* HAL_ADCEx_InjectedStart_IT(&gs_adc_handle); */
   return;
 }
 
@@ -137,6 +138,7 @@ void ADC1_IRQHandler(void) {
 }
 
 void DMA1_Channel1_IRQHandler(void) {
+  /* Interrupt triggered when ADC conversion and transfer is complete. */
   HAL_DMA_IRQHandler(&gs_dma_handle);
 }
 
@@ -155,6 +157,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  /* Not needed when DMA handles conversions. Use DMA interrupt. */
   return;
 }
 
@@ -181,6 +184,7 @@ static void adc_dma_init(void) {
   __HAL_LINKDMA(&gs_adc_handle, DMA_Handle, gs_dma_handle);
 
 #ifdef DMA_ENABLE_CH1_IRQ
+  /* When DMA interrupts are enabled, OS stops working. Investigate. */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, ADC_DMA_ISR_PRIO, ADC_DMA_ISR_SUBPRIO);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 #endif
