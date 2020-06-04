@@ -41,7 +41,6 @@ void AppTask_SLog(void* params) {
   uint8_t buff_signal_log[SLOG_BUFF_SIZE] = {0};
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff_motor_control = (StreamBufferHandle_t)params;
-  /* uint32_t slog_start_frame = (uint32_t)SLOG_START_FRAME; */
   for(;;) {
     /* Make sure start header is always correct. */
     memcpy((void*)buff_signal_log, (void*)((uint8_t*)&SlogStartFrame), (size_t)SLOG_START_FRAME_SIZE);
@@ -76,7 +75,7 @@ void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   int32_t signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
-  uint8_t idx;
+  int32_t heart_beat = 0;
   /* MtrIf_Init(&gs_mtr_if); */
   RLSQ_Init();
   for(;;) {
@@ -93,17 +92,17 @@ void AppTask_MotorControl(void* params) {
     /* Measure execution time. */
     /* TMR_Reset(TMR_CH_GENERAL); */
     /* TMR_Start(TMR_CH_GENERAL); */
-    RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(),
-        MtrIf_GetVin(), MtrIf_GetSpd(&gs_mtr_if),
-        &RLSQ_Output.Params[0], &RLSQ_Output.Err);
-    TmrCntGenCh = TMR_GetCnt(TMR_CH_GENERAL);
+    /* RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(), */
+    /*     MtrIf_GetVin(), MtrIf_GetSpd(&gs_mtr_if), */
+    /*     &RLSQ_Output.Params[0], &RLSQ_Output.Err); */
+    /* TmrCntGenCh = TMR_GetCnt(TMR_CH_GENERAL); */
     /* TMR_Stop(TMR_CH_GENERAL); */
     /* End measurement. */
 
-    for ( idx = 0 ; idx < (size_t)APP_TASK_MOTOR_CONTROL_N_SIGNALS ; idx++ ) {
-      /* Populate with dummy data for testing. */
-      signal_buff[idx] = idx;
-    }
+    signal_buff[0] = App_GetVoltage(VAdcChPot_E);
+    signal_buff[1] = App_GetVoltage(VAdcChTemp_E);
+    signal_buff[2] = App_GetVoltage(VAdcChVBus_E);
+    signal_buff[3] = heart_beat++;
 
     xStreamBufferSend(stream_buff,
                       (void*)signal_buff,
