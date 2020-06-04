@@ -76,22 +76,22 @@ void ADC_Init(void) {
     ADC_ErrorHandler("Error initializing ADC module.");
   }
   
-  /* HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED); */
+  HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
 
-  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK) */
-  /* { */
-  /*   ADC_ErrorHandler("Error initializing PHA Channel."); */
-  /* } */
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK)
+  {
+    ADC_ErrorHandler("Error initializing PHA Channel.");
+  }
 
-  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phb_ifbk_conf) != HAL_OK) */
-  /* { */
-  /*   ADC_ErrorHandler("Error initializing PHB Channel."); */
-  /* } */
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phb_ifbk_conf) != HAL_OK)
+  {
+    ADC_ErrorHandler("Error initializing PHB Channel.");
+  }
 
-  /* if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phc_ifbk_conf) != HAL_OK) */
-  /* { */
-  /*   ADC_ErrorHandler("Error initializing PHC Channel."); */
-  /* } */
+  if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phc_ifbk_conf) != HAL_OK)
+  {
+    ADC_ErrorHandler("Error initializing PHC Channel.");
+  }
 
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular POT Channel.");
@@ -113,9 +113,8 @@ void ADC_Init(void) {
 }
 
 void ADC_Start(void) {
-  /* HAL_ADC_Start_IT(&gs_adc_handle); */
   HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf[ADC_INJ_CH_MAX], ADC_REG_CH_MAX);
-  /* HAL_ADCEx_InjectedStart_IT(&gs_adc_handle); */
+  HAL_ADCEx_InjectedStart_IT(&gs_adc_handle);
   return;
 }
 
@@ -143,16 +142,9 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
-  /* MtrIf_S* ptr_mtr_if = AppTask_GetMtrIf(); */
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-  /* rtU.MtrPos = (float)App_GetPosition(); */
-  /* rtU.IfbkPhA = (float)App_GetCurrent(IfbkPhC_E); */
-  /* Trig_30Khz(); */
-#ifndef ENBL_MOTOR_IDENT
-  /* MtrIf_SetVin(ptr_mtr_if, (int32_t)rtY.PwmChA); */
-#endif
   return;
 }
 

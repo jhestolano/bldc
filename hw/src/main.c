@@ -14,6 +14,7 @@
 #include "dbg.h"
 #include "apptask.h"
 #include "app.h"
+#include "mtrif.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
@@ -137,7 +138,7 @@ void HwInit(void) {
   ENC_Init();
   ADC_Init();
   if(HAL_GPIO_ReadPin(DIAG_PORT, DIAG_PIN)) {
-    DBG_DEBUG("Diag pin enabled.\n\r"); 
+    DBG_DEBUG("Diag pin enabled.\n\r");
   } else {
     DBG_ERR("Diag pin disabled!!!\n\r");
   }
