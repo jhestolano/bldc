@@ -31,4 +31,6 @@ int32_t MtrIf_GetCurrent(void);
 
 int32_t MtrIf_GetPos(void);
 
+int32_t MtrIf_GetSpd(void);
+
 #endif // _MTRIF_H_
