@@ -9,7 +9,6 @@
 #include "dbg.h"
 #include "app.h"
 #include "math.h"
-#include "ctrl.h"
 
 /* extern MtrIf_S* AppTask_GetMtrIf(void); */
 
@@ -75,39 +74,31 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler("Error initializing ADC module.");
   }
-  
   HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
-
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing PHA Channel.");
   }
-
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phb_ifbk_conf) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing PHB Channel.");
   }
-
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_phc_ifbk_conf) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing PHC Channel.");
   }
-
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_pot_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular POT Channel.");
   }
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_vbus_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular VBUS Channel.");
   }
-
   if(HAL_ADC_ConfigChannel(&gs_adc_handle, &s_temp_sense_conf) != HAL_OK) {
     DBG_ERR("Error initializing Regular TEMP Channel.");
   }
-
   adc_dma_init();
-
   ADC_Start();
-
+  ADC_IsrCallback = NULL;
   DBG_DEBUG("Done.\n\r");
   return;
 }
@@ -116,20 +107,6 @@ void ADC_Start(void) {
   HAL_ADC_Start_DMA(&gs_adc_handle, &gs_adc_ch_buf[ADC_INJ_CH_MAX], ADC_REG_CH_MAX);
   HAL_ADCEx_InjectedStart_IT(&gs_adc_handle);
   return;
-}
-
-void ADC_InjectedStart(void) {
-  HAL_ADCEx_InjectedStart_IT(&gs_adc_handle);
-  return;
-}
-
-void ADC_WaitConv(void) {
-  HAL_ADC_PollForConversion(&gs_adc_handle, (uint32_t)100);
-  return;
-}
-
-uint32_t ADC_Read(void) {
-  return HAL_ADC_GetValue(&gs_adc_handle);
 }
 
 void ADC1_IRQHandler(void) {
@@ -145,6 +122,11 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
+
+
+  if ( ADC_IsrCallback != NULL ) {
+    ADC_IsrCallback(NULL);
+  }
   return;
 }
 
@@ -166,20 +148,15 @@ uint32_t ADC_ReadCh(ADC_Channel_E adc_ch_e) {
 
 static void adc_dma_init(void) {
   DBG_DEBUG("Initializing ADC DMA...\n\r");
-
   __HAL_RCC_DMA1_CLK_ENABLE();
-
   if(HAL_DMA_Init(&gs_dma_handle) != HAL_OK) {
     DBG_ERR("Error initializing ADC DMA.");
   }
-
   __HAL_LINKDMA(&gs_adc_handle, DMA_Handle, gs_dma_handle);
-
 #ifdef DMA_ENABLE_CH1_IRQ
   /* When DMA interrupts are enabled, OS stops working. Investigate. */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, ADC_DMA_ISR_PRIO, ADC_DMA_ISR_SUBPRIO);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 #endif
-
   DBG_DEBUG("Done.\n\r");
 }

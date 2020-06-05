@@ -233,15 +233,11 @@ typedef enum {
 /*******************************************************************************
 *******************************************************************************/
 
+void (*ADC_IsrCallback)(void* params);
+
 void ADC_Init(void);
 
 void ADC_Start(void);
-
-void ADC_InjectedStart(void);
-
-void ADC_WaitConv(void);
-
-uint32_t ADC_Read(void);
 
 uint32_t ADC_ReadCh(ADC_Channel_E adc_ch_e);
 
