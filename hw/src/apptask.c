@@ -8,7 +8,7 @@
 #include "app.h"
 #include "tmr.h"
 #include "mtrif.h"
-#include "ctrl.h"
+#include "ctrl_30khz.h"
 #include "rlsq.h"
 #include "adc.h"
 
@@ -47,14 +47,15 @@ void AppTask_SLog(void* params) {
 
 #ifdef ENBL_MOTOR_IDENT
 void motor_ident_run(void) {
-  const int32_t Vin[] = {-3000, 3000};
   const uint32_t TCycleMillis = 500;
   const uint32_t TSampleMillis = 1;
   static uint32_t cnt;
   static uint32_t idx;
+  int32_t Vin[] = {-12000, 12000};
+  float pot = (float)App_GetVoltage(VAdcChPot_E);
   if(cnt++ >= (uint32_t)(TCycleMillis / TSampleMillis)) {
     idx ^= 1;
-    MtrIf_SetVin(Vin[idx]);
+    MtrIf_SetVin((int32_t)((float)Vin[idx] * (pot / 3300.0f)));
     cnt = 0;
   }
 }
@@ -65,8 +66,8 @@ void AppTask_MotorControl(void* params) {
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   int32_t signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
   int32_t heart_beat = 0;
+  MtrIf_Init();
   RLSQ_Init();
-  App_ArmMotor();
   for(;;) {
 
 #ifdef ENBL_MOTOR_IDENT
@@ -80,12 +81,13 @@ void AppTask_MotorControl(void* params) {
     signal_buff[1] = MtrIf_GetPos();
     signal_buff[2] = MtrIf_GetVin();
     signal_buff[3] = MtrIf_GetCurrent();
-    signal_buff[4] = heart_beat++;
+    signal_buff[4] = MtrIf_GetSpd();;
 
     xStreamBufferSend(stream_buff,
                       (void*)signal_buff,
                       sizeof(signal_buff),
                       0);
+
     vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }
 }
