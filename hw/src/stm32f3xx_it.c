@@ -192,9 +192,8 @@ void UsageFault_Handler(void)
   * @param  None
   * @retval None
   */
-void SVC_Handler(void)
+__weak void SVC_Handler(void)
 {
-    vPortSVCHandler();
 }
 
 /**
@@ -211,9 +210,8 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-void PendSV_Handler(void)
+__weak void PendSV_Handler(void)
 {
-    xPortPendSVHandler();
 }
 
 /**
@@ -221,11 +219,8 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
+__weak void SysTick_Handler(void)
 {
-  if(xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xPortSysTickHandler();
-  }
 }
 
 /******************************************************************************/
