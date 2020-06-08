@@ -11,8 +11,6 @@
 #define __ADC_DISABLE_ISR() HAL_NVIC_DisableIRQ(ADC1_IRQn)
 #define __ADC_ENABLE_ISR() HAL_NVIC_EnableIRQ(ADC1_IRQn)
 
-#define ADC_ISR_N_SIGNALS (5)
-
 typedef enum {
   ADC_PHA_IFBK_CH_E = 0,
   ADC_PHB_IFBK_CH_E,
