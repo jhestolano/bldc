@@ -4,7 +4,8 @@
 #include <stddef.h>
 #include "adc.h"
 #include "rtwtypes.h"
-#include "ctrl_30khz.h"
+/* #include "ctrl_30khz.h" */
+#include "ctrl.h"
 
 typedef struct MtrIf_tag {
   float mtr_spd;
@@ -16,28 +17,33 @@ typedef struct MtrIf_tag {
 
 static volatile MtrIf_S _mtr_if_s;
 
-static RT_MODEL_ctrl_30khz_T mtr_ctrl_30k_s;
+/* static RT_MODEL_ctrl_30khz_T mtr_ctrl_30k_s; */
 
 static void _mtr_if_adc_isr_callback(void *params) {
-  CTRL_Task30KHz(
-    &mtr_ctrl_30k_s,
-    (real_T)MtrIf_GetPos(),
-    (real_T)MtrIf_GetCurrent(),
-    /* Motor current target. */
-    0,
-    (real_T*)&_mtr_if_s.mtr_spd,
-    (real_T*)&_mtr_if_s.mtr_spd_fil,
-    (real_T*)&_mtr_if_s.dist_obs,
-    (real_T*)&_mtr_if_s.pos_est,
-    (real_T*)&_mtr_if_s.pwm_rqst
-  );
+  rtU.MtrPos = (float)MtrIf_GetPos();
+  rtU.MtrPosTgt = 0.f;
+  rtU.IfbkPhA = (float)MtrIf_GetIfbk();
+  Trig_30Khz();
+  _mtr_if_s.pwm_rqst = rtY.PwmChA;
+  /* CTRL_Task30KHz( */
+  /*   &mtr_ctrl_30k_s, */
+  /*   (real_T)MtrIf_GetPos(), */
+  /*   (real_T)MtrIf_GetCurrent(), */
+  /*   /1* Motor current target. *1/ */
+  /*   0, */
+  /*   (real_T*)&_mtr_if_s.mtr_spd, */
+  /*   (real_T*)&_mtr_if_s.mtr_spd_fil, */
+  /*   (real_T*)&_mtr_if_s.dist_obs, */
+  /*   (real_T*)&_mtr_if_s.pos_est, */
+  /*   (real_T*)&_mtr_if_s.pwm_rqst */
+  /* ); */
 }
 
 void MtrIf_Init(void) {
   MTRIF_LOCK();
   ADC_IsrCallback = _mtr_if_adc_isr_callback;
   MTRIF_UNLOCK();
-  CTRL_Init(&mtr_ctrl_30k_s);
+  /* CTRL_Init(&mtr_ctrl_30k_s); */
   App_ArmMotor();
 }
 
@@ -57,7 +63,7 @@ int32_t MtrIf_GetVin(void) {
   return vin;
 }
 
-int32_t MtrIf_GetCurrent(void) {
+int32_t MtrIf_GetIfbk(void) {
   int32_t current = App_GetCurrent(MTRIF_POS_PH_IFBK)
                   - App_GetCurrent(MTRIF_NEG_PH_IFBK);
   return current;
@@ -73,4 +79,12 @@ int32_t MtrIf_GetSpd(void) {
   spd = (int32_t)_mtr_if_s.mtr_spd_fil;
   MTRIF_UNLOCK();
   return spd;
+}
+
+void MtrIf_Ctl(void) {
+  MTRIF_LOCK();
+  Trig_1Khz();
+  _mtr_if_s.mtr_spd_fil = rtY.MtrSpdFil;
+  _mtr_if_s.mtr_spd = rtY.MtrSpd;
+  MTRIF_UNLOCK();
 }

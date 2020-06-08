@@ -8,12 +8,10 @@
 #include "app.h"
 #include "tmr.h"
 #include "mtrif.h"
-#include "ctrl_30khz.h"
+/* #include "ctrl_30khz.h" */
+#include "ctrl.h"
 #include "rlsq.h"
-#include "adc.h"
 
-/* Number of signals being logged. */
-#define SLOG_SIGBUF_SIZE (10)
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
 #define SLOG_START_FRAME_SIZE (sizeof(int32_t))
@@ -61,11 +59,17 @@ void motor_ident_run(void) {
 }
 #endif
 
+typedef struct RLSQ_tag {
+  float SpdEst;
+  float Err;
+  float Params[3];
+} RLSQ_S;
+
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   int32_t signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
-  int32_t heart_beat = 0;
+  RLSQ_S RLSQ_Output = {0};
   MtrIf_Init();
   RLSQ_Init();
   for(;;) {
@@ -73,15 +77,26 @@ void AppTask_MotorControl(void* params) {
 #ifdef ENBL_MOTOR_IDENT
     motor_ident_run();
 #endif
+    MtrIf_Ctl();
 
-    /* RLSQ_Output.SpdEst = RLSQ_Estimate(MtrIf_GetCurrent(), */
-    /*     MtrIf_GetVin(), MtrIf_GetSpd(&gs_mtr_if), */
-    /*     &RLSQ_Output.Params[0], &RLSQ_Output.Err); */
+    RLSQ_Output.SpdEst = RLSQ_Estimate(
+      MtrIf_GetIfbk(),
+      MtrIf_GetVin(),
+      MtrIf_GetSpd(),
+      &RLSQ_Output.Params[0],
+      &RLSQ_Output.Err
+    );
+
     signal_buff[0] = App_GetVoltage(VAdcChPot_E);
     signal_buff[1] = MtrIf_GetPos();
     signal_buff[2] = MtrIf_GetVin();
-    signal_buff[3] = MtrIf_GetCurrent();
+    signal_buff[3] = MtrIf_GetIfbk();
     signal_buff[4] = MtrIf_GetSpd();;
+    signal_buff[5] = (int32_t)RLSQ_Output.SpdEst;
+    signal_buff[6] = (int32_t)RLSQ_Output.Err;
+    signal_buff[7] = (int32_t)(RLSQ_Output.Params[0] * 1000.f);
+    signal_buff[8] = (int32_t)(RLSQ_Output.Params[1] * 1000.f);
+    signal_buff[9] = (int32_t)(RLSQ_Output.Params[2] * 1000.f);
 
     xStreamBufferSend(stream_buff,
                       (void*)signal_buff,

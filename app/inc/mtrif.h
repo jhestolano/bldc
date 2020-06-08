@@ -27,10 +27,12 @@ void MtrIf_SetVin(int32_t vin);
 
 int32_t MtrIf_GetVin(void);
 
-int32_t MtrIf_GetCurrent(void);
+int32_t MtrIf_GetIfbk(void);
 
 int32_t MtrIf_GetPos(void);
 
 int32_t MtrIf_GetSpd(void);
+
+void MtrIf_Ctl(void);
 
 #endif // _MTRIF_H_
