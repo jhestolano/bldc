@@ -70,6 +70,12 @@ void AppTask_MotorControl(void* params) {
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   int32_t signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
   RLSQ_S RLSQ_Output = {0};
+  float ParamsIn[] = {0.7f, 0.879f};
+  float MtrSpd = 0.f;
+  float MtrPos = 0.f;
+  float MtrIfbk = 0.f;
+  float Vin = 0.f;
+  float SpdEst = 0.f;
   MtrIf_Init();
   RLSQ_Init();
   for(;;) {
@@ -77,22 +83,34 @@ void AppTask_MotorControl(void* params) {
 #ifdef ENBL_MOTOR_IDENT
     motor_ident_run();
 #endif
+    /* SpdEst = ParamsIn[0] * Vin + ParamsIn[1] * SpdEst; */
+    SpdEst = RLSQ_Output.Params[0] * Vin + RLSQ_Output.Params[1] * SpdEst;
+
     MtrIf_Ctl();
+    MtrSpd = (float)MtrIf_GetSpd();
+    MtrPos = (float)MtrIf_GetPos();
+    MtrIfbk = (float)MtrIf_GetIfbk();
+    Vin = (float)MtrIf_GetVin();
 
     RLSQ_Output.SpdEst = RLSQ_Estimate(
-      MtrIf_GetIfbk(),
-      MtrIf_GetVin(),
-      MtrIf_GetSpd(),
-      &RLSQ_Output.Params[0],
-      &RLSQ_Output.Err
+     MtrIf_GetIfbk(),
+     /* 0.0f, */
+     (float)MtrIf_GetVin(),
+     /* 12.e3f, */
+     (float)MtrIf_GetSpd(),
+     /* 67.e3f, */
+     (float*)&RLSQ_Output.Err,
+     (float*)&RLSQ_Output.Params[0],
+     (float*)&ParamsIn[0]
     );
+
 
     signal_buff[0] = App_GetVoltage(VAdcChPot_E);
     signal_buff[1] = MtrIf_GetPos();
     signal_buff[2] = MtrIf_GetVin();
     signal_buff[3] = MtrIf_GetIfbk();
     signal_buff[4] = MtrIf_GetSpd();;
-    signal_buff[5] = (int32_t)RLSQ_Output.SpdEst;
+    signal_buff[5] = (int32_t)SpdEst;
     signal_buff[6] = (int32_t)RLSQ_Output.Err;
     signal_buff[7] = (int32_t)(RLSQ_Output.Params[0] * 1000.f);
     signal_buff[8] = (int32_t)(RLSQ_Output.Params[1] * 1000.f);
