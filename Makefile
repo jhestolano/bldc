@@ -78,11 +78,11 @@ BUILD_DIR=./build
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
-CFLAGS+=-Og
+CFLAGS+=-Og -gdwarf-5
 CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mcpu=cortex-m4
 CFLAGS+=-mthumb-interwork -mthumb
-CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
 CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
 CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
 
@@ -120,6 +120,9 @@ flash:
 
 stlink:
 	$(ST_LINK_DIR)/src/gdbserver/st-util -p4242
+
+all:
+	make clean && make && make flash
 
 # before you start gdb, you must start st-util
 .PHONY: debug
