@@ -23,6 +23,8 @@
 /* Transforms 0.1 deg/s to 0.001 RPM units */
 #define MTRIF_TO_RPM ((60 * MTRIF_RPM_RES / (360 * (APP_PARAMS_POS_RES))))
 
+void MtrIf_Init(void);
+
 void MtrIf_SetVin(int32_t vin);
 
 int32_t MtrIf_GetVin(void);

@@ -48,12 +48,15 @@ void MtrIf_Init(void) {
 }
 
 void MtrIf_SetVin(int32_t vin) {
-  if(vin >= 0) {
+  if(vin > 0) {
     App_SetPwmVoltage(MTRIF_POS_PH, (uint32_t)vin);
     App_SetPwmVoltage(MTRIF_NEG_PH, 0);
-  } else {
+  } else if(vin < 0){
     App_SetPwmVoltage(MTRIF_POS_PH, 0);
     App_SetPwmVoltage(MTRIF_NEG_PH, (uint32_t)(-vin));
+  } else {
+    App_SetPwmVoltage(MTRIF_POS_PH, 0);
+    App_SetPwmVoltage(MTRIF_NEG_PH, 0);
   }
 }
 
@@ -64,9 +67,13 @@ int32_t MtrIf_GetVin(void) {
 }
 
 int32_t MtrIf_GetIfbk(void) {
-  int32_t current = App_GetCurrent(MTRIF_POS_PH_IFBK)
-                  - App_GetCurrent(MTRIF_NEG_PH_IFBK);
-  return current;
+  int32_t ifbk;
+  if (MtrIf_GetVin() >= 0) {
+    ifbk = App_GetCurrent(MTRIF_NEG_PH_IFBK);
+  } else {
+    ifbk = -App_GetCurrent(MTRIF_POS_PH_IFBK);
+  }
+  return ifbk;
 }
 
 int32_t MtrIf_GetPos(void) {
