@@ -76,7 +76,6 @@ void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
-  /* int32_t signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0}; */
   RLSQ_S RLSQ_Output = {0};
   float SpdEst = 0.f;
   MtrIf_Init();
@@ -99,14 +98,15 @@ void AppTask_MotorControl(void* params) {
     &RLSQ_Output.Err,
     &RLSQ_Output.Params[0],
     &RLSQ_Output.TmCnst,
-    &RLSQ_Output.Kdc
+    &RLSQ_Output.Kdc,
+    &RLSQ_Output.SpdEst
   );
 
 
   signal_buff[0] = (float)MtrIf_GetVin();
   signal_buff[1] = (float)MtrIf_GetIfbk();
   signal_buff[2] = (float)MtrIf_GetSpd();;
-  signal_buff[3] = (float)SpdEst;
+  signal_buff[3] = RLSQ_Output.SpdEst;
   signal_buff[4] = RLSQ_Output.Err;
   signal_buff[5] = RLSQ_Output.Params[0];
   signal_buff[6] = RLSQ_Output.Params[1];
