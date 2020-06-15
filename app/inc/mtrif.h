@@ -5,6 +5,26 @@
 #include "adc.h"
 #include "app.h"
 #include "cmsis_gcc.h"
+#include "rtwtypes.h"
+
+real32_T Spd_PI_Kp;
+
+real32_T Spd_PI_Ki;
+
+real32_T Pos_PI_Kp;
+
+real32_T Pos_PI_Ki;
+
+typedef enum {
+  MtrCtlMdPos_E = 0,
+  MtrCtlMdSpd_E,
+  MtrCtlMdIfbk_E,
+  MtrCtlMdPwm_E,
+  MtrCtlMdInv_E = 255
+} MtrCtlMd_T;
+
+#define MTRIF_CTL_SPD_TS (0.05f) /* Speed loop settling time. */
+#define MTRIF_CTL_POS_TS (0.3f) /* Position loop settling time. */
 
 #define MTRIF_POS_PH (PwmChA_E)
 #define MTRIF_NEG_PH (PwmChC_E)
@@ -36,5 +56,23 @@ int32_t MtrIf_GetPos(void);
 int32_t MtrIf_GetSpd(void);
 
 void MtrIf_Ctl(void);
+
+int32_t MtrIf_GetPosEst(void);
+
+void MtrIf_SetIfbk(int32_t ifbktgt);
+
+int32_t MtrIf_GetIfbkTgt(void);
+
+void MtrIf_SetTgt(int32_t tgt);
+
+int32_t MtrIf_GetTgt(void);
+
+void MtrIf_SetCtlMd(MtrCtlMd_T ctlmd);
+
+MtrCtlMd_T MtrIf_GetCtlMd(void);
+
+void MtrIf_SetTgt(int32_t tgt);
+
+void MtrIf_CtlTune(float tau, float kdc);
 
 #endif // _MTRIF_H_
