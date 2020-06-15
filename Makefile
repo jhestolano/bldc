@@ -33,8 +33,9 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart.c
 SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
-SRCS+=mbd/codegen/ctrl/ctrl.c
-# SRCS+=mbd/codegen/ctrl_30khz/ctrl_30khz.c
+# SRCS+=mbd/codegen/ctrl/ctrl.c
+SRCS+=mbd/codegen/ctrl_30khz/ctrl_30khz.c
+SRCS+=mbd/codegen/ctrl_1khz/ctrl_1khz.c
 SRCS+=mbd/codegen/rlsq/rlsq.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
@@ -61,8 +62,8 @@ INC_DIRS+=$(LIBS_DIR)/printf
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
-# INC_DIRS+=./mbd/codegen/ctrl_30khz
-INC_DIRS+=./mbd/codegen/ctrl
+INC_DIRS+=./mbd/codegen/ctrl_30khz
+INC_DIRS+=./mbd/codegen/ctrl_1khz
 INC_DIRS+=./mbd/codegen/rlsq
 INC_DIRS+=.
 
