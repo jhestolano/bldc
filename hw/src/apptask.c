@@ -8,8 +8,8 @@
 #include "app.h"
 #include "tmr.h"
 #include "mtrif.h"
-/* #include "ctrl_30khz.h" */
-#include "ctrl.h"
+#include "ctrl_30khz.h"
+/* #include "ctrl.h" */
 #include "rlsq.h"
 #include "mtrif.h"
 #include "math.h"
@@ -46,18 +46,25 @@ void AppTask_SLog(void* params) {
 #endif
 
 #ifdef ENBL_MOTOR_IDENT
-void motor_ident_run(void) {
+uint8_t motor_ident_run(void) {
   const uint32_t TCycleMillis = 500;
   const uint32_t TSampleMillis = 1;
   static uint32_t cnt;
   static uint32_t idx;
-  int32_t Vin[] = {-12000, 12000};
+  static uint8_t n_total_cycles = 0;
+  int32_t MtrTgt[] = {-50, 50};
   float pot = (float)App_GetVoltage(VAdcChPot_E);
+  if(n_total_cycles > 4) {
+    MtrIf_SetTgt(0);
+    return 1;
+  }
   if(cnt++ >= (uint32_t)(TCycleMillis / TSampleMillis)) {
     idx ^= 1;
-    MtrIf_SetVin((int32_t)((float)Vin[idx] * (pot / 3300.0f)));
     cnt = 0;
+    n_total_cycles++;
+    MtrIf_SetTgt(MtrTgt[idx]);
   }
+  return 0;
 }
 #endif
 
@@ -69,55 +76,81 @@ typedef struct RLSQ_tag {
   float Params[2];
 } RLSQ_S;
 
-int32_t MtrSpd = 0;
-int32_t MtrIfbk = 0;
 
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
   RLSQ_S RLSQ_Output = {0};
-  float SpdEst = 0.f;
+  uint8_t is_done = false;
+  uint8_t is_tuned = false;
+  uint32_t tmr = 0;
   MtrIf_Init();
   RLSQ_Init();
+  MtrIf_SetCtlMd(MtrCtlMdIfbk_E);
+
   for(;;) {
 
+    MtrIf_Ctl();
+
 #ifdef ENBL_MOTOR_IDENT
-  motor_ident_run();
+
+    if(!is_done) {
+      /* Identification not complete. Run it. */
+
+      is_done = motor_ident_run();
+
+      RLSQ_Estimate(
+        MtrIf_GetIfbk(),
+        MtrIf_GetSpd(),
+        &RLSQ_Output.Err,
+        &RLSQ_Output.Params[0],
+        &RLSQ_Output.TmCnst,
+        &RLSQ_Output.Kdc,
+        &RLSQ_Output.SpdEst
+      );
+
+    }
+
+    if(is_done && !is_tuned) {
+      /* Controller ready to be tuned. */
+      MtrIf_CtlTune(RLSQ_Output.TmCnst, RLSQ_Output.Kdc);
+      MtrIf_SetCtlMd(MtrCtlMdIfbk_E);
+      MtrIf_SetTgt(0.0f);
+      if(tmr++ > 500) {
+        /* Wait 500ms to run controller. */
+        tmr = 0;
+        is_tuned = true;
+      }
+    }
+
+    if(is_done && is_tuned) {
+      MtrIf_SetCtlMd(MtrCtlMdPos_E);
+      if(tmr++ > 1000) {
+        MtrIf_SetTgt(-7200.0f);
+      } else {
+        MtrIf_SetTgt(0.0f);
+      }
+    }
+
 #endif
-  SpdEst = RLSQ_Output.Params[0] * (float)MtrIfbk + RLSQ_Output.Params[1] * SpdEst;
 
-  MtrIf_Ctl();
+    signal_buff[0] = (float)MtrIf_GetVin();
+    signal_buff[1] = (float)MtrIf_GetIfbk();
+    signal_buff[2] = (float)MtrIf_GetSpd();
+    signal_buff[3] = RLSQ_Output.SpdEst;
+    signal_buff[4] = RLSQ_Output.Err;
+    signal_buff[5] = RLSQ_Output.Params[0];
+    signal_buff[6] = RLSQ_Output.Params[1];
+    signal_buff[7] = RLSQ_Output.TmCnst;
+    signal_buff[8] = RLSQ_Output.Kdc;
+    signal_buff[9] = MtrIf_GetPos();
 
-  MtrIfbk = MtrIf_GetIfbk();
-  MtrSpd = MtrIf_GetSpd();
+    xStreamBufferSend(stream_buff,
+        (void*)signal_buff,
+        sizeof(signal_buff),
+        0);
 
-  RLSQ_Estimate(
-    MtrIfbk,
-    MtrSpd,
-    &RLSQ_Output.Err,
-    &RLSQ_Output.Params[0],
-    &RLSQ_Output.TmCnst,
-    &RLSQ_Output.Kdc,
-    &RLSQ_Output.SpdEst
-  );
-
-
-  signal_buff[0] = (float)MtrIf_GetVin();
-  signal_buff[1] = (float)MtrIf_GetIfbk();
-  signal_buff[2] = (float)MtrIf_GetSpd();;
-  signal_buff[3] = RLSQ_Output.SpdEst;
-  signal_buff[4] = RLSQ_Output.Err;
-  signal_buff[5] = RLSQ_Output.Params[0];
-  signal_buff[6] = RLSQ_Output.Params[1];
-  signal_buff[7] = RLSQ_Output.TmCnst;
-  signal_buff[8] = RLSQ_Output.Kdc;
-
-  xStreamBufferSend(stream_buff,
-      (void*)signal_buff,
-      sizeof(signal_buff),
-      0);
-
-  vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
+    vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }
 }
