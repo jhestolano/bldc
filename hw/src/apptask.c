@@ -121,15 +121,20 @@ void AppTask_MotorControl(void* params) {
         /* Wait 500ms to run controller. */
         tmr = 0;
         is_tuned = true;
+        MtrIf_SetCtlMd(MtrCtlMdPos_E);
       }
     }
 
     if(is_done && is_tuned) {
-      MtrIf_SetCtlMd(MtrCtlMdPos_E);
-      if(tmr++ > 1000) {
-        MtrIf_SetTgt(-7200.0f);
-      } else {
+      if(tmr < 500) {
         MtrIf_SetTgt(0.0f);
+        tmr++;
+      }
+      else if(tmr < 1000) {
+        /* MtrIf_SetTgt(7200.0f); */
+        tmr++;
+      } else {
+        tmr = 0;
       }
     }
 
