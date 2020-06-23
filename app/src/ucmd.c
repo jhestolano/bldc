@@ -20,11 +20,11 @@
 /* #include "uart.h" */
 #include <stdbool.h>
 #include "dbg.h"
+#include <stdio.h>
 
 /*-----------------------------------------------------------------------------
  *  Macro detiniftions.
  *-----------------------------------------------------------------------------*/
-#define uCMD_BUFF_SIZE (16)
 #define uCMD_CHAR_LF (10)
 #define uCMD_CHAR_CR (13)
 #define uCMD_NULL_CHAR (0)
@@ -33,7 +33,7 @@
  *  Structure type definitions.
  *-----------------------------------------------------------------------------*/
 typedef struct _uCmd_S {
-  uint8_t buff[uCMD_BUFF_SIZE + 1]; /* Buffer memory. +1 for null char. */
+  uint8_t buff[uCMD_BUFF_SIZE]; /* Buffer memory. */
   uint8_t isempty; /* Buffer is empty flag. */
   uint8_t isfull; /* Buffer is full flag. */
   uint8_t iscmplt; /* Message complete flag. */
@@ -48,7 +48,51 @@ static volatile uCmd_S _ucmd_s;
 /*-----------------------------------------------------------------------------
  * Static function prototypes. 
  *-----------------------------------------------------------------------------*/
-static void uCmd_NewCharCallback (void* params);
+static void _new_ch_callback (void*);
+static void _new_ch_proc(uint8_t);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  _new_ch_proc
+ *  Description:  Process newly received char.
+ * =====================================================================================
+ */
+void _new_ch_proc ( uint8_t newchar )
+{
+  /* If buffer is empty and end of message character received, just ignore it and return. */
+
+  /* If buffer is not empty and end of message character received, signal a message */
+  /* complete so that command can be processed. Also replace end character with */
+  /* null character so that it can be processed as a null-terminated string. */
+
+  /* If this is the last character that fits into buffer and no end of message caharacter */
+  /* has been received, then signal overflow condition. */
+
+  /* When an overflow condition has happened, flush the buffer and ignore all characters */
+  /* until a new end of line has been received as previous command was invalid. */
+  _ucmd_s.buff[_ucmd_s.cnt] = newchar;
+  return;
+}		/* -----  end of function _new_ch_proc  ----- */
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  _new_ch_callback
+ *  Description:  Handles new char event. This function runs in interrupt context.
+ * =====================================================================================
+ */
+static void _new_ch_callback (void* params)
+{
+  DBG_CATCH_NULL_PTR(params);
+  uint8_t newchar = *((uint8_t*)params);
+  if(_ucmd_s.isfull) {
+    return;
+  }
+  _new_ch_proc(newchar);
+  _ucmd_s.cnt++;
+  if(_ucmd_s.cnt >= uCMD_BUFF_SIZE) {
+    _ucmd_s.isfull = true;
+  }
+}		/* -----  end of function _new_ch_callback  ----- */
 
 /* 
  * ===  FUNCTION  ======================================================================
@@ -57,62 +101,64 @@ static void uCmd_NewCharCallback (void* params);
  * =====================================================================================
  */
 void uCmd_Init (uCmd_CharRxCallback* fncptr) {
-  DBG_CATCH_NULL_PTR(fncptr);
+  /* DBG_CATCH_NULL_PTR(fncptr); */
   memset((void*)&_ucmd_s, 0, sizeof(_ucmd_s));
   _ucmd_s.isempty = true;
   _ucmd_s.cnt = 0;
-
+  _ucmd_s.isfull = false;
   /* Connect char rx interrupt to new char handle function. */
-  *fncptr = uCmd_NewCharCallback;
+  *fncptr = _new_ch_callback;
 }		/* -----  end of function uCmd_Init  ----- */
+
+
+
+
 
 /* 
  * ===  FUNCTION  ======================================================================
- *         Name:  uCmd_NewCharCallback
- *  Description:  Handles new char event. This function runs in interrupt context.
+ *         Name:  uCmd_BuffIsFull
+ *  Description:  Buffer is full flag is set.
  * =====================================================================================
  */
-static void uCmd_NewCharCallback (void* params)
+uint8_t uCmd_BuffIsFull (void)
 {
-  DBG_CATCH_NULL_PTR(params);
-  uint8_t newchar = *((uint8_t*)params);
+  return _ucmd_s.isfull;
+}		/* -----  end of function uCmd_BuffIsFull  ----- */
 
-  if(_ucmd_s.isfull) {
-    /* Handle & set overrun error. */
-    DBG_DEBUG("Buffer full. Ignoring char.\n\r");
-    return;
-  }
 
-  if ( ((newchar == uCMD_CHAR_LF) || (newchar == uCMD_CHAR_CR)) && (_ucmd_s.isempty) ) {
-    /* If a Line Feed or Carriage Return character is received on an empty buffer, */
-    /* just ignore it as it does not make sense to add to buffer for process. This also */
-    /* protects for the case when a terminal sends LF+CR when hitting Enter. */
-    return;
-  } else if ( ((newchar == uCMD_CHAR_LF) || (newchar == uCMD_CHAR_CR)) && (!_ucmd_s.isfull )) {
-    /* NOTE: The end of the sequence has been received, but there is no guarantee yet */
-    /* as to if the command is valid or not. This flag just means that is ready to */
-    /* be processed. */
-    _ucmd_s.iscmplt = true;
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  uCmd_GetBuff
+ *  Description:  Copy raw buffer, whatever is in there. This function assumes there is
+                  enough space in the target buffer to copy all data.
+ * =====================================================================================
+ */
+void uCmd_GetBuff (uint8_t* buff)
+{
+  memcpy((void*)buff, (void*)_ucmd_s.buff, sizeof(_ucmd_s.buff));
+}		/* -----  end of function uCmd_GetBuff  ----- */
 
-    /* Replace end character with the null character. The command processing */
-    /* module does not care about end char, but about C-null string character. */
-    _ucmd_s.buff[_ucmd_s.cnt] = uCMD_NULL_CHAR;
-    DBG_DEBUG("Cmd complete.\n\r");
-  } else if (!_ucmd_s.isfull) {
-    _ucmd_s.iscmplt = false;
-    _ucmd_s.isempty = false;
-    _ucmd_s.buff[_ucmd_s.cnt] = newchar;
-    _ucmd_s.cnt++;
-  }
 
-  if ( _ucmd_s.cnt >= uCMD_BUFF_SIZE ) {
-    DBG_DEBUG("Buffer is full.\n\r");
-    _ucmd_s.isfull = true;
-  } else {
-    _ucmd_s.isfull = false;
-  }
 
-  /* Make sure it is always null char terminated. */
-  _ucmd_s.buff[uCMD_BUFF_SIZE] = uCMD_NULL_CHAR;
-  return;
-}		/* -----  end of function uCmd_NewCharCallback  ----- */
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  uCmd_BuffIsEmpty
+ *  Description:  Buffer is empty flag.
+ * =====================================================================================
+ */
+uint8_t uCmd_BuffIsEmpty (void)
+{
+  return _ucmd_s.isempty;
+}		/* -----  end of function uCmd_BuffIsEmpty  ----- */
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  uCmd_GetCnt
+ *  Description:  Get the current number of bytes in buffer.
+ * =====================================================================================
+ */
+uint8_t uCmd_GetCnt (void)
+{
+  return _ucmd_s.cnt;
+}		/* -----  end of function uCmd_GetCnt  ----- */

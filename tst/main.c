@@ -5,6 +5,7 @@
 #include "enc.h"
 #include <string.h> 
 #include <stdio.h>
+#include "ucmd.h"
 /********************************************************************************
   EXTERN FUNCTIONS & VARS.
 ********************************************************************************/
@@ -21,6 +22,15 @@ extern uint16_t gs_pwm_ch_buf[PWM_PH_MAX];
 extern int32_t gs_enc_cnt;
 
 extern uint16_t gs_gpio_pin;
+
+/*-----------------------------------------------------------------------------
+ * uCmd extern functions & variables. 
+ *-----------------------------------------------------------------------------*/
+extern uCmd_CharRxCallback MockUART_ChrRxCallback;
+
+extern void MockUART_SendChar(uint8_t ch);
+
+uint8_t test_buff[uCMD_BUFF_SIZE] = {0};
 /*******************************************************************************/
 
 void setUp(void) {
@@ -271,6 +281,75 @@ void test_App_DisarmDrive(void) {
   TEST_ASSERT_EQUAL_UINT16(gs_gpio_pin, GpioChBkIn2_E);
 }
 
+
+/*-----------------------------------------------------------------------------
+ * uCmd: command line handler tests. 
+ *-----------------------------------------------------------------------------*/
+
+uint8_t chr_rx_not_attached;                    /* Holds rx char when callback
+                                                   is not attached. */
+
+void chr_rx_callback_not_attached(void* params) {
+  chr_rx_not_attached = *((uint8_t*)params);
+}
+
+void test_uCmd_Init_function(void) {
+  chr_rx_not_attached = 0xff;
+  MockUART_ChrRxCallback = chr_rx_callback_not_attached;
+  MockUART_SendChar('a'); 
+  TEST_ASSERT_EQUAL_UINT8('a', chr_rx_not_attached);
+  uCmd_Init(&MockUART_ChrRxCallback);
+  /* Check buffer is empty. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  /* Check count is zero. */
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  /* Check buffer is not full. */
+  TEST_ASSERT_FALSE(uCmd_BuffIsFull());
+  /* Check buffer is initialized to zero. */
+  /* Set a non-zero value prior to getting buffer to verify */
+  /* it was, indeed, set to zero. */
+  test_buff[0] = 'a';
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EACH_EQUAL_UINT8(0, test_buff, sizeof(test_buff));
+  MockUART_SendChar('b');
+  /* Check value is not modified now that callback is attached. */
+  TEST_ASSERT_EQUAL_UINT8('a', chr_rx_not_attached);
+}
+
+void test_uCmd_NewCharCallback_add_chars(void) {
+  uCmd_Init(&MockUART_ChrRxCallback);
+  /* Check character count is zero. */
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  MockUART_SendChar('a');
+  /* Check character count increases. */
+  TEST_ASSERT_EQUAL_UINT8(1, uCmd_GetCnt());
+  /* Check first element is character 'a'. */
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EQUAL_UINT8('a', test_buff[0]);
+  /* Add another char. Check count increases. */
+  MockUART_SendChar('b');
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EQUAL_UINT8('a', test_buff[0]);
+  TEST_ASSERT_EQUAL_UINT8('b', test_buff[1]);
+  TEST_ASSERT_EQUAL_UINT8(2, uCmd_GetCnt());
+}
+
+void test_uCmd_BufferIsFull_flag(void) {
+  uint8_t idx = 0;
+  uCmd_Init(&MockUART_ChrRxCallback);
+  for(; idx < uCMD_BUFF_SIZE; idx++) {
+    test_buff[idx] = idx;
+    TEST_ASSERT_FALSE(uCmd_BuffIsFull());
+    MockUART_SendChar(idx);
+  }
+  /* Check full flag is set after filling the buffer. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsFull());
+  /* Check count does not increment because of buffer full. */
+  idx = uCmd_GetCnt();
+  MockUART_SendChar('a');
+  TEST_ASSERT_EQUAL_UINT8(idx, uCmd_GetCnt());
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_ADC_read_value);
@@ -316,5 +395,8 @@ int main(void) {
   RUN_TEST(test_App_DisarmPhase_invalid);
   RUN_TEST(test_App_ArmDrive);
   RUN_TEST(test_App_DisarmDrive);
+  RUN_TEST(test_uCmd_Init_function);
+  RUN_TEST(test_uCmd_NewCharCallback_add_chars);
+  RUN_TEST(test_uCmd_BufferIsFull_flag);
   return UNITY_END();
 }
