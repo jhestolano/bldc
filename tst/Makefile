@@ -2,10 +2,12 @@ PROJ_NAME=AppTest
 
 SRCS=./main.c
 SRCS+=../app/src/app.c
+SRCS+=../app/src/ucmd.c
 SRCS+=./src/mock_pwm.c
 SRCS+=./src/mock_adc.c
 SRCS+=./src/mock_enc.c
 SRCS+=./src/mock_gpio.c
+SRCS+=./src/mock_uart.c
 SRCS+=../Unity/unity.c
 
 INC_DIRS=.
