@@ -25,6 +25,7 @@ SRCS+=hw/src/enc.c
 SRCS+=app/src/apptask.c
 SRCS+=app/src/app.c
 SRCS+=app/src/mtrif.c
+SRCS+=app/src/ucmd.c
 SRCS+=system/src/system_stm32f3xx.c
 SRCS+=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f302x8.s
 SRCS+=$(STM_SRC)/stm32f3xx_hal_gpio.c
@@ -111,8 +112,8 @@ LFLAGS=-Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
 DEFS=-DSTM32F302x8
-#DEFS+=-D__DBG__
-DEFS+=-D__SLOG__
+DEFS+=-D__DBG__
+#DEFS+=-D__SLOG__
 DEFS+=-DENBL_MOTOR_IDENT
 
 .PHONY: $(PROJ_NAME)
