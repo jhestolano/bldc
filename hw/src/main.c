@@ -26,14 +26,18 @@ int main(void)
   StreamBufferHandle_t buff_motor_control = xStreamBufferCreate (
       APP_TASK_MOTOR_CONTROL_N_SIGNALS * sizeof(int32_t),
       /* Read buffer when all signals have been transmitted. */
-      /* This should happen regardless, sin the OS is not */
+      /* This should happen regardless, since the OS is not */
       /* in preemptive mode. */
       APP_TASK_MOTOR_CONTROL_N_SIGNALS * sizeof(int32_t)
   );
+
   HwInit();
-#ifdef __SLOG__
+
+  /*-----------------------------------------------------------------------------
+   * Low priority task for logging, command line, etc. 
+   *-----------------------------------------------------------------------------*/
   xTaskCreate (
-      AppTask_SLog,
+      AppTask_LowPrio,
       (signed portCHAR*)"SignalLog",
       APP_TASK_SLOG_STACK_SIZE,
       /* pvParameters. */
@@ -42,7 +46,10 @@ int main(void)
       /* pxCreatedTask. */
       NULL
   );
-#endif
+
+  /*-----------------------------------------------------------------------------
+   * High priority task for motor control @ 1ms. 
+   *-----------------------------------------------------------------------------*/
   xTaskCreate (
       AppTask_MotorControl,
       (signed portCHAR*)"MotorControl",
@@ -53,6 +60,7 @@ int main(void)
       /* pxCreatedTask. */
       NULL
   );
+
   vTaskStartScheduler();
   for(;;) {  }
 }
