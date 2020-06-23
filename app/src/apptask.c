@@ -8,12 +8,9 @@
 #include "app.h"
 #include "tmr.h"
 #include "mtrif.h"
-/* #include "ctrl_30khz.h" */
-/* #include "ctrl.h" */
-/* #include "rlsq.h" */
-#include "mtrif.h"
 #include "math.h"
 #include <stdbool.h>
+#include "ucmd.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -22,16 +19,17 @@
 #define SLOG_ADC_ISR_BUFF_SIZE (sizeof(int32_t) * ADC_ISR_N_SIGNALS)
 #define SLOG_BUFF_SIZE ((size_t)(SLOG_START_FRAME_SIZE + SLOG_MOTOR_CONTROL_BUFF_SIZE + SLOG_ADC_ISR_BUFF_SIZE))
 
-
-#ifdef __SLOG__
-
-void AppTask_SLog(void* params) {
+void AppTask_LowPrio(void* params) {
   const uint32_t SlogStartFrame = (uint32_t)SLOG_START_FRAME;
-
   uint8_t buff_signal_log[SLOG_BUFF_SIZE] = {0};
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff_motor_control = (StreamBufferHandle_t)params;
+  uCmd_Init((uCmd_CharRxCallback*)&UART_NewCharCallback);
   for(;;) {
+#ifdef __SLOG__
+    /*-----------------------------------------------------------------------------
+     * Signal logging. 
+     *-----------------------------------------------------------------------------*/
     /* Make sure start header is always correct. */
     memcpy((void*)buff_signal_log, (void*)((uint8_t*)&SlogStartFrame), (size_t)SLOG_START_FRAME_SIZE);
     xStreamBufferReceive(stream_buff_motor_control,
@@ -41,41 +39,13 @@ void AppTask_SLog(void* params) {
                          /* Do not wait. */
                          0);
     UART_DMAPutBytes((uint8_t*)buff_signal_log, sizeof(buff_signal_log));
+#endif
+    /*-----------------------------------------------------------------------------
+     * Handle command line. 
+     *-----------------------------------------------------------------------------*/
     vTaskDelayUntil(&last_wake_time, APP_TASK_SLOG_TS);
   }
 }
-#endif
-
-#ifdef ENBL_MOTOR_IDENT
-uint8_t motor_ident_run(void) {
-  const uint32_t TCycleMillis = 500;
-  const uint32_t TSampleMillis = 1;
-  static uint32_t cnt;
-  static uint32_t idx;
-  static uint8_t n_total_cycles = 0;
-  int32_t MtrTgt[] = {-50, 50};
-  float pot = (float)App_GetVoltage(VAdcChPot_E);
-  if(n_total_cycles > 4) {
-    MtrIf_SetTgt(0);
-    return 1;
-  }
-  if(cnt++ >= (uint32_t)(TCycleMillis / TSampleMillis)) {
-    idx ^= 1;
-    cnt = 0;
-    n_total_cycles++;
-    MtrIf_SetTgt(MtrTgt[idx]);
-  }
-  return 0;
-}
-#endif
-
-typedef struct RLSQ_tag {
-  float SpdEst;
-  float Err;
-  float TmCnst;
-  float Kdc;
-  float Params[2];
-} RLSQ_S;
 
 
 void AppTask_MotorControl(void* params) {

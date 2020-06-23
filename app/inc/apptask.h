@@ -26,8 +26,7 @@
 #define APP_TASK_MOTOR_CONTROL_N_SIGNALS (10)
 #define ADC_ISR_N_SIGNALS (0)
 
-
-void AppTask_SLog(void* params);
+void AppTask_LowPrio(void* params);
 
 void AppTask_MotorControl(void* params);
 
