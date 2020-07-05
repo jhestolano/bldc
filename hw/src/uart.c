@@ -7,16 +7,28 @@
 #include "stm32f3xx_hal_rcc.h"
 #include "stm32f3xx_hal_cortex.h"
 #include <string.h>
+#include "dbg.h"
 
-/* UART xmit delay in milliseconds. */
-#define UART_TX_DELAY (1)
+/*-----------------------------------------------------------------------------
+ * Macro definitions. 
+ *-----------------------------------------------------------------------------*/
+#define UART_TX_DELAY (1)                       /* Uart xmit delay. */
+#define UART_RX_BUFF_SIZE (1)                   /* Uart rx buffer. */
 
+/*-----------------------------------------------------------------------------
+ * Static global variable definitions. 
+ *-----------------------------------------------------------------------------*/
 static UART_HandleTypeDef gs_uart_init_conf = UART_INIT_CONF;
 
 static DMA_HandleTypeDef gs_uart_dma_conf = DMA_UART_INIT_CONF;
 
-void UART_ErrorHandler(void) {
-  while(1);
+static uint8_t _uart_rx_buff[UART_RX_BUFF_SIZE];
+
+/*-----------------------------------------------------------------------------
+ * Interface functions.
+ *-----------------------------------------------------------------------------*/
+void UART_ErrorHandler(char* errmsg) {
+  DBG_ERR("%s", errmsg);
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
@@ -41,20 +53,35 @@ void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
     __HAL_RCC_DMA1_CLK_ENABLE();
   }
   if(HAL_DMA_Init(&gs_uart_dma_conf) != HAL_OK) {
-    UART_ErrorHandler();
+    UART_ErrorHandler("Error initializing UART & DMA");
   }
   __HAL_LINKDMA(&gs_uart_init_conf, hdmatx, gs_uart_dma_conf);
 
   HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, UART_DMA_TX_PRIO, UART_DMA_TX_SUBPRIO);
   HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
+
+  /* Transmission interrupt to trigger DMA transfer. */
   HAL_NVIC_SetPriority(USART2_IRQn, UART_DMA_TX_PRIO, UART_DMA_TX_SUBPRIO);
+
+  /* Receive interrupt to handle commands. */
+  HAL_NVIC_SetPriority(USART2_IRQn, UART_RX_PRIO, UART_RX_SUBPRIO);
+
   HAL_NVIC_EnableIRQ(USART2_IRQn);
+  DBG_DEBUG("Uart enabled.\n\r");
 }
 
 void UART_Init(void) {
+
+  UART_NewCharCallback = NULL;
+
   if(HAL_UART_Init(&gs_uart_init_conf) != HAL_OK) {
-    UART_ErrorHandler();
+    UART_ErrorHandler("Error initializing UART");
   }
+
+  if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
+    UART_ErrorHandler("Error start rx routine with interrupts.");
+  }
+  
   return;
 }
 
@@ -69,14 +96,17 @@ void UART_DMAPutBytes(uint8_t* bufdata, size_t bufsz) {
   }
 }
 
-void _putchar(char ch) {
-  UART_Putc(ch);
-}
-
 void UART_Puts(const char* str) {
   HAL_UART_Transmit(&gs_uart_init_conf, str, strlen(str), UART_TX_DELAY);
 }
 
+void _putchar(char ch) {
+  UART_Putc(ch);
+}
+
+/*-----------------------------------------------------------------------------
+ * UART Interrupt functions. 
+ *-----------------------------------------------------------------------------*/
 void DMA1_Channel7_IRQHandler(void) {
   HAL_DMA_IRQHandler(&gs_uart_dma_conf);
 }
@@ -84,3 +114,18 @@ void DMA1_Channel7_IRQHandler(void) {
 void USART2_IRQHandler(void) {
   HAL_UART_IRQHandler(&gs_uart_init_conf);
 }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  uint8_t rxchar;
+  if(UART_NewCharCallback == NULL) {
+    /* Ignore rx character as command line is not listening yet. */
+    DBG_DEBUG("Ignoring rx char.\n\r");
+  } else {
+    rxchar = huart->pRxBuffPtr[0];
+    UART_NewCharCallback((void*)&rxchar);
+  }
+  if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
+    UART_ErrorHandler("Error start rx routine with interrupts.");
+  }
+}
+

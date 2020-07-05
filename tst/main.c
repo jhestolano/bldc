@@ -3,9 +3,10 @@
 #include "adc.h"
 #include "pwm.h"
 #include "enc.h"
-#include <string.h> 
+#include <string.h>
 #include <stdio.h>
 #include "ucmd.h"
+
 /********************************************************************************
   EXTERN FUNCTIONS & VARS.
 ********************************************************************************/
@@ -30,7 +31,16 @@ extern uCmd_CharRxCallback MockUART_ChrRxCallback;
 
 extern void MockUART_SendChar(uint8_t ch);
 
-uint8_t test_buff[uCMD_BUFF_SIZE] = {0};
+extern void  MockUART_SendCharArray(char*, uint8_t);
+
+extern int32_t _strlen(uint8_t* str);
+
+extern int32_t _find_ch(uint8_t* str, uint8_t ch);
+
+extern int32_t _get_cmd_str(uint8_t* str, uint8_t* cmdstr);
+
+extern int32_t _get_arg_str(uint8_t* str, uint8_t* cmdarg);
+
 /*******************************************************************************/
 
 void setUp(void) {
@@ -283,16 +293,36 @@ void test_App_DisarmDrive(void) {
 
 
 /*-----------------------------------------------------------------------------
- * uCmd: command line handler tests. 
+ * uCmd: command line handler.
  *-----------------------------------------------------------------------------*/
-
 uint8_t chr_rx_not_attached;                    /* Holds rx char when callback
                                                    is not attached. */
+
+/*-----------------------------------------------------------------------------
+ *  Helper functions and variables.
+ *-----------------------------------------------------------------------------*/
+uint8_t test_buff[uCMD_BUFF_SIZE] = {0};
+
+void helper_ucmd_fill_buff(uint8_t val) {
+  uint8_t idx = 0;
+  for(; idx < uCMD_BUFF_SIZE - 1; idx++) {
+    MockUART_SendChar(val);
+  }
+  /* Last char must be EOL character or buffer will overflow and flush. */
+  MockUART_SendChar(uCMD_CHAR_CR);
+}
 
 void chr_rx_callback_not_attached(void* params) {
   chr_rx_not_attached = *((uint8_t*)params);
 }
 
+void dummy_callback(void* arg) {
+  arg = arg;
+}
+
+/*-----------------------------------------------------------------------------
+ * uCmd: command line handler tests.
+ *-----------------------------------------------------------------------------*/
 void test_uCmd_Init_function(void) {
   chr_rx_not_attached = 0xff;
   MockUART_ChrRxCallback = chr_rx_callback_not_attached;
@@ -314,6 +344,13 @@ void test_uCmd_Init_function(void) {
   MockUART_SendChar('b');
   /* Check value is not modified now that callback is attached. */
   TEST_ASSERT_EQUAL_UINT8('a', chr_rx_not_attached);
+  /* Make sure buffer is flushed on init. */
+  uCmd_Init(&MockUART_ChrRxCallback);
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EACH_EQUAL_UINT8(0, test_buff, sizeof(test_buff));
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
 }
 
 void test_uCmd_NewCharCallback_add_chars(void) {
@@ -337,17 +374,196 @@ void test_uCmd_NewCharCallback_add_chars(void) {
 void test_uCmd_BufferIsFull_flag(void) {
   uint8_t idx = 0;
   uCmd_Init(&MockUART_ChrRxCallback);
-  for(; idx < uCMD_BUFF_SIZE; idx++) {
+  for(; idx < uCMD_BUFF_SIZE - 1; idx++) {
     test_buff[idx] = idx;
     TEST_ASSERT_FALSE(uCmd_BuffIsFull());
     MockUART_SendChar(idx);
   }
+  /* Last character must be EOL char or buffer will automatically flush. */
+  MockUART_SendChar(uCMD_CHAR_LF);
   /* Check full flag is set after filling the buffer. */
   TEST_ASSERT_TRUE(uCmd_BuffIsFull());
   /* Check count does not increment because of buffer full. */
   idx = uCmd_GetCnt();
   MockUART_SendChar('a');
   TEST_ASSERT_EQUAL_UINT8(idx, uCmd_GetCnt());
+}
+
+void test_uCmd_new_ch_proc_ignore_eol_on_empty_buf(void) {
+  uCmd_Init(&MockUART_ChrRxCallback);
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  MockUART_SendChar(uCMD_CHAR_LF);
+  /* Buffer shall remain upmty on LF character. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  MockUART_SendChar(uCMD_CHAR_CR);
+  /* Buffer shall remain upmty on CR character. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  /* Buffer shall remain upmty on SPACE character. */
+  MockUART_SendChar(uCMD_CHAR_SPACE);
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  /* Now send a valid initial character followed by LF or CR. */
+  MockUART_SendChar('a');
+  TEST_ASSERT_EQUAL_UINT8(1, uCmd_GetCnt());
+  MockUART_SendChar(uCMD_CHAR_CR);
+  /* Verify it was accepted. */
+  TEST_ASSERT_EQUAL_UINT8(2, uCmd_GetCnt());
+}
+
+void test_uCmd_FlushBuff(void) {
+  memset((void*)test_buff, 0, sizeof(test_buff));
+  uCmd_Init(&MockUART_ChrRxCallback);
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  /* Fill buffer with 'a' values. */
+  helper_ucmd_fill_buff('a');
+  uCmd_GetBuff(test_buff);
+  /* Make sure all buffer is filled with correct values. */
+  /* The last character must always be an eol character when filling the buffer. */
+  /* It will be replaced by a null character so that it is a valid C-string. */
+  TEST_ASSERT_EACH_EQUAL_UINT8('a', test_buff, sizeof(test_buff - 1));
+  TEST_ASSERT_EQUAL_UINT8(0, test_buff[uCMD_BUFF_SIZE - 1]);
+  /* Now flush it and make sure it is all zeros after. */
+  uCmd_FlushBuff();
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EACH_EQUAL_UINT8(0, test_buff, sizeof(test_buff));
+  /* Make sure count goes to zero after a flush. */
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+}
+
+void test_uCmd_IsCmplt(void) {
+  uCmd_Init(&MockUART_ChrRxCallback);
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  /* Make sure LF/CR are ignored on buffer empty and do not cause */
+  /* complete flag to be set. */
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+  MockUART_SendChar(uCMD_CHAR_LF);
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+  MockUART_SendChar(uCMD_CHAR_CR);
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+  /* Set minimal command. */
+  MockUART_SendChar('a');
+  MockUART_SendChar(uCMD_CHAR_CR);
+  TEST_ASSERT_TRUE(uCmd_IsCmplt());
+  uCmd_FlushBuff();
+  /* Make sure flag is cleared on flush. */
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+  /* The same but for LF characeter. */
+  MockUART_SendChar('a');
+  MockUART_SendChar(uCMD_CHAR_LF);
+  TEST_ASSERT_TRUE(uCmd_IsCmplt());
+  uCmd_FlushBuff();
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+  /* Test null termination. */
+  memset((void*)test_buff, 0, sizeof(test_buff));
+  MockUART_SendChar('a');
+  MockUART_SendChar('z');
+  MockUART_SendChar('d');
+  MockUART_SendChar('q');
+  /* MockUART_SendChar(uCMD_CHAR_LF); */
+  uCmd_GetBuff(test_buff);
+  TEST_ASSERT_EQUAL_STRING("azdq", test_buff);
+}
+
+void test_uCmd_longest_command_wo_oveflow(void) {
+  uCmd_Init(&MockUART_ChrRxCallback);
+  /* Longest possible correct command. */
+  MockUART_SendCharArray("abdlkslfkdlqksu\n", uCMD_BUFF_SIZE);
+  TEST_ASSERT_TRUE(uCmd_BuffIsFull());
+  TEST_ASSERT_FALSE(uCmd_BuffIsOvrFlwn());
+  TEST_ASSERT_TRUE(uCmd_IsCmplt());
+  /* Longest possible correct command. */
+  MockUART_SendCharArray("abdlkslfkdlqksu\r", uCMD_BUFF_SIZE);
+  TEST_ASSERT_TRUE(uCmd_BuffIsFull());
+  TEST_ASSERT_FALSE(uCmd_BuffIsOvrFlwn());
+  TEST_ASSERT_TRUE(uCmd_IsCmplt());
+  /* Incorrect command. */
+  uCmd_FlushBuff();
+  MockUART_SendCharArray("abdlkslfkdlqksuz", uCMD_BUFF_SIZE);
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_TRUE(uCmd_BuffIsOvrFlwn());
+  TEST_ASSERT_FALSE(uCmd_IsCmplt());
+}
+
+void test_uCmd_buffer_overflow_behavior(void) {
+  uint8_t idx;
+  uCmd_Init(&MockUART_ChrRxCallback);
+  for(idx = 0; idx < uCMD_BUFF_SIZE - 1; idx++) {
+    MockUART_SendChar('a');
+    TEST_ASSERT_FALSE(uCmd_BuffIsOvrFlwn());
+  }
+  MockUART_SendChar('a');
+  /* Make sure buffer overflown flag is set and buffer is flushed. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsOvrFlwn());
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  /* When an overflow happens, all characters will be ignored until the next */
+  /* eol character is received. Then the buffer is considered 'reset' and */
+  /* will start accepting characters again. */
+  MockUART_SendCharArray("adlz", 4);
+  /* Verify character is ignored as an eol has not been received. */
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  TEST_ASSERT_TRUE(uCmd_BuffIsOvrFlwn());
+  /* Verify recovery conditions from buffer overflow. */
+  MockUART_SendChar(uCMD_CHAR_CR);
+  TEST_ASSERT_FALSE(uCmd_BuffIsOvrFlwn());
+  TEST_ASSERT_TRUE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_EQUAL_UINT8(0, uCmd_GetCnt());
+  /* Buffer will receive characters again. */
+  MockUART_SendCharArray("ad", 2);
+  TEST_ASSERT_FALSE(uCmd_BuffIsEmpty());
+  TEST_ASSERT_EQUAL_UINT8(2, uCmd_GetCnt());
+}
+
+void test_uCmd_return_on_null_ptr(void) {
+  int32_t fcnarg;
+  uCmd_St ret;
+  uint8_t dummystr[] = "pwmdc 96";
+
+  ret = uCmd_ParseStr(NULL, (uCmd_Callback*)dummy_callback, &fcnarg);
+  TEST_ASSERT_EQUAL_UINT8((uint8_t)uCmd_NullPtr_E, (uint8_t)ret);
+
+  ret = uCmd_ParseStr(dummystr, NULL, &fcnarg);
+  TEST_ASSERT_EQUAL_UINT8((uint8_t)uCmd_NullPtr_E, (uint8_t)ret);
+
+  ret = uCmd_ParseStr(dummystr, (uCmd_Callback*)dummy_callback, NULL);
+  TEST_ASSERT_EQUAL_UINT8((uint8_t)uCmd_NullPtr_E, (uint8_t)ret);
+}
+
+void test_uCmd_strlen_fcn(void) {
+  uint8_t strlen_6[] = "123456";
+  uint8_t strlen_1[] = "1"; 
+  /* Max string length = 64 (including null). */
+  uint8_t str_too_long[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  TEST_ASSERT_EQUAL_INT32(6, _strlen(strlen_6));
+  TEST_ASSERT_EQUAL_INT32(1, _strlen(strlen_1));
+  TEST_ASSERT_EQUAL_INT32(0, _strlen((uint8_t*)""));
+  TEST_ASSERT_EQUAL_INT32(-1, _strlen(str_too_long));
+}
+
+void test_uCmd_find_ch_fcn(void) {
+  uint8_t test_str[uCMD_MAX_STR_LEN] = "0123456789";
+  uint8_t idx;
+  for ( idx = 0; idx < 10; idx++ ) {
+    TEST_ASSERT_EQUAL_INT32(idx, _find_ch(test_str, test_str[idx]));
+  }
+  /* A character not contained in string must return -1. */
+  TEST_ASSERT_EQUAL_INT32(-1, _find_ch(test_str, 'z'));
+}
+
+void test_uCmd_get_cmd_str(void) {
+  uint8_t valid_cmd[] = "pwmfrq 50000";
+  uint8_t invalid_cmd[] = " ";
+  uint8_t buff[uCMD_MAX_STR_LEN] = {0};
+  /* Max length is uCMD_MAX_CMD_SIZE (8). */
+  uint8_t too_long_cmd[] = "absdnfkjk";
+  TEST_ASSERT_EQUAL_INT32(6, _get_cmd_str(valid_cmd, buff));
+  TEST_ASSERT_EQUAL_STRING("pwmfrq", buff);
+  memset(buff, 0, sizeof(buff));
+  TEST_ASSERT_EQUAL_INT32(-1, _get_cmd_str(invalid_cmd, buff));
+  TEST_ASSERT_EQUAL_STRING("", buff);
+}
+
+void test_uCmd_ParseStr_simple_command(void) {
 }
 
 int main(void) {
@@ -398,5 +614,14 @@ int main(void) {
   RUN_TEST(test_uCmd_Init_function);
   RUN_TEST(test_uCmd_NewCharCallback_add_chars);
   RUN_TEST(test_uCmd_BufferIsFull_flag);
+  RUN_TEST(test_uCmd_new_ch_proc_ignore_eol_on_empty_buf);
+  RUN_TEST(test_uCmd_FlushBuff);
+  RUN_TEST(test_uCmd_IsCmplt);
+  RUN_TEST(test_uCmd_longest_command_wo_oveflow);
+  RUN_TEST(test_uCmd_buffer_overflow_behavior);
+  RUN_TEST(test_uCmd_return_on_null_ptr);
+  RUN_TEST(test_uCmd_strlen_fcn);
+  RUN_TEST(test_uCmd_find_ch_fcn);
+  RUN_TEST(test_uCmd_get_cmd_str);
   return UNITY_END();
 }
