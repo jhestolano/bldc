@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdbool.h>
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 #include "task.h"
@@ -9,7 +10,6 @@
 #include "tmr.h"
 #include "mtrif.h"
 #include "math.h"
-#include <stdbool.h>
 #include "ucmd.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
@@ -52,10 +52,6 @@ void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
-  RLSQ_S RLSQ_Output = {0};
-  uint8_t is_done = false;
-  uint8_t is_tuned = false;
-  uint32_t tmr = 0;
   MtrIf_Init();
   MtrIf_SetCtlMd(MtrCtlMdIfbk_E);
 

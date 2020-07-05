@@ -1,5 +1,4 @@
 PROJ_NAME=AppTest
-
 SRCS=./main.c
 SRCS+=../app/src/app.c
 SRCS+=../app/src/ucmd.c
@@ -20,8 +19,10 @@ CC=gcc
 
 # Any compiler options you need to set
 CFLAGS=-ggdb3
-CFLAGS+=-O0
+CFLAGS+=-O3
 CFLAGS+=-Wall -Wextra -Warray-bounds
+
+DEFS=-DUNIT_TEST
 
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 

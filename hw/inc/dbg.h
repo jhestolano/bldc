@@ -23,8 +23,10 @@
 
 #ifdef __DBG__
 #define DBG_DEBUG(format, ...) printf ("[DEBUG] %s::%s(%d) - "format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define DBG_CATCH_NULL_PTR(ptr) if((ptr) == NULL) ({DBG_DEBUG("Null ptr!"); __asm("BKPT #0\n");})
 #else
 #define DBG_DEBUG(format, ...)
+#define DBG_CATCH_NULL_PTR(ptr)
 #endif
 
 #endif // DBG_H
