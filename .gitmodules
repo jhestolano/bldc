@@ -2,3 +2,12 @@
 	path = serialplot
 	url = https://github.com/hyOzd/serialplot.git
   ignore = dirty
+[submodule "libs/FreeRTOS"]
+	path = libs/FreeRTOS
+	url = https://github.com/FreeRTOS/FreeRTOS.git
+[submodule "libs/STM32CubeF3"]
+	path = libs/STM32CubeF3
+	url = https://github.com/STMicroelectronics/STM32CubeF3.git
+[submodule "libs/libc"]
+	path = libs/libc
+	url = https://github.com/embeddedartistry/libc.git
