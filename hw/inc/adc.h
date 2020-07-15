@@ -231,7 +231,7 @@ typedef enum {
 /*******************************************************************************
 *******************************************************************************/
 
-void (*ADC_IsrCallback)(void* params);
+extern void (*ADC_IsrCallback)(void* params);
 
 void ADC_Init(void);
 

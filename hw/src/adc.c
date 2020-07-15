@@ -10,9 +10,9 @@
 #include "app.h"
 #include "math.h"
 
-/* extern MtrIf_S* AppTask_GetMtrIf(void); */
-
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
+
+void (*ADC_IsrCallback)(void* params);
 
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
