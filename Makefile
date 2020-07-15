@@ -1,9 +1,18 @@
 PROJ_NAME=bldc
 
-STM_DIR=../../STM32Cube_FW_F3_V1.10.0
+# Path to dependencies.
+LIBS_DIR=./libs
+
+# Path to LIBC.
+LIBC_DIR=../libc
+LIBC_PATH=$(LIBC_DIR)/buildresults/src
+
+# Link to ST Drivers. Using version 1.10.0
+STM_DIR=$(LIBS_DIR)/STM32CubeF3
 STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
-RTOS_DIR=../../FreeRTOSv10.2.1
-LIBS_DIR=../../libs
+
+# Link to FreeRTOS. Using version 10.2.1
+RTOS_DIR=$(LIBS_DIR)/FreeRTOS
 
 SRCS=hw/src/main.c
 SRCS+=hw/src/stm32f3xx_it.c
@@ -13,7 +22,7 @@ SRCS+=hw/src/pwm.c
 SRCS+=hw/src/uart.c
 SRCS+=hw/src/tmr.c
 SRCS+=hw/src/enc.c
-SRCS+=hw/src/apptask.c
+SRCS+=app/src/apptask.c
 SRCS+=app/src/app.c
 SRCS+=app/src/mtrif.c
 SRCS+=system/src/system_stm32f3xx.c
@@ -34,12 +43,12 @@ SRCS+=$(STM_SRC)/stm32f3xx_hal_uart_ex.c
 
 # Generated code.
 # SRCS+=mbd/codegen/ctrl/ctrl.c
-SRCS+=mbd/codegen/ctrl_30khz/ctrl_30khz.c
-SRCS+=mbd/codegen/ctrl_1khz/ctrl_1khz.c
-SRCS+=mbd/codegen/rlsq/rlsq.c
+# SRCS+=mbd/codegen/ctrl_30khz/ctrl_30khz.c
+# SRCS+=mbd/codegen/ctrl_1khz/ctrl_1khz.c
+# SRCS+=mbd/codegen/rlsq/rlsq.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
-SRCS+=$(LIBS_DIR)/printf/printf.c
+SRCS+=$(LIBC_DIR)/printf/printf.c
 
 # This is the location of port.c file.
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
@@ -52,13 +61,22 @@ SRCS+=$(RTOS_DIR)/FreeRTOS/Source/queue.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/list.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/stream_buffer.c
 
-
+# Drivers section.
 INC_DIRS=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Include
 INC_DIRS+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Inc
 INC_DIRS+=$(STM_DIR)/Drivers/CMSIS/Include
 INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/include
 INC_DIRS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F
+
+#Libc section.
 INC_DIRS+=$(LIBS_DIR)/printf
+INC_DIRS+=$(LIBC_DIR)/include
+INC_DIRS+=$(LIBC_DIR)/printf
+INC_DIRS+=$(LIBC_DIR)/arch/arm/include
+INC_DIRS+=$(LIBC_DIR)/openlibm/include
+INC_DIRS+=$(LIBC_DIR)/openlibm/src
+
+# Project section.
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc
@@ -88,7 +106,7 @@ CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
 CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
 
 # Linker Files (all *.ld files)
-LFLAGS=-Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
+LFLAGS=-Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld -L$(LIBC_PATH) -lc
 
 INCLUDE = $(addprefix -I,$(INC_DIRS))
 
