@@ -1,20 +1,10 @@
-#include "mtrif.h"
-#include "app.h"
+#include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "mtrif.h"
+#include "app.h"
 #include "adc.h"
-#include "rtwtypes.h"
-#include "ctrl_30khz.h"
-#include "ctrl_1khz.h"
-/* #include "ctrl.h" */
 
-real32_T Spd_PI_Kp = 0.0047f;
-
-real32_T Spd_PI_Ki = 0.0092f;
-
-real32_T Pos_PI_Kp = 13.33f;
-
-real32_T Pos_PI_Ki = 0.0f;
 
 typedef struct MtrIf_tag {
 
@@ -44,53 +34,28 @@ typedef struct MtrIf_tag {
 
   MtrCtlMd_T ctrl_md; /* Position, Speed or Current control mode. */
 
-  uint8_t mtr_is_idnt; /* Identification routine has been ran. */
-
-  float mtr_tau;
-
-  float mtr_kdc;
-
 } MtrIf_S;
 
 static volatile MtrIf_S _mtr_if_s;
 
-static RT_MODEL_ctrl_30khz_T _ctrl_30khz_s;
-
-static RT_MODEL_ctrl_1khz_T _ctrl_1khz_s;
-
 static void _mtr_if_adc_isr_callback(void *params) {
   if(_mtr_if_s.ctrl_fast_is_init) {
-    Ctrl30Khz(
-      &_ctrl_30khz_s,
-      (float)MtrIf_GetPos(),
-      (float)MtrIf_GetIfbk(),
-      _mtr_if_s.ifbk_tgt,
-      &_mtr_if_s.dist_trq,
-      &_mtr_if_s.pos_est,
-      &_mtr_if_s.mtr_spd,
-      &_mtr_if_s.pwm_rqst
-    );
-    MtrIf_SetVin((int32_t)_mtr_if_s.pwm_rqst);
+    MtrIf_SetVin(0);
   }
 }
 
 void MtrIf_Init(void) {
   MTRIF_LOCK();
+
   ADC_IsrCallback = _mtr_if_adc_isr_callback;
-  Ctrl30Khz_Init(&_ctrl_30khz_s);
-  Ctrl1Khz_Init(&_ctrl_1khz_s);
+
   /* Control task at 30khz is ready. */
   _mtr_if_s.ctrl_fast_is_init = true;
+
   /* Control task at 1khz is ready. */
   _mtr_if_s.ctrl_is_init = true;
 
   MTRIF_UNLOCK();
-
-  _mtr_if_s.mtr_is_idnt = false;
-
-  _mtr_if_s.mtr_tau = 0.0f;
-
-  _mtr_if_s.mtr_kdc = 0.0f;
 
   App_ArmMotor();
 }
@@ -159,24 +124,7 @@ int32_t MtrIf_GetIfbkTgt(void) {
 }
 
 void MtrIf_Ctl(void) {
-  float ifbk_tgt;
-  float mtr_ref;
-  if (_mtr_if_s.ctrl_is_init == true) {
-    Ctrl1Khz(
-      &_ctrl_1khz_s,
-      /* Controller target value: Position/Speed/Current. */
-      _mtr_if_s.mtr_tgt,
-      MtrIf_GetPos(),
-      MtrIf_GetSpd(),
-      /* Control mode: Position/Speed/Current. */
-      _mtr_if_s.ctrl_md,
-      /* Control output. Input to 30khz controller. */
-      &ifbk_tgt,
-      /* Unimplemented. */
-      &mtr_ref
-    );
-    MtrIf_SetIfbkTgt((int32_t)ifbk_tgt);
-  }
+  return;
 }
 
 MtrCtlMd_T MtrIf_GetCtlMd(void) {
@@ -189,11 +137,4 @@ void MtrIf_SetCtlMd(MtrCtlMd_T ctrl_md) {
 
 void MtrIf_SetTgt(int32_t tgt) {
   _mtr_if_s.mtr_tgt = (float)tgt;
-}
-
-void MtrIf_CtlTune(float tau, float kdc) {
-  Spd_PI_Ki = 4.0f / (kdc * (float)MTRIF_CTL_SPD_TS);
-  Spd_PI_Kp = tau * Spd_PI_Ki;
-  Pos_PI_Kp = 4.0f / (float)MTRIF_CTL_POS_TS;
-  Pos_PI_Ki = 0.0f;
 }

@@ -5,15 +5,6 @@
 #include "adc.h"
 #include "app.h"
 #include "cmsis_gcc.h"
-#include "rtwtypes.h"
-
-real32_T Spd_PI_Kp;
-
-real32_T Spd_PI_Ki;
-
-real32_T Pos_PI_Kp;
-
-real32_T Pos_PI_Ki;
 
 typedef enum {
   MtrCtlMdPos_E = 0,
@@ -72,7 +63,5 @@ void MtrIf_SetCtlMd(MtrCtlMd_T ctlmd);
 MtrCtlMd_T MtrIf_GetCtlMd(void);
 
 void MtrIf_SetTgt(int32_t tgt);
-
-void MtrIf_CtlTune(float tau, float kdc);
 
 #endif // _MTRIF_H_
