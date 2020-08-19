@@ -76,16 +76,11 @@
 *******************************************************************************/
 
 
-/*-----------------------------------------------------------------------------
- * UART new character received callback. 
- *-----------------------------------------------------------------------------*/
-void (*UART_NewCharCallback)(void* params);
-
 void UART_Init(void);
 
 void UART_Putc(uint8_t ch);
 
-void UART_Puts(const char * str);
+void UART_Puts(uint8_t* str);
 
 void UART_DMAPutBytes(uint8_t* bufdata, size_t bufsz);
 

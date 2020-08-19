@@ -39,6 +39,7 @@ typedef struct MtrIf_tag {
 static volatile MtrIf_S _mtr_if_s;
 
 static void _mtr_if_adc_isr_callback(void *params) {
+  (void)params;
   if(_mtr_if_s.ctrl_fast_is_init) {
     MtrIf_SetVin(0);
   }

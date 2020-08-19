@@ -11,7 +11,8 @@
 #define GPIO_PH_B     (1)
 #define GPIO_PH_C     (2)
 #define GPIO_BKIN2    (3)
-#define GPIO_CH_MAX   (4)
+#define GPIO_RED_LED  (4)
+#define GPIO_CH_MAX   (5)
 
 #define UH_PWM_ENABLE_PIN (GPIO_PIN_10)
 #define VH_PWM_ENABLE_PIN (GPIO_PIN_11)
@@ -51,7 +52,7 @@
   .Pin = USR_BUTTON_PIN,                                                       \
   .Mode = GPIO_MODE_IT_FALLING,                                                \
   .Pull = GPIO_NOPULL,                                                         \
-}                     
+}
 /*******************************************************************************
  * GPIO GREEN LED CONFIGURATION.
 *******************************************************************************/

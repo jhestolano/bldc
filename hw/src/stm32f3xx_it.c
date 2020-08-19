@@ -92,7 +92,7 @@ __attribute__((optimize("O0")))
 void debugHardfault(uint32_t* sp)
 {
 
-  ContextStateFrame_S *frame = (ContextStateFrame_S*)sp;
+  /* ContextStateFrame_S *frame = (ContextStateFrame_S*)sp; */
 
   uint32_t cfsr  = SCB->CFSR;
   uint32_t hfsr  = SCB->HFSR;

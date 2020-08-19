@@ -3,14 +3,14 @@
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 #include "task.h"
-#include "apptask.h"
+#include "tasks.h"
 #include "dbg.h"
 #include "uart.h"
 #include "app.h"
 #include "tmr.h"
 #include "mtrif.h"
 #include "math.h"
-#include "ucmd.h"
+#include "gpio.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -24,8 +24,10 @@ void AppTask_LowPrio(void* params) {
   uint8_t buff_signal_log[SLOG_BUFF_SIZE] = {0};
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff_motor_control = (StreamBufferHandle_t)params;
-  uCmd_Init((uCmd_CharRxCallback*)&UART_NewCharCallback);
   for(;;) {
+
+    /* Application code goes here. */
+
 #ifdef __SLOG__
     /*-----------------------------------------------------------------------------
      * Signal logging. 
@@ -51,23 +53,24 @@ void AppTask_LowPrio(void* params) {
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
+#ifdef __SLOG__
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
-  MtrIf_Init();
-  MtrIf_SetCtlMd(MtrCtlMdIfbk_E);
-
+#endif
+  uint16_t tmr = 0;
   for(;;) {
 
-    MtrIf_Ctl();
+    /* Motor control goes here. */
+    if(tmr++ >= 1000) {
+      GPIO_LedToggle();
+      tmr = 0;
+    }
 
-    signal_buff[0] = (float)MtrIf_GetVin();
-    signal_buff[1] = (float)MtrIf_GetIfbk();
-    signal_buff[2] = (float)MtrIf_GetSpd();
-    signal_buff[3] = (float)MtrIf_GetPos();
-
+#ifdef __SLOG__
     xStreamBufferSend(stream_buff,
         (void*)signal_buff,
         sizeof(signal_buff),
         0);
+#endif
 
     vTaskDelayUntil(&last_wake_time, APP_TASK_MOTOR_CONTROL_TS); 
   }

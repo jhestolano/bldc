@@ -38,7 +38,7 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* s_pwm_conf) {
 
 void PWM_Init(void) {
 
-  TIM_BreakDeadTimeConfigTypeDef s_pwm_dt_conf = PWM_DEADTIME_CONF;
+  /* TIM_BreakDeadTimeConfigTypeDef s_pwm_dt_conf = PWM_DEADTIME_CONF; */
   TIM_OC_InitTypeDef s_pwm_oc_conf = PWM_OC_CONF;
   TIM_MasterConfigTypeDef s_master_out_conf = PWM_MASTER_OUT_CONF;
 
@@ -46,7 +46,7 @@ void PWM_Init(void) {
   if(HAL_TIM_PWM_Init(&gs_pwm_conf) != HAL_OK) {
     Pwm_ErroHandler("Error initializing TIM module.");
   }
-  
+
   /*
   if(HAL_TIMEx_ConfigBrakDeadTime(&gs_pwm_conf, &s_pwm_dt_conf) != HAL_OK) {
     Pwm_ErroHandler();

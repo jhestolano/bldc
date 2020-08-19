@@ -116,11 +116,7 @@ void TIM6_DAC_IRQHandler(void) {
 
 
 void TIM17_IRQHandler(void) {
-  static volatile uint8_t _tmr_irq_trap = 0;
   /* General purpose timer. */
   HAL_TIM_IRQHandler(&gs_tim_init_conf_a[TMR_CH_GENERAL]);
   DBG_DEBUG("General channel timer overflowed!");
-  /* while(_tmr_irq_trap); */
-  /* Interrupt allowed to happen once on timer enable. */
-  _tmr_irq_trap = 1;
 }

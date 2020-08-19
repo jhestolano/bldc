@@ -5,7 +5,7 @@
 #include "gpio.h"
 #include "stdio.h"
 
-#define APP_PWM_MAX_DC (10000) 
+#define APP_PWM_MAX_DC (10000)
 #define APP_ADC_MAX_VOLTS (3300)
 
 static const uint16_t gsc_pwm_ch_map[] = {

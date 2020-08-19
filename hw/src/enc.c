@@ -30,11 +30,11 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* s_enc_conf) {
   UNUSED(s_enc_conf);
   GPIO_InitTypeDef s_enc_ch_a_gpio_conf = ENC_CH_A_GPIO_CONF;
   GPIO_InitTypeDef s_enc_ch_b_gpio_conf = ENC_CH_B_GPIO_CONF;
-  GPIO_InitTypeDef s_enc_ch_idx_gpio_conf = ENC_CH_IDX_GPIO_CONF;
- 
+  /* GPIO_InitTypeDef s_enc_ch_idx_gpio_conf = ENC_CH_IDX_GPIO_CONF; */
+
   if(!__HAL_RCC_TIM2_IS_CLK_ENABLED()) {
     __HAL_RCC_TIM2_CLK_ENABLE(); 
-  } 
+  }
   if(!__HAL_RCC_GPIOA_IS_CLK_ENABLED()) {
     __HAL_RCC_GPIOA_CLK_ENABLE();
   }

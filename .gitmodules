@@ -8,6 +8,7 @@
 [submodule "libs/STM32CubeF3"]
 	path = libs/STM32CubeF3
 	url = https://github.com/STMicroelectronics/STM32CubeF3.git
-[submodule "libs/libc"]
-	path = libs/libc
-	url = https://github.com/embeddedartistry/libc.git
+[submodule "libs/ucmd"]
+	path = libs/ucmd
+	url = https://github.com/Pickman22/ucmd.git
+  ignore = dirty

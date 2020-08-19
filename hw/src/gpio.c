@@ -13,6 +13,7 @@ static const _gpio_pin_map_s gsc_gpio_pin_map[] = {
   {.pin = VH_PWM_ENABLE_PIN, .port = VH_PWM_ENABLE_PORT},
   {.pin = WH_PWM_ENABLE_PIN, .port = WH_PWM_ENABLE_PORT},
   {.pin = BKIN2_PIN, .port = BKIN2_PORT},
+  {.pin = RED_LED_PIN, .port = RED_LED_PORT},
 };
 
 void GPIO_Init(void) {

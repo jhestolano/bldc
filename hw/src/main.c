@@ -12,7 +12,7 @@
 #include "uart.h"
 #include "printf.h"
 #include "dbg.h"
-#include "apptask.h"
+#include "tasks.h"
 #include "app.h"
 #include "mtrif.h"
 
@@ -23,6 +23,7 @@ void vAssertCalled( const char *pcFile, int32_t ulLine );
 
 int main(void)
 {
+
   StreamBufferHandle_t buff_motor_control = xStreamBufferCreate (
       APP_TASK_MOTOR_CONTROL_N_SIGNALS * sizeof(int32_t),
       /* Read buffer when all signals have been transmitted. */
@@ -38,7 +39,7 @@ int main(void)
    *-----------------------------------------------------------------------------*/
   xTaskCreate (
       AppTask_LowPrio,
-      (signed portCHAR*)"SignalLog",
+      (const char* const)"SignalLog",
       APP_TASK_SLOG_STACK_SIZE,
       /* pvParameters. */
       (void*)buff_motor_control,
@@ -52,7 +53,7 @@ int main(void)
    *-----------------------------------------------------------------------------*/
   xTaskCreate (
       AppTask_MotorControl,
-      (signed portCHAR*)"MotorControl",
+      (const char* const)"MotorControl",
       APP_TASK_MOTOR_CONTROL_STACK_SIZE,
       /* pvParameters. */
       (void*)buff_motor_control,
@@ -116,8 +117,8 @@ void vAssertCalled( const char *pcFile, int32_t ulLine )
 {
 volatile unsigned long ul = 0;
 
-	( void ) pcFile;
-	( void ) ulLine;
+  ( void ) pcFile;
+  ( void ) ulLine;
 
   taskENTER_CRITICAL();
   {

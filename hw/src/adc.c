@@ -29,13 +29,14 @@ static void ADC_ErrorHandler(char* errmsg) {
 }
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adc_handle) {
+  (void)adc_handle;
 
   GPIO_InitTypeDef s_gpioa_input_conf = GPIOA_ADC_INPUT_CONF;
   GPIO_InitTypeDef s_gpiob_input_conf = GPIOB_ADC_INPUT_CONF;
   GPIO_InitTypeDef s_gpioc_input_conf = GPIOC_ADC_INPUT_CONF;
 
   __HAL_RCC_ADC1_CLK_ENABLE();
-  
+
   if(!__HAL_RCC_GPIOA_IS_CLK_ENABLED()) {
     __HAL_RCC_GPIOA_CLK_ENABLE();
   }
@@ -119,11 +120,10 @@ void DMA1_Channel1_IRQHandler(void) {
 }
 
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
+  (void)adc_handle;
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-
-
   if ( ADC_IsrCallback != NULL ) {
     ADC_IsrCallback(NULL);
   }
@@ -132,6 +132,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   /* Not needed when DMA handles conversions. Use DMA interrupt. */
+  (void)adc_handle;
   return;
 }
 

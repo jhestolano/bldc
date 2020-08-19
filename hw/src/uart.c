@@ -10,13 +10,13 @@
 #include "dbg.h"
 
 /*-----------------------------------------------------------------------------
- * Macro definitions. 
+ * Macro definitions.
  *-----------------------------------------------------------------------------*/
 #define UART_TX_DELAY (1)                       /* Uart xmit delay. */
 #define UART_RX_BUFF_SIZE (1)                   /* Uart rx buffer. */
 
 /*-----------------------------------------------------------------------------
- * Static global variable definitions. 
+ * Static global variable definitions.
  *-----------------------------------------------------------------------------*/
 static UART_HandleTypeDef gs_uart_init_conf = UART_INIT_CONF;
 
@@ -72,21 +72,20 @@ void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
 
 void UART_Init(void) {
 
-  UART_NewCharCallback = NULL;
-
   if(HAL_UART_Init(&gs_uart_init_conf) != HAL_OK) {
     UART_ErrorHandler("Error initializing UART");
   }
 
+  /* Should this one be called after Line/uCmd initialization? */
   if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
-  
+
   return;
 }
 
 void UART_Putc(uint8_t ch) {
-  char buff = ch;
+  uint8_t buff = ch;
   HAL_UART_Transmit(&gs_uart_init_conf, &buff, 1, UART_TX_DELAY);
   return;
 }
@@ -96,8 +95,8 @@ void UART_DMAPutBytes(uint8_t* bufdata, size_t bufsz) {
   }
 }
 
-void UART_Puts(const char* str) {
-  HAL_UART_Transmit(&gs_uart_init_conf, str, strlen(str), UART_TX_DELAY);
+void UART_Puts(uint8_t* str) {
+  HAL_UART_Transmit(&gs_uart_init_conf, str, strlen((const char*)str), UART_TX_DELAY);
 }
 
 void _putchar(char ch) {
@@ -116,14 +115,7 @@ void USART2_IRQHandler(void) {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  uint8_t rxchar;
-  if(UART_NewCharCallback == NULL) {
-    /* Ignore rx character as command line is not listening yet. */
-    DBG_DEBUG("Ignoring rx char.\n\r");
-  } else {
-    rxchar = huart->pRxBuffPtr[0];
-    UART_NewCharCallback((void*)&rxchar);
-  }
+  (void)huart;
   if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
