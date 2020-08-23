@@ -49,6 +49,7 @@ SRCS+=$(LIBC_DIR)/printf/printf.c
 
 # Location for command utility.
 SRCS+=$(UCMD_DIR)/ucmd.c
+SRCS+=$(UCMD_DIR)/line.c
 SRCS+=$(UCMD_DIR)/err.c
 SRCS+=$(UCMD_DIR)/utils.c
 

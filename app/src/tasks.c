@@ -11,6 +11,7 @@
 #include "mtrif.h"
 #include "math.h"
 #include "gpio.h"
+#include "ucmd.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -19,14 +20,29 @@
 #define SLOG_ADC_ISR_BUFF_SIZE (sizeof(int32_t) * ADC_ISR_N_SIGNALS)
 #define SLOG_BUFF_SIZE ((size_t)(SLOG_START_FRAME_SIZE + SLOG_MOTOR_CONTROL_BUFF_SIZE + SLOG_ADC_ISR_BUFF_SIZE))
 
+static ErrCode_e simple_cmd_callback(Arg_s* args, void* usrargs) {
+  (void)args;
+  (void)usrargs;
+  GPIO_LedToggle();
+  return E_OK;
+}
+
+const uCmdInfo_s info_a[] = {
+  {"a", simple_cmd_callback, UCMD_ARG_NONE, UCMD_ARG_USER_NONE},
+  /* Keep this element last. Denotes end of table. */
+  UCMD_TABLE_END,
+};
+
 void AppTask_LowPrio(void* params) {
   const uint32_t SlogStartFrame = (uint32_t)SLOG_START_FRAME;
   uint8_t buff_signal_log[SLOG_BUFF_SIZE] = {0};
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff_motor_control = (StreamBufferHandle_t)params;
+  uCmd_InitTable(info_a, UCMD_GET_TABLE_SIZE(info_a));
   for(;;) {
 
     /* Application code goes here. */
+    uCmd_Loop();
 
 #ifdef __SLOG__
     /*-----------------------------------------------------------------------------
@@ -40,7 +56,7 @@ void AppTask_LowPrio(void* params) {
                          (size_t)SLOG_MOTOR_CONTROL_BUFF_SIZE,
                          /* Do not wait. */
                          0);
-    UART_DMAPutBytes((uint8_t*)buff_signal_log, sizeof(buff_signal_log));
+    /* UART_DMAPutBytes((uint8_t*)buff_signal_log, sizeof(buff_signal_log)); */
 #endif
     /*-----------------------------------------------------------------------------
      * Handle command line. 
@@ -61,7 +77,7 @@ void AppTask_MotorControl(void* params) {
 
     /* Motor control goes here. */
     if(tmr++ >= 1000) {
-      GPIO_LedToggle();
+      /* GPIO_LedToggle(); */
       tmr = 0;
     }
 

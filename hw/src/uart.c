@@ -8,11 +8,15 @@
 #include "stm32f3xx_hal_cortex.h"
 #include <string.h>
 #include "dbg.h"
+#include "line.h"
 
 /*-----------------------------------------------------------------------------
  * Macro definitions.
  *-----------------------------------------------------------------------------*/
 #define UART_TX_DELAY (1)                       /* Uart xmit delay. */
+
+/* Rx buffer shall remain one to generate an interrupt for each characeter, as the */
+/* size of the message cannot be anticipated. Buffering will be done in software. */
 #define UART_RX_BUFF_SIZE (1)                   /* Uart rx buffer. */
 
 /*-----------------------------------------------------------------------------
@@ -81,6 +85,8 @@ void UART_Init(void) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
 
+  Line_Init();
+
   return;
 }
 
@@ -115,7 +121,14 @@ void USART2_IRQHandler(void) {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  (void)huart;
+  uint8_t data = _uart_rx_buff[0];
+  DBG_DEBUG("Rx Data :%d\n\r", data);
+  Line_AddChar(data);
+  if(Line_BuffIsFull()) {
+    DBG_WARN("Buffer is full!\n\r");
+  } if(Line_BuffIsOvrFlwn()) {
+    DBG_WARN("Buffer overflow!!\n\r");
+  }
   if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }

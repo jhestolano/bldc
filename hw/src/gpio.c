@@ -55,7 +55,7 @@ void GPIO_LedToggle(void) {
 
 void GPIO_DiagCallback(void) {
   HAL_GPIO_WritePin(BKIN2_PORT, BKIN2_PIN, GPIO_PIN_RESET);
-  DBG_ERR("Driver overtemperature detected!!!");
+  DBG_ERR("Driver overtemperature detected!!!\n\r");
 }
 
 void EXTI9_5_IRQHandler(void) {
