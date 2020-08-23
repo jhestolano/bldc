@@ -65,6 +65,8 @@ void AppTask_MotorControl(void* params) {
       tmr = 0;
     }
 
+    signal_buff[0] = (float)MtrIf_GetPos();
+
 #ifdef __SLOG__
     xStreamBufferSend(stream_buff,
         (void*)signal_buff,
