@@ -28,6 +28,10 @@ static DMA_HandleTypeDef gs_uart_dma_conf = DMA_UART_INIT_CONF;
 
 static uint8_t _uart_rx_buff[UART_RX_BUFF_SIZE];
 
+/* This variable hold the function pointer to callback when a new char */
+/* interrupt has been received. */
+static uart_rx_callback_t gs_uart_rx_callback;
+
 /*-----------------------------------------------------------------------------
  * Interface functions.
  *-----------------------------------------------------------------------------*/
@@ -62,7 +66,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
   __HAL_LINKDMA(&gs_uart_init_conf, hdmatx, gs_uart_dma_conf);
 
   HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, UART_DMA_TX_PRIO, UART_DMA_TX_SUBPRIO);
-  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
   /* Transmission interrupt to trigger DMA transfer. */
   HAL_NVIC_SetPriority(USART2_IRQn, UART_DMA_TX_PRIO, UART_DMA_TX_SUBPRIO);
@@ -70,8 +73,19 @@ void HAL_UART_MspInit(UART_HandleTypeDef* s_uart_conf) {
   /* Receive interrupt to handle commands. */
   HAL_NVIC_SetPriority(USART2_IRQn, UART_RX_PRIO, UART_RX_SUBPRIO);
 
-  HAL_NVIC_EnableIRQ(USART2_IRQn);
   DBG_DEBUG("Uart enabled.\n\r");
+}
+
+void UART_EnableIRQ(void) {
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
+  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
+  DBG_DEBUG("UART IRQ Enabled\n\r");
+}
+
+void UART_DisableIRQ(void) {
+  HAL_NVIC_DisableIRQ(USART2_IRQn);
+  HAL_NVIC_DisableIRQ(DMA1_Channel7_IRQn);
+  DBG_DEBUG("UART IRQ Disabled\n\r");
 }
 
 void UART_Init(void) {
@@ -85,7 +99,7 @@ void UART_Init(void) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
 
-  Line_Init();
+  gs_uart_rx_callback = NULL;
 
   return;
 }
@@ -121,16 +135,37 @@ void USART2_IRQHandler(void) {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  uint8_t data = _uart_rx_buff[0];
-  DBG_DEBUG("Rx Data :%d\n\r", data);
-  Line_AddChar(data);
-  if(Line_BuffIsFull()) {
-    DBG_WARN("Buffer is full!\n\r");
-  } if(Line_BuffIsOvrFlwn()) {
-    DBG_WARN("Buffer overflow!!\n\r");
+  (void)huart;
+  DBG_DEBUG("Got data: %d\n\r", _uart_rx_buff[0]);
+  if(gs_uart_rx_callback) {
+    DBG_DEBUG("Callback attached.\n\r");
+    gs_uart_rx_callback(_uart_rx_buff[0]);
   }
+  /* Line_AddChar(_uart_rx_buff[0]); */
+  /* if(Line_BuffIsFull()) { */
+  /*   DBG_WARN("Buffer is full!\n\r"); */
+  /* } if(Line_BuffIsOvrFlwn()) { */
+  /*   DBG_WARN("Buffer overflow!!\n\r"); */
+  /* } */
   if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
 }
 
+void UART_AttachRxCallback(uart_rx_callback_t callback) {
+  if(callback) {
+    DBG_DEBUG("Attaching UART RX callback.\n\r");
+    UART_DisableIRQ();
+    gs_uart_rx_callback = callback;
+    UART_EnableIRQ();
+  } else {
+    DBG_DEBUG("Invalid UART RX callback.\n\r");
+  }
+}
+
+void UART_DettachRxCallback(void) {
+  UART_DisableIRQ();
+  DBG_DEBUG("Dettaching UART RX Callbacl.\n\r");
+  gs_uart_rx_callback = NULL;
+  UART_EnableIRQ();
+}

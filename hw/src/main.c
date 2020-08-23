@@ -10,11 +10,9 @@
 #include "pwm.h"
 #include "enc.h"
 #include "uart.h"
-#include "printf.h"
 #include "dbg.h"
 #include "tasks.h"
-#include "app.h"
-#include "mtrif.h"
+#include "command.h"
 
 static void SystemClock_Config(void);
 static void Error_Handler(void);
@@ -33,6 +31,9 @@ int main(void)
   );
 
   HwInit();
+  command_init();
+  UART_AttachRxCallback(command_uart_rx_callback);
+  UART_EnableIRQ();
 
   /*-----------------------------------------------------------------------------
    * Low priority task for logging, command line, etc. 

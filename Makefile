@@ -28,6 +28,7 @@ SRCS+=hw/src/enc.c
 SRCS+=app/src/tasks.c
 SRCS+=app/src/app.c
 SRCS+=app/src/mtrif.c
+SRCS+=app/src/command.c
 SRCS+=system/src/system_stm32f3xx.c
 SRCS+=$(STM_DIR)/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/gcc/startup_stm32f302x8.s
 SRCS+=$(STM_SRC)/stm32f3xx_hal_gpio.c
