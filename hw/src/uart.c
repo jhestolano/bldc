@@ -136,17 +136,9 @@ void USART2_IRQHandler(void) {
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   (void)huart;
-  DBG_DEBUG("Got data: %d\n\r", _uart_rx_buff[0]);
   if(gs_uart_rx_callback) {
-    DBG_DEBUG("Callback attached.\n\r");
     gs_uart_rx_callback(_uart_rx_buff[0]);
   }
-  /* Line_AddChar(_uart_rx_buff[0]); */
-  /* if(Line_BuffIsFull()) { */
-  /*   DBG_WARN("Buffer is full!\n\r"); */
-  /* } if(Line_BuffIsOvrFlwn()) { */
-  /*   DBG_WARN("Buffer overflow!!\n\r"); */
-  /* } */
   if(HAL_UART_Receive_IT(&gs_uart_init_conf, _uart_rx_buff, UART_RX_BUFF_SIZE) != HAL_OK) {
     UART_ErrorHandler("Error start rx routine with interrupts.");
   }
@@ -165,7 +157,7 @@ void UART_AttachRxCallback(uart_rx_callback_t callback) {
 
 void UART_DettachRxCallback(void) {
   UART_DisableIRQ();
-  DBG_DEBUG("Dettaching UART RX Callbacl.\n\r");
+  DBG_DEBUG("Dettaching UART RX Callback.\n\r");
   gs_uart_rx_callback = NULL;
   UART_EnableIRQ();
 }

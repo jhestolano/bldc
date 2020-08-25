@@ -63,11 +63,12 @@ void AppTask_MotorControl(void* params) {
 
     /* Motor control goes here. */
     if(tmr++ >= 1000) {
-      /* GPIO_LedToggle(); */
+      GPIO_LedToggle();
       tmr = 0;
     }
 
     signal_buff[0] = (float)MtrIf_GetPos();
+    signal_buff[1] = (float)MtrIf_GetVin();
 
 #ifdef __SLOG__
     xStreamBufferSend(stream_buff,

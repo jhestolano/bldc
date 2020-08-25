@@ -15,14 +15,14 @@
 #endif
 #define APP_TASK_SLOG_PRIO (2)
 /* Stack size: word size, not bytes: 300 implies 1200 bytes. */
-#define APP_TASK_SLOG_STACK_SIZE (100)
+#define APP_TASK_SLOG_STACK_SIZE (200)
 
 /*-----------------------------------------------------------------------------
  * Motor control task definitions.
  *-----------------------------------------------------------------------------*/
 #define APP_TASK_MOTOR_CONTROL_TS (1)
 #define APP_TASK_MOTOR_CONTROL_PRIO (3)
-#define APP_TASK_MOTOR_CONTROL_STACK_SIZE (100)
+#define APP_TASK_MOTOR_CONTROL_STACK_SIZE (200)
 #define APP_TASK_MOTOR_CONTROL_N_SIGNALS (10)
 #define ADC_ISR_N_SIGNALS (0)
 
