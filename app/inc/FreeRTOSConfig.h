@@ -33,8 +33,8 @@ extern uint32_t SystemCoreClock;
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   4096
-#define configAPPLICATION_ALLOCATED_HEAP        0
+#define configTOTAL_HEAP_SIZE                   8192 /* 8K memory at CCM */
+#define configAPPLICATION_ALLOCATED_HEAP        1
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0

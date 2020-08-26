@@ -41,7 +41,7 @@ _estack = 0x20004000;    /* end of 16K RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
 _Min_Stack_Size = 0x80; /* required amount of stack */
 
-/* Specify the memory areas */
+/* Spec10000000ify the memory areas */
 MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 64K
@@ -138,7 +138,7 @@ SECTIONS
   * If initialized variables will be placed in this section, 
   * the startup code needs to be modified to copy the init-values.  
   */
-  .ccmram :
+  .ccmram (NOLOAD):
   {
     . = ALIGN(4);
     _sccmram = .;       /* create a global symbol at ccmram start */
@@ -147,7 +147,7 @@ SECTIONS
     
     . = ALIGN(4);
     _eccmram = .;       /* create a global symbol at ccmram end */
-  } >CCMRAM AT> FLASH
+  } >CCMRAM /* AT> FLASH */
 
   /* Uninitialized data section */
   . = ALIGN(4);

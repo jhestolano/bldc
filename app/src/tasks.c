@@ -42,7 +42,7 @@ void AppTask_LowPrio(void* params) {
                          (size_t)SLOG_MOTOR_CONTROL_BUFF_SIZE,
                          /* Do not wait. */
                          0);
-    /* UART_DMAPutBytes((uint8_t*)buff_signal_log, sizeof(buff_signal_log)); */
+    UART_DMAPutBytes((uint8_t*)buff_signal_log, sizeof(buff_signal_log));
 #endif
     /*-----------------------------------------------------------------------------
      * Handle command line. 
