@@ -24,6 +24,14 @@
 #define APP_PARAMS_MOTOR_KEMF (103) /* Motor back emf constant in mN*m*s/rad units. Actual: 1.10127e-5 N*m*s/rad */
 #define APP_PARAMS_MOTOR_KF (11012) /* Motor friction in g*mm^2*s/rad. Actual: 1.10127e-5 */
 
+/* Voltage over which is not possible to read shunt resistor that is powering the phase. This is due to the fact */
+/* that the shunt resistor is located on the negative side of the bridge. At 100% duty-cycle, the shunt resistor */
+/* is never connected to the phase, as it is being turned on 100% of the time. To allow some curren to flow */
+/* through the shunt resistor, the duty cycle must not exceed this threshold. */
+/* Another workaround is to read the opposite phase all the time. As it is guaranteeed for it to be connected */
+/* to ground at some point. The software will use a combination of both workarounds. */
+#define APP_PARAMS_RSHUNT_NOT_READABLE (11000) /* Voltage over which is not possible to read phase. */
+
 typedef enum {
   IfbkPhA_E,
   IfbkPhB_E,

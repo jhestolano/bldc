@@ -231,11 +231,13 @@ typedef enum {
 /*******************************************************************************
 *******************************************************************************/
 
-extern void (*ADC_IsrCallback)(void* params);
+typedef void(*adc_isr_callback_t)(void* params);
 
 void ADC_Init(void);
 
 void ADC_Start(void);
+
+void ADC_AttachISRCallback(adc_isr_callback_t callback);
 
 uint32_t ADC_ReadCh(ADC_Channel_E adc_ch_e);
 

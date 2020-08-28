@@ -12,7 +12,7 @@
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
 
-void (*ADC_IsrCallback)(void* params);
+static adc_isr_callback_t gs_adc_isr_callback;
 
 ADC_HandleTypeDef gs_adc_handle = ADC_INIT_CONF;
 
@@ -75,7 +75,9 @@ void ADC_Init(void) {
   {
     ADC_ErrorHandler("Error initializing ADC module.");
   }
-  HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED);
+  if(HAL_ADCEx_Calibration_Start(&gs_adc_handle, ADC_SINGLE_ENDED) != HAL_OK) {
+    DBG_ERR("ADC Cal. Error!!\n\r");
+  }
   if (HAL_ADCEx_InjectedConfigChannel(&gs_adc_handle, &s_pha_ifbk_conf) != HAL_OK)
   {
     ADC_ErrorHandler("Error initializing PHA Channel.");
@@ -99,7 +101,7 @@ void ADC_Init(void) {
   }
   adc_dma_init();
   ADC_Start();
-  ADC_IsrCallback = NULL;
+  gs_adc_isr_callback = NULL;
   DBG_DEBUG("Done.\n\r");
   return;
 }
@@ -119,13 +121,19 @@ void DMA1_Channel1_IRQHandler(void) {
   HAL_DMA_IRQHandler(&gs_dma_handle);
 }
 
+void ADC_AttachISRCallback(adc_isr_callback_t callback) {
+  if(callback) {
+    gs_adc_isr_callback = callback;
+  }
+}
+
 void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* adc_handle) {
   (void)adc_handle;
   gs_adc_ch_buf[ADC_PHA_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_1);
   gs_adc_ch_buf[ADC_PHB_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_2);
   gs_adc_ch_buf[ADC_PHC_IFBK_CH_E] = HAL_ADCEx_InjectedGetValue(&gs_adc_handle, ADC_INJECTED_RANK_3);
-  if ( ADC_IsrCallback != NULL ) {
-    ADC_IsrCallback(NULL);
+  if ( gs_adc_isr_callback != NULL ) {
+    gs_adc_isr_callback((void*)gs_adc_ch_buf);
   }
   return;
 }

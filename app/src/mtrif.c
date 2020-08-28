@@ -5,7 +5,6 @@
 #include "app.h"
 #include "adc.h"
 
-
 typedef struct MtrIf_tag {
 
   float mtr_spd; /* Actual motor speed. */
@@ -41,23 +40,18 @@ static volatile MtrIf_S _mtr_if_s;
 static void _mtr_if_adc_isr_callback(void *params) {
   (void)params;
   if(_mtr_if_s.ctrl_fast_is_init) {
-    MtrIf_SetVin(0);
+    /* MtrIf_SetVin(0); */
   }
 }
 
 void MtrIf_Init(void) {
   MTRIF_LOCK();
-
-  ADC_IsrCallback = _mtr_if_adc_isr_callback;
-
+  ADC_AttachISRCallback(_mtr_if_adc_isr_callback);
   /* Control task at 30khz is ready. */
   _mtr_if_s.ctrl_fast_is_init = true;
-
   /* Control task at 1khz is ready. */
   _mtr_if_s.ctrl_is_init = true;
-
   MTRIF_UNLOCK();
-
   App_ArmMotor();
 }
 
@@ -81,13 +75,24 @@ int32_t MtrIf_GetVin(void) {
 }
 
 int32_t MtrIf_GetIfbk(void) {
-  int32_t ifbk;
-  if (MtrIf_GetVin() >= 0) {
-    ifbk = App_GetCurrent(MTRIF_NEG_PH_IFBK);
+  int32_t ret;
+  int32_t ifbkpos = App_GetCurrent(MTRIF_POS_PH_IFBK);
+  int32_t ifbkneg = App_GetCurrent(MTRIF_NEG_PH_IFBK);
+  int32_t vin = MtrIf_GetVin();
+  int32_t abs_vin = (vin >= 0) ? vin : -vin;
+  if (abs_vin >= APP_PARAMS_RSHUNT_NOT_READABLE) {
+    /* In this scenario, one of the phases (the one powered over the threshold) */
+    /* is not readable. To overcome this, read the opposite phase. */
+    if (vin >= 0) {
+      ret = ifbkneg;
+    } else {
+      ret = -ifbkpos;
+    }
   } else {
-    ifbk = -App_GetCurrent(MTRIF_POS_PH_IFBK);
+    /* When both phases are readable, take average of both. */
+    ret = (ifbkneg - ifbkpos) / 2;
   }
-  return ifbk;
+  return ret;
 }
 
 int32_t MtrIf_GetPos(void) {

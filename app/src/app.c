@@ -4,6 +4,7 @@
 #include "enc.h"
 #include "gpio.h"
 #include "stdio.h"
+#include "dbg.h"
 
 #define APP_PWM_MAX_DC (10000)
 #define APP_ADC_MAX_VOLTS (3300)
@@ -125,10 +126,12 @@ void App_ArmPhase(GpioCh_E pin) {
 
 void App_ArmDrive(void) {
   GPIO_Set(GpioChBkIn2_E);
+  DBG_DEBUG("Arming drive.\n\r");
 }
 
 void App_DisarmDrive(void) {
   GPIO_Reset(GpioChBkIn2_E);
+  DBG_DEBUG("Disarming drive.\n\r");
 }
 
 void App_DisarmMotor(void) {
@@ -137,6 +140,7 @@ void App_DisarmMotor(void) {
   App_DisarmPhase(GpioChB_E);
   App_DisarmPhase(GpioChC_E);
   App_SetPwmVoltageAll(0);
+  DBG_DEBUG("Disarming motor.\n\r");
 }
 
 void App_ArmMotor(void) {
@@ -145,5 +149,6 @@ void App_ArmMotor(void) {
   App_ArmPhase(GpioChB_E);
   App_ArmPhase(GpioChC_E);
   App_SetPwmVoltageAll(0);
+  DBG_DEBUG("Arming motor.\n\r");
 }
 

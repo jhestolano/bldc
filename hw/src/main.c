@@ -150,10 +150,5 @@ void HwInit(void) {
   PWM_Init();
   ENC_Init();
   ADC_Init();
-  if(HAL_GPIO_ReadPin(DIAG_PORT, DIAG_PIN)) {
-    DBG_DEBUG("Diag pin enabled.\n\r");
-  } else {
-    DBG_ERR("Diag pin disabled!!!\n\r");
-  }
 }
 
