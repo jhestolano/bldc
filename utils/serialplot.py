@@ -19,7 +19,9 @@ def SerialPlotUnpack(fname):
   labels = rawdata.splitlines()[0].split(',')
   rawdata = rawdata.splitlines()[1:]
   rawdata = map(lambda s: s.split(','), rawdata)
-  data =  np.array(rawdata).astype('float')
+  logging.debug('Raw data: {}'.format(rawdata))
+  logging.debug('Data: {}'.format(rawdata))
+  data =  np.array(list(rawdata)).astype('float')
   return {'labels': labels, 'data': data}
 
 def SerialPlotShow(data):
