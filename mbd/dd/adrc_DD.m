@@ -31,11 +31,23 @@ ADRC_TrackFil_r0.DataType = 'single';
 ADRC_TrackFil_r0.Min = [];
 ADRC_TrackFil_r0.Max = [];
 ADRC_TrackFil_r0.DocUnits = '';
-ADRC_TrackFil_r0.Value = 10.e3;
+ADRC_TrackFil_r0.Value = 1.e3;
 
-ADRC_DistObsGain = Simulink.Parameter;
-ADRC_DistObsGain.StorageClass = 'Auto';
-ADRC_DistObsGain.Description = 'Disturbance observer tuning gain.';
-ADRC_DistObsGain.DataType = 'single';
-ADRC_DistObsGain.Value = 6.;
+%% Disturbance observer gains.
+ADRC_DistObsK1 = Simulink.Parameter;
+ADRC_DistObsK1.StorageClass = 'Auto';
+ADRC_DistObsK1.Description = 'Disturbance observer gain 1.';
+ADRC_DistObsK1.DataType = 'single';
+ADRC_DistObsK1.Value = AdrcParams.K1;
 
+ADRC_DistObsK2 = Simulink.Parameter;
+ADRC_DistObsK2.StorageClass = 'Auto';
+ADRC_DistObsK2.Description = 'Disturbance observer gain 2.';
+ADRC_DistObsK2.DataType = 'single';
+ADRC_DistObsK2.Value = AdrcParams.K2;
+
+ADRC_DistObsK3 = Simulink.Parameter;
+ADRC_DistObsK3.StorageClass = 'Auto';
+ADRC_DistObsK3.Description = 'Disturbance observer gain 3.';
+ADRC_DistObsK3.DataType = 'single';
+ADRC_DistObsK3.Value = AdrcParams.K3;

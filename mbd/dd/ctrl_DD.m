@@ -1,12 +1,22 @@
 %% Configuration parameters.
-Cfg_EnblSpdSns = Simulink.Parameter;
-Cfg_EnblSpdSns.StorageClass = 'Auto';
-Cfg_EnblSpdSns.Description = 'Configuration has speed sensor';
-Cfg_EnblSpdSns.DataType = 'boolean';
-Cfg_EnblSpdSns.Min = [];
-Cfg_EnblSpdSns.Max = [];
-Cfg_EnblSpdSns.DocUnits = '';
-Cfg_EnblSpdSns.Value = 0;
+Cfg_SpdSnsSrc = Simulink.Parameter;
+Cfg_SpdSnsSrc.StorageClass = 'Auto';
+Cfg_SpdSnsSrc.Description = 'Speed signal source: Sensor(0), SM Diff(1), Linear Observer(2).';
+Cfg_SpdSnsSrc.DataType = 'uint32';
+Cfg_SpdSnsSrc.Min = [];
+Cfg_SpdSnsSrc.Max = [];
+Cfg_SpdSnsSrc.DocUnits = '';
+Cfg_SpdSnsSrc.Value = 0;
+
+%% Enable Load Observer.
+Cfg_EnblLoadObs = Simulink.Parameter;
+Cfg_EnblLoadObs.StorageClass = 'Auto';
+Cfg_EnblLoadObs.Description = 'Enable active load compensation.';
+Cfg_EnblLoadObs.DataType = 'boolean';
+Cfg_EnblLoadObs.Min = [];
+Cfg_EnblLoadObs.Max = [];
+Cfg_EnblLoadObs.DocUnits = '';
+Cfg_EnblLoadObs.Value = 1;
 
 
 %% Parameter definitions.
