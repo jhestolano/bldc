@@ -1,3 +1,13 @@
+%% Fast sampling time 30khz
+TsFast = Simulink.Parameter;
+TsFast.StorageClass = 'Auto';
+TsFast.Description = 'Fast sampling time (30khz)';
+TsFast.DataType = 'single';
+TsFast.Min = [];
+TsFast.Max = [];
+TsFast.DocUnits = '';
+TsFast.Value = 1./30e3;
+
 %% Configuration parameters.
 Cfg_SpdSnsSrc = Simulink.Parameter;
 Cfg_SpdSnsSrc.StorageClass = 'Auto';
@@ -18,6 +28,115 @@ Cfg_EnblLoadObs.Max = [];
 Cfg_EnblLoadObs.DocUnits = '';
 Cfg_EnblLoadObs.Value = 1;
 
+%% Ifbk autocal cycle counts: inductance.
+Cfg_IndIDCntThshld = Simulink.Parameter;
+Cfg_IndIDCntThshld.StorageClass = 'Auto';
+Cfg_IndIDCntThshld.Description = 'Inductance ID cycles.';
+Cfg_IndIDCntThshld.DataType = 'int32';
+Cfg_IndIDCntThshld.Min = [];
+Cfg_IndIDCntThshld.Max = [];
+Cfg_IndIDCntThshld.DocUnits = '';
+Cfg_IndIDCntThshld.Value = 500;
+
+%% Ifbk autocal cycle counts: resistance.
+Cfg_ResIDCntThshld = Simulink.Parameter;
+Cfg_ResIDCntThshld.StorageClass = 'Auto';
+Cfg_ResIDCntThshld.Description = 'Resistance ID cycles.';
+Cfg_ResIDCntThshld.DataType = 'int32';
+Cfg_ResIDCntThshld.Min = [];
+Cfg_ResIDCntThshld.Max = [];
+Cfg_ResIDCntThshld.DocUnits = '';
+Cfg_ResIDCntThshld.Value = 500;
+
+%% Inductance ID phase voltage.
+Cfg_IndIDMtrVin = Simulink.Parameter;
+Cfg_IndIDMtrVin.StorageClass = 'Auto';
+Cfg_IndIDMtrVin.Description = 'Inductance ID Phase motor input voltage';
+Cfg_IndIDMtrVin.DataType = 'single';
+Cfg_IndIDMtrVin.Min = [];
+Cfg_IndIDMtrVin.Max = [];
+Cfg_IndIDMtrVin.DocUnits = '';
+Cfg_IndIDMtrVin.Value = 12;
+
+%% Inductance On/Off switching ticks.
+Cfg_IndIDTs = Simulink.Parameter;
+Cfg_IndIDTs.StorageClass = 'Auto';
+Cfg_IndIDTs.Description = 'Indutance ID sampling time.';
+Cfg_IndIDTs.DataType = 'single';
+Cfg_IndIDTs.Min = [];
+Cfg_IndIDTs.Max = [];
+Cfg_IndIDTs.DocUnits = '';
+Cfg_IndIDTs.Value = 1e-4;
+
+%% Inductance On/Off switching ticks.
+Cfg_IndIDSwTicks = Simulink.Parameter;
+Cfg_IndIDSwTicks.StorageClass = 'Auto';
+Cfg_IndIDSwTicks.Description = 'Indutance ID On/Off switching ticks';
+Cfg_IndIDSwTicks.DataType = 'int32';
+Cfg_IndIDSwTicks.Min = [];
+Cfg_IndIDSwTicks.Max = [];
+Cfg_IndIDSwTicks.DocUnits = '';
+Cfg_IndIDSwTicks.Value = Cfg_IndIDTs.Value / TsFast.Value;
+
+%% Inductance ID done cooldown ticks.
+Cfg_IndIDCoolDownTicks = Simulink.Parameter;
+Cfg_IndIDCoolDownTicks.StorageClass = 'Auto';
+Cfg_IndIDCoolDownTicks.Description = 'Inductance ID done cooldown ticks';
+Cfg_IndIDCoolDownTicks.DataType = 'int32';
+Cfg_IndIDCoolDownTicks.Min = [];
+Cfg_IndIDCoolDownTicks.Max = [];
+Cfg_IndIDCoolDownTicks.DocUnits = '';
+Cfg_IndIDCoolDownTicks.Value = 10e-3 / TsFast.Value;
+
+%% Resistance ID motor input voltage.
+Cfg_ResIDMtrVin = Simulink.Parameter;
+Cfg_ResIDMtrVin.StorageClass = 'Auto';
+Cfg_ResIDMtrVin.Description = 'Resistance ID motor input voltage';
+Cfg_ResIDMtrVin.DataType = 'single';
+Cfg_ResIDMtrVin.Min = [];
+Cfg_ResIDMtrVin.Max = [];
+Cfg_ResIDMtrVin.DocUnits = '';
+Cfg_ResIDMtrVin.Value = 1.0;
+
+%% Resistance maximum value for identification.
+Cfg_ResIDMaxThshld = Simulink.Parameter;
+Cfg_ResIDMaxThshld.StorageClass = 'Auto';
+Cfg_ResIDMaxThshld.Description = 'Resistance maximum value for Identification';
+Cfg_ResIDMaxThshld.DataType = 'single';
+Cfg_ResIDMaxThshld.Min = [];
+Cfg_ResIDMaxThshld.Max = [];
+Cfg_ResIDMaxThshld.DocUnits = '';
+Cfg_ResIDMaxThshld.Value = 100.0;
+
+%% Resistance minimum value for identification.
+Cfg_ResIDMinThshld = Simulink.Parameter;
+Cfg_ResIDMinThshld.StorageClass = 'Auto';
+Cfg_ResIDMinThshld.Description = 'Resistance minimum value for Identification';
+Cfg_ResIDMinThshld.DataType = 'single';
+Cfg_ResIDMinThshld.Min = [];
+Cfg_ResIDMinThshld.Max = [];
+Cfg_ResIDMinThshld.DocUnits = '';
+Cfg_ResIDMinThshld.Value = 1e-3;
+
+%% Inductance maximum value for identification.
+Cfg_IndIDMinThshld = Simulink.Parameter;
+Cfg_IndIDMinThshld.StorageClass = 'Auto';
+Cfg_IndIDMinThshld.Description = 'Inductance minimum value for Identification';
+Cfg_IndIDMinThshld.DataType = 'single';
+Cfg_IndIDMinThshld.Min = [];
+Cfg_IndIDMinThshld.Max = [];
+Cfg_IndIDMinThshld.DocUnits = '';
+Cfg_IndIDMinThshld.Value = 1e-6;
+
+%% Inductance minimum value for identification.
+Cfg_IndIDMaxThshld = Simulink.Parameter;
+Cfg_IndIDMaxThshld.StorageClass = 'Auto';
+Cfg_IndIDMaxThshld.Description = 'Inductance maximum value for Identification';
+Cfg_IndIDMaxThshld.DataType = 'single';
+Cfg_IndIDMaxThshld.Min = [];
+Cfg_IndIDMaxThshld.Max = [];
+Cfg_IndIDMaxThshld.DocUnits = '';
+Cfg_IndIDMaxThshld.Value = 0.01;
 
 %% Parameter definitions.
 %% PID-P term.
@@ -141,6 +260,55 @@ SmDiff_FiltCnst.Max = [];
 SmDiff_FiltCnst.DocUnits = '';
 SmDiff_FiltCnst.Value = 0.9615;
 
+%% Disturbance observer.
+DistObs_K1 = Simulink.Parameter;
+% DistObs_K1.CoderInfo.StorageClass = 'Custom';
+% DistObs_K1.CoderInfo.Alias = '';
+% DistObs_K1.CoderInfo.CustomStorageClass =  'Const';
+DistObs_K1.StorageClass = 'Auto';
+DistObs_K1.Description = 'Disturbance obser gain k1.';
+DistObs_K1.DataType = 'single';
+DistObs_K1.Min = [];
+DistObs_K1.Max = [];
+DistObs_K1.DocUnits = '';
+DistObs_K1.Value = AdrcParams.K1;
+
+DistObs_K2 = Simulink.Parameter;
+% DistObs_K2.CoderInfo.StorageClass = 'Custom';
+% DistObs_K2.CoderInfo.Alias = '';
+% DistObs_K2.CoderInfo.CustomStorageClass =  'Const';
+DistObs_K2.StorageClass = 'Auto';
+DistObs_K2.Description = 'Disturbance obser gain k2.';
+DistObs_K2.DataType = 'single';
+DistObs_K2.Min = [];
+DistObs_K2.Max = [];
+DistObs_K2.DocUnits = '';
+DistObs_K2.Value = AdrcParams.K2;
+
+DistObs_K3 = Simulink.Parameter;
+% DistObs_K3.CoderInfo.StorageClass = 'Custom';
+% DistObs_K3.CoderInfo.Alias = '';
+% DistObs_K3.CoderInfo.CustomStorageClass =  'Const';
+DistObs_K3.StorageClass = 'Auto';
+DistObs_K3.Description = 'Disturbance obser gain k3.';
+DistObs_K3.DataType = 'single';
+DistObs_K3.Min = [];
+DistObs_K3.Max = [];
+DistObs_K3.DocUnits = '';
+DistObs_K3.Value = AdrcParams.K3;
+
+DistObs_J = Simulink.Parameter;
+% DistObs_J.CoderInfo.StorageClass = 'Custom';
+% DistObs_J.CoderInfo.Alias = '';
+% DistObs_J.CoderInfo.CustomStorageClass =  'Const';
+DistObs_J.StorageClass = 'Auto';
+DistObs_J.Description = 'Motor Inertia at Disturbance Observer.';
+DistObs_J.DataType = 'single';
+DistObs_J.Min = [];
+DistObs_J.Max = [];
+DistObs_J.DocUnits = '';
+DistObs_J.Value = MotorParams.J;
+
 %% Encoder definition.
 EncCnts = Simulink.Parameter;
 EncCnts.StorageClass = 'Auto';
@@ -150,16 +318,6 @@ EncCnts.Min = [];
 EncCnts.Max = [];
 EncCnts.DocUnits = '';
 EncCnts.Value = 400.;
-
-%% Fast sampling time 30khz
-TsFast = Simulink.Parameter;
-TsFast.StorageClass = 'Auto';
-TsFast.Description = 'Fast sampling time (30khz)';
-TsFast.DataType = 'single';
-TsFast.Min = [];
-TsFast.Max = [];
-TsFast.DocUnits = '';
-TsFast.Value = 1./30e3;
 
 %% Main sampling time (1khz)
 TsMain = Simulink.Parameter;
