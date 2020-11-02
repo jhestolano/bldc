@@ -7,7 +7,7 @@ classdef AutoCalSt < Simulink.IntEnumType
       ErrResTooSmall(-3),
       ErrResTooLarge(-4),
       NotStarted(0),
-      IndId(1);
+      IndID(1);
       IndIDCoolDown(2),
       ResID(3)
       Done(255),
