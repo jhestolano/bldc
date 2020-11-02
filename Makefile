@@ -17,6 +17,9 @@ STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
 # Link to FreeRTOS. Using version 10.2.1
 RTOS_DIR=$(LIBS_DIR)/FreeRTOS
 
+# Path to Simulink generated files.
+CODEGEN_DIR=mbd/codegen/ctrl_ert_rtw
+
 SRCS=hw/src/main.c
 SRCS+=hw/src/stm32f3xx_it.c
 SRCS+=hw/src/adc.c
@@ -54,6 +57,11 @@ SRCS+=$(UCMD_DIR)/line.c
 SRCS+=$(UCMD_DIR)/err.c
 SRCS+=$(UCMD_DIR)/utils.c
 
+# Code generated files.
+SRCS+=$(CODEGEN_DIR)/ctrl.c
+SRCS+=$(CODEGEN_DIR)/ctrl_fast.c
+SRCS+=$(CODEGEN_DIR)/ctrl_slow.c
+
 # This is the location of port.c file.
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/MemMang/heap_2.c
@@ -79,6 +87,7 @@ INC_DIRS+=$(UCMD_DIR)
 INC_DIRS+=$(LIBC_DIR)/printf
 
 # Project section.
+INC_DIRS+=$(CODEGEN_DIR)
 INC_DIRS+=./system/inc
 INC_DIRS+=./hw/inc
 INC_DIRS+=./app/inc

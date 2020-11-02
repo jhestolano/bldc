@@ -8,6 +8,7 @@
 #define APP_PARAMS_IFBK_GAIN (2) /* Amplifier current circuit gain. */
 #define APP_PARAMS_IFBK_BIAS (1558) /* Zero current bias at ADC input [mVolts]. */
 #define APP_PARAMS_IFBK_BIAS_ADC_COUNTS (1934) /* Zerro current bias in ADC counts. */
+#define APP_PARAMS_IFBK_RES (1000) /* Current signal in milli-amps. */
 #define APP_PARAMS_PWM_VOLTS (12000) /* PWM maximum voltage [mVolts]. */
 #define APP_PARAMS_VBUS_DIV (19152) /* Resistor divider scaled by 1000. */
 #define APP_PARAMS_MOTOR_R (19000) /* Motor winding resistance [mOhms]. */
@@ -23,6 +24,7 @@
 #define APP_PARAMS_MOTOR_J (110) /* Motor inertia in g/mm^2 units. Actual: 1.10127e-7 kg/m^2 */
 #define APP_PARAMS_MOTOR_KEMF (103) /* Motor back emf constant in mN*m*s/rad units. Actual: 1.10127e-5 N*m*s/rad */
 #define APP_PARAMS_MOTOR_KF (11012) /* Motor friction in g*mm^2*s/rad. Actual: 1.10127e-5 */
+#define APP_PARAMS_DEG_TO_RAD (0.017453292519943f) /* pi / 180 constant */
 
 /* Voltage over which is not possible to read shunt resistor that is powering the phase. This is due to the fact */
 /* that the shunt resistor is located on the negative side of the bridge. At 100% duty-cycle, the shunt resistor */

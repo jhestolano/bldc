@@ -12,6 +12,7 @@
 #include "math.h"
 #include "gpio.h"
 #include "command.h"
+#include "ctrl.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -55,6 +56,7 @@ void AppTask_LowPrio(void* params) {
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
+  MtrIf_Init();
 #ifdef __SLOG__
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
 #endif
@@ -66,9 +68,13 @@ void AppTask_MotorControl(void* params) {
       GPIO_LedToggle();
       tmr = 0;
     }
+    Ctrl_Slow();
 
     signal_buff[0] = (float)MtrIf_GetPos();
     signal_buff[1] = (float)MtrIf_GetVin();
+    signal_buff[2] = (float)MtrIf_GetIfbk();
+    signal_buff[3] = (float)rtY.Lest;
+    signal_buff[4] = (float)rtY.Rest;
 
 #ifdef __SLOG__
     xStreamBufferSend(stream_buff,

@@ -4,6 +4,8 @@
 #include "mtrif.h"
 #include "app.h"
 #include "adc.h"
+#include "rtwtypes.h"
+#include "ctrl.h"
 
 typedef struct MtrIf_tag {
 
@@ -37,16 +39,25 @@ typedef struct MtrIf_tag {
 
 static volatile MtrIf_S _mtr_if_s;
 
+/* Function called within interrupt context from ADC. */
 static void _mtr_if_adc_isr_callback(void *params) {
   (void)params;
   if(_mtr_if_s.ctrl_fast_is_init) {
-    /* MtrIf_SetVin(0); */
+    rtU.MtrIf_Tgt = 0.0f;
+    rtU.MtrIf_Pos =  (float)App_GetPosition() / (float)APP_PARAMS_POS_RES * APP_PARAMS_DEG_TO_RAD;
+    rtU.MtrIf_IfbkAct = (float)MtrIf_GetIfbk() / (float)APP_PARAMS_IFBK_RES;
+    rtU.MtrIf_SpdSns = 0.0f; /* No speed sensor. */
+    rtU.MtrIf_CtrlMd = OpnLoopCtrlMd;
+    Ctrl_Fast();
+    MtrIf_SetVin((int32_t)(rtY.MtrIf_CtrlCmd * 1000.0f));
   }
 }
 
 void MtrIf_Init(void) {
+  real32_T mtrref; // Ignore value.
   MTRIF_LOCK();
   ADC_AttachISRCallback(_mtr_if_adc_isr_callback);
+  Ctrl_Init();
   /* Control task at 30khz is ready. */
   _mtr_if_s.ctrl_fast_is_init = true;
   /* Control task at 1khz is ready. */
