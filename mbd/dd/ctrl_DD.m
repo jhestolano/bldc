@@ -8,6 +8,16 @@ TsFast.Max = [];
 TsFast.DocUnits = '';
 TsFast.Value = 1./30e3;
 
+%% Settling time for current controller: related to bandwith.
+Cfg_IfbkCtrlTSettle = Simulink.Parameter;
+Cfg_IfbkCtrlTSettle.StorageClass = 'Auto';
+Cfg_IfbkCtrlTSettle.Description = 'Settling time for current controller (seconds)';
+Cfg_IfbkCtrlTSettle.DataType = 'single';
+Cfg_IfbkCtrlTSettle.Min = [];
+Cfg_IfbkCtrlTSettle.Max = [];
+Cfg_IfbkCtrlTSettle.DocUnits = '';
+Cfg_IfbkCtrlTSettle.Value = 1e-3;
+
 %% Configuration parameters.
 Cfg_SpdSnsSrc = Simulink.Parameter;
 Cfg_SpdSnsSrc.StorageClass = 'Auto';
@@ -16,7 +26,7 @@ Cfg_SpdSnsSrc.DataType = 'uint32';
 Cfg_SpdSnsSrc.Min = [];
 Cfg_SpdSnsSrc.Max = [];
 Cfg_SpdSnsSrc.DocUnits = '';
-Cfg_SpdSnsSrc.Value = 0;
+Cfg_SpdSnsSrc.Value = 2;
 
 %% Enable Load Observer.
 Cfg_EnblLoadObs = Simulink.Parameter;
@@ -36,7 +46,7 @@ Cfg_IndIDCntThshld.DataType = 'int32';
 Cfg_IndIDCntThshld.Min = [];
 Cfg_IndIDCntThshld.Max = [];
 Cfg_IndIDCntThshld.DocUnits = '';
-Cfg_IndIDCntThshld.Value = 500;
+Cfg_IndIDCntThshld.Value = 100;
 
 %% Ifbk autocal cycle counts: resistance.
 Cfg_ResIDCntThshld = Simulink.Parameter;
@@ -46,7 +56,7 @@ Cfg_ResIDCntThshld.DataType = 'int32';
 Cfg_ResIDCntThshld.Min = [];
 Cfg_ResIDCntThshld.Max = [];
 Cfg_ResIDCntThshld.DocUnits = '';
-Cfg_ResIDCntThshld.Value = 500;
+Cfg_ResIDCntThshld.Value = 10000;
 
 %% Inductance ID phase voltage.
 Cfg_IndIDMtrVin = Simulink.Parameter;
@@ -66,7 +76,7 @@ Cfg_IndIDTs.DataType = 'single';
 Cfg_IndIDTs.Min = [];
 Cfg_IndIDTs.Max = [];
 Cfg_IndIDTs.DocUnits = '';
-Cfg_IndIDTs.Value = 1e-4;
+Cfg_IndIDTs.Value = 2e-3;
 
 %% Inductance On/Off switching ticks.
 Cfg_IndIDSwTicks = Simulink.Parameter;
@@ -86,7 +96,7 @@ Cfg_IndIDCoolDownTicks.DataType = 'int32';
 Cfg_IndIDCoolDownTicks.Min = [];
 Cfg_IndIDCoolDownTicks.Max = [];
 Cfg_IndIDCoolDownTicks.DocUnits = '';
-Cfg_IndIDCoolDownTicks.Value = 10e-3 / TsFast.Value;
+Cfg_IndIDCoolDownTicks.Value = 100e-3 / TsFast.Value;
 
 %% Resistance ID motor input voltage.
 Cfg_ResIDMtrVin = Simulink.Parameter;
@@ -116,7 +126,7 @@ Cfg_ResIDMinThshld.DataType = 'single';
 Cfg_ResIDMinThshld.Min = [];
 Cfg_ResIDMinThshld.Max = [];
 Cfg_ResIDMinThshld.DocUnits = '';
-Cfg_ResIDMinThshld.Value = 1e-3;
+Cfg_ResIDMinThshld.Value = 1e-4;
 
 %% Inductance maximum value for identification.
 Cfg_IndIDMinThshld = Simulink.Parameter;
@@ -136,7 +146,7 @@ Cfg_IndIDMaxThshld.DataType = 'single';
 Cfg_IndIDMaxThshld.Min = [];
 Cfg_IndIDMaxThshld.Max = [];
 Cfg_IndIDMaxThshld.DocUnits = '';
-Cfg_IndIDMaxThshld.Value = 0.01;
+Cfg_IndIDMaxThshld.Value = 0.1;
 
 %% Parameter definitions.
 %% PID-P term.
