@@ -2,22 +2,32 @@ SimParams.PwmFrq = 30.0e3;
 SimParams.Ts = 1.0e-5;
 
 MotorParams.R = 23.6347; % Resistance.
-MotorParams.L = 0.02395e-1; % Inductance.
-MotorParams.K = 0.0155; % Torque Constant.
-MotorParams.Kf = 7.5434e-7; % Damping.
-MotorParams.J = 8.6337e-8; % Inertia.
+MotorParams.L = 0.02395; % Inductance.
+MotorParams.K = 0.10028; % Torque Constant.
+MotorParams.Kf = 1.6713e-5; % Damping.
+MotorParams.J = 5.2668e-6; % Inertia.
+
+% From Sys. ID:
+MotorParams.Tau = 1 / 90.56;
+MotorParams.Kdc = (805.6 / 90.56) * MotorParams.R;
+%MotorParams.Kf = MotorParams.K / MotorParams.Kdc;
+%MotorParams.J = MotorParams.Tau * MotorParams.Kf;
+
 MotorParams.AccMax = 1e4 * 180 / pi;
 MotorParams.PPR = 400; % Encoder pulses / rev.
+MotorParams.IfbkOfs = -20e-3; % Current sensor offset.
 
-CtrlParams.TsIfbk = 1e-3;
-CtrlParams.IfbkKi = 4 * MotorParams.R / CtrlParams.TsIfbk;
-CtrlParams.IfbkKp = 4 * MotorParams.L / CtrlParams.TsIfbk;
+CtrlParams.IfbkBW = 4e3;
+CtrlParams.IfbkKi = CtrlParams.IfbkBW * MotorParams.R;
+CtrlParams.IfbkKp = CtrlParams.IfbkBW * MotorParams.L;
 
-CtrlParams.TsSpd = 0.05;
-CtrlParams.SpdKi = 4 * MotorParams.Kf / MotorParams.K / CtrlParams.TsSpd;
-CtrlParams.SpdKp = 4 * MotorParams.J / MotorParams.K / CtrlParams.TsSpd;
+CtrlParams.SpdBW = 1e3;
+CtrlParams.SpdKi = CtrlParams.SpdBW * MotorParams.Kf;
+CtrlParams.SpdKp = CtrlParams.SpdBW * MotorParams.J;
+% CtrlParams.SpdKi = CtrlParams.SpdBW / MotorParams.Kdc;
+% CtrlParams.SpdKp = MotorParams.Tau * CtrlParams.SpdKi;
 
-CtrlParams.TsPos = 0.3;
+CtrlParams.TsPos = 0.01;
 CtrlParams.PosKp = (4 / CtrlParams.TsPos);
 CtrlParams.PosKi = 0.0;
 
@@ -33,8 +43,13 @@ SmDiffParams.Kp = sqrt(SmDiffParams.AccMax);
 % dz3/dt = z3 - k3 * e;
 
 % Observer tuning:
-AdrcParams.Tsettle = 1e-3;
+% AdrcParams.Tsettle = 0.05;
+AdrcParams.Tsettle = 0.005;;
 AdrcParams.w0 = 4. / AdrcParams.Tsettle;
 AdrcParams.K1 = 3 * AdrcParams.w0;
 AdrcParams.K2 = 3 * AdrcParams.w0 ^ 2;
 AdrcParams.K3 = AdrcParams.w0 ^ 3;
+
+% Update code generating DD.
+disp('Updating Ctrl_DD data dictionary.');
+run('ctrl_DD');

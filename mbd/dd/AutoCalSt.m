@@ -10,7 +10,16 @@ classdef AutoCalSt < Simulink.IntEnumType
       IndID(1);
       IndIDCoolDown(2),
       ResID(3)
+      IfbkOfsID(4)
+      TrqCnstID(5)
+      InertiaID(6)
       Done(255),
+    end
+
+    methods (Static)
+      function retVal = getDataScope()
+        retVal = 'Exported';
+      end
     end
 end
 

@@ -6,3 +6,4 @@ Simulink.fileGenControl('set', ...
     'CreateDir', true);
 motor_DD;
 ctrl_DD;
+dbg_bus;

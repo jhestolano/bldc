@@ -8,15 +8,25 @@ TsFast.Max = [];
 TsFast.DocUnits = '';
 TsFast.Value = 1./30e3;
 
-%% Settling time for current controller: related to bandwith.
-Cfg_IfbkCtrlTSettle = Simulink.Parameter;
-Cfg_IfbkCtrlTSettle.StorageClass = 'Auto';
-Cfg_IfbkCtrlTSettle.Description = 'Settling time for current controller (seconds)';
-Cfg_IfbkCtrlTSettle.DataType = 'single';
-Cfg_IfbkCtrlTSettle.Min = [];
-Cfg_IfbkCtrlTSettle.Max = [];
-Cfg_IfbkCtrlTSettle.DocUnits = '';
-Cfg_IfbkCtrlTSettle.Value = 1e-3;
+%% Enable autocalibration at startup.
+Cfg_AutoCalEnbl = Simulink.Parameter;
+Cfg_AutoCalEnbl.StorageClass = 'Auto';
+Cfg_AutoCalEnbl.Description = 'Enable ifbk loop autocalibration at startup';
+Cfg_AutoCalEnbl.DataType = 'boolean';
+Cfg_AutoCalEnbl.Min = [];
+Cfg_AutoCalEnbl.Max = [];
+Cfg_AutoCalEnbl.DocUnits = '';
+Cfg_AutoCalEnbl.Value = true;
+
+%% Current contoller bandwith.
+Cfg_IfbkCtrlBW = Simulink.Parameter;
+Cfg_IfbkCtrlBW.StorageClass = 'Auto';
+Cfg_IfbkCtrlBW.Description = 'Current controller bandwith (rad/s)';
+Cfg_IfbkCtrlBW.DataType = 'single';
+Cfg_IfbkCtrlBW.Min = [];
+Cfg_IfbkCtrlBW.Max = [];
+Cfg_IfbkCtrlBW.DocUnits = '';
+Cfg_IfbkCtrlBW.Value = 2e3;
 
 %% Configuration parameters.
 Cfg_SpdSnsSrc = Simulink.Parameter;
@@ -26,7 +36,7 @@ Cfg_SpdSnsSrc.DataType = 'uint32';
 Cfg_SpdSnsSrc.Min = [];
 Cfg_SpdSnsSrc.Max = [];
 Cfg_SpdSnsSrc.DocUnits = '';
-Cfg_SpdSnsSrc.Value = 2;
+Cfg_SpdSnsSrc.Value = 1;
 
 %% Enable Load Observer.
 Cfg_EnblLoadObs = Simulink.Parameter;
@@ -36,7 +46,38 @@ Cfg_EnblLoadObs.DataType = 'boolean';
 Cfg_EnblLoadObs.Min = [];
 Cfg_EnblLoadObs.Max = [];
 Cfg_EnblLoadObs.DocUnits = '';
-Cfg_EnblLoadObs.Value = 1;
+Cfg_EnblLoadObs.Value = 0;
+
+
+%% Cycle counts during motor torque identification.
+Cfg_TrqCnstIDCntThshld = Simulink.Parameter;
+Cfg_TrqCnstIDCntThshld.StorageClass = 'Auto';
+Cfg_TrqCnstIDCntThshld.Description = 'Motor voltage during torque constant ID.';
+Cfg_TrqCnstIDCntThshld.DataType = 'int32';
+Cfg_TrqCnstIDCntThshld.Min = [];
+Cfg_TrqCnstIDCntThshld.Max = [];
+Cfg_TrqCnstIDCntThshld.DocUnits = '';
+Cfg_TrqCnstIDCntThshld.Value = 200e-3 / TsFast.Value;
+
+%% Voltage applied during torque constant identification.
+Cfg_TrqCnstIDMtrVin = Simulink.Parameter;
+Cfg_TrqCnstIDMtrVin.StorageClass = 'Auto';
+Cfg_TrqCnstIDMtrVin.Description = 'Motor voltage during torque constant ID';
+Cfg_TrqCnstIDMtrVin.DataType = 'single';
+Cfg_TrqCnstIDMtrVin.Min = [];
+Cfg_TrqCnstIDMtrVin.Max = [];
+Cfg_TrqCnstIDMtrVin.DocUnits = '';
+Cfg_TrqCnstIDMtrVin.Value = 12;
+
+%% Current sensor offset identification counts.
+Cfg_OfsIDCntThshld = Simulink.Parameter;
+Cfg_OfsIDCntThshld.StorageClass = 'Auto';
+Cfg_OfsIDCntThshld.Description = 'Inductance ID cycles.';
+Cfg_OfsIDCntThshld.DataType = 'int32';
+Cfg_OfsIDCntThshld.Min = [];
+Cfg_OfsIDCntThshld.Max = [];
+Cfg_OfsIDCntThshld.DocUnits = '';
+Cfg_OfsIDCntThshld.Value = 1000;
 
 %% Ifbk autocal cycle counts: inductance.
 Cfg_IndIDCntThshld = Simulink.Parameter;
@@ -46,7 +87,7 @@ Cfg_IndIDCntThshld.DataType = 'int32';
 Cfg_IndIDCntThshld.Min = [];
 Cfg_IndIDCntThshld.Max = [];
 Cfg_IndIDCntThshld.DocUnits = '';
-Cfg_IndIDCntThshld.Value = 100;
+Cfg_IndIDCntThshld.Value = 0.5 / TsFast.Value;
 
 %% Ifbk autocal cycle counts: resistance.
 Cfg_ResIDCntThshld = Simulink.Parameter;
@@ -56,7 +97,7 @@ Cfg_ResIDCntThshld.DataType = 'int32';
 Cfg_ResIDCntThshld.Min = [];
 Cfg_ResIDCntThshld.Max = [];
 Cfg_ResIDCntThshld.DocUnits = '';
-Cfg_ResIDCntThshld.Value = 10000;
+Cfg_ResIDCntThshld.Value = 300;
 
 %% Inductance ID phase voltage.
 Cfg_IndIDMtrVin = Simulink.Parameter;
@@ -76,7 +117,7 @@ Cfg_IndIDTs.DataType = 'single';
 Cfg_IndIDTs.Min = [];
 Cfg_IndIDTs.Max = [];
 Cfg_IndIDTs.DocUnits = '';
-Cfg_IndIDTs.Value = 2e-3;
+Cfg_IndIDTs.Value = 1e-3;
 
 %% Inductance On/Off switching ticks.
 Cfg_IndIDSwTicks = Simulink.Parameter;
@@ -98,6 +139,16 @@ Cfg_IndIDCoolDownTicks.Max = [];
 Cfg_IndIDCoolDownTicks.DocUnits = '';
 Cfg_IndIDCoolDownTicks.Value = 100e-3 / TsFast.Value;
 
+%% Inductance ID done cooldown ticks.
+Cfg_ResIDCoolDownTicks = Simulink.Parameter;
+Cfg_ResIDCoolDownTicks.StorageClass = 'Auto';
+Cfg_ResIDCoolDownTicks.Description = 'Resistance ID done cooldown ticks';
+Cfg_ResIDCoolDownTicks.DataType = 'int32';
+Cfg_ResIDCoolDownTicks.Min = [];
+Cfg_ResIDCoolDownTicks.Max = [];
+Cfg_ResIDCoolDownTicks.DocUnits = '';
+Cfg_ResIDCoolDownTicks.Value = 100e-3 / TsFast.Value;
+
 %% Resistance ID motor input voltage.
 Cfg_ResIDMtrVin = Simulink.Parameter;
 Cfg_ResIDMtrVin.StorageClass = 'Auto';
@@ -106,7 +157,7 @@ Cfg_ResIDMtrVin.DataType = 'single';
 Cfg_ResIDMtrVin.Min = [];
 Cfg_ResIDMtrVin.Max = [];
 Cfg_ResIDMtrVin.DocUnits = '';
-Cfg_ResIDMtrVin.Value = 1.0;
+Cfg_ResIDMtrVin.Value = 12.0;
 
 %% Resistance maximum value for identification.
 Cfg_ResIDMaxThshld = Simulink.Parameter;
@@ -116,7 +167,7 @@ Cfg_ResIDMaxThshld.DataType = 'single';
 Cfg_ResIDMaxThshld.Min = [];
 Cfg_ResIDMaxThshld.Max = [];
 Cfg_ResIDMaxThshld.DocUnits = '';
-Cfg_ResIDMaxThshld.Value = 100.0;
+Cfg_ResIDMaxThshld.Value = 1000.0;
 
 %% Resistance minimum value for identification.
 Cfg_ResIDMinThshld = Simulink.Parameter;
@@ -128,7 +179,7 @@ Cfg_ResIDMinThshld.Max = [];
 Cfg_ResIDMinThshld.DocUnits = '';
 Cfg_ResIDMinThshld.Value = 1e-4;
 
-%% Inductance maximum value for identification.
+%% Inductance minimum value for identification.
 Cfg_IndIDMinThshld = Simulink.Parameter;
 Cfg_IndIDMinThshld.StorageClass = 'Auto';
 Cfg_IndIDMinThshld.Description = 'Inductance minimum value for Identification';
@@ -138,7 +189,7 @@ Cfg_IndIDMinThshld.Max = [];
 Cfg_IndIDMinThshld.DocUnits = '';
 Cfg_IndIDMinThshld.Value = 1e-6;
 
-%% Inductance minimum value for identification.
+%% Inductance maximum value for identification.
 Cfg_IndIDMaxThshld = Simulink.Parameter;
 Cfg_IndIDMaxThshld.StorageClass = 'Auto';
 Cfg_IndIDMaxThshld.Description = 'Inductance maximum value for Identification';
@@ -174,6 +225,16 @@ IfbkCtrl_Ki.Min = [];
 IfbkCtrl_Ki.Max = [];
 IfbkCtrl_Ki.DocUnits = '';
 IfbkCtrl_Ki.Value = 9.4539e4;
+
+%% Speed Control bandwith in autocal mode.
+Cfg_SpdCtrlBW = Simulink.Parameter;
+Cfg_SpdCtrlBW.StorageClass = 'Auto';
+Cfg_SpdCtrlBW.Description = 'Speed controller bandwith.';
+Cfg_SpdCtrlBW.DataType = 'single';
+Cfg_SpdCtrlBW.Min = [];
+Cfg_SpdCtrlBW.Max = [];
+Cfg_SpdCtrlBW.DocUnits = '';
+Cfg_SpdCtrlBW.Value = CtrlParams.SpdBW;
 
 %% PID-P term.
 SpdCtrl_Kp = Simulink.Parameter;
@@ -327,7 +388,17 @@ EncCnts.DataType = 'single';
 EncCnts.Min = [];
 EncCnts.Max = [];
 EncCnts.DocUnits = '';
-EncCnts.Value = 400.;
+EncCnts.Value = MotorParams.PPR;
+
+%% Encoder resolution.
+EncResDeg = Simulink.Parameter;
+EncResDeg.StorageClass = 'Auto';
+EncResDeg.Description = 'Encoder resolution in degrees';
+EncResDeg.DataType = 'single';
+EncResDeg.Min = [];
+EncResDeg.Max = [];
+EncResDeg.DocUnits = '';
+EncResDeg.Value = 360. / MotorParams.PPR;
 
 %% Main sampling time (1khz)
 TsMain = Simulink.Parameter;
