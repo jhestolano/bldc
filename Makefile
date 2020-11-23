@@ -59,8 +59,10 @@ SRCS+=$(UCMD_DIR)/utils.c
 
 # Code generated files.
 SRCS+=$(CODEGEN_DIR)/ctrl.c
+SRCS+=$(CODEGEN_DIR)/ctrl_data.c
 SRCS+=$(CODEGEN_DIR)/ctrl_fast.c
 SRCS+=$(CODEGEN_DIR)/ctrl_slow.c
+# SRCS+=$(CODEGEN_DIR)/ctrl_data.c
 
 # This is the location of port.c file.
 SRCS+=$(RTOS_DIR)/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
@@ -95,18 +97,18 @@ INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/stlink/build/Release/bin
 
-TOOLS_DIR=~/opt/gcc-arm-none-eabi-9-2020-q2/bin
+#TOOLS_DIR=~/opt/gcc-arm-none-eabi-9-2020-q2/bin
+TOOLS_DIR=~/opt/gcc-arm-none-eabi-8.2.1.1.4/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
 OBJDUMP=$(TOOLS_DIR)/arm-none-eabi-objdump
-# GDB=$(TOOLS_DIR)/arm-none-eabi-gdb
-GDB=arm-none-eabi-gdb
+GDB=$(TOOLS_DIR)/arm-none-eabi-gdb-py
 SZ=$(TOOLS_DIR)/arm-none-eabi-size
 BUILD_DIR=./build
 
 # Any compiler options you need to set
-CFLAGS=-ggdb3
-CFLAGS+=-Og -gdwarf-5
+CFLAGS=-ggdb3 -Og
+# CFLAGS+=-Og -gdwarf-5
 CFLAGS+=-Wall -Wextra -Warray-bounds
 CFLAGS+=-mlittle-endian -mcpu=cortex-m4
 CFLAGS+=-mthumb-interwork -mthumb
