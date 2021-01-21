@@ -5,14 +5,14 @@ LIBS_DIR=./libs
 
 # Path to LIBC.
 LIBC_DIR=$(LIBS_DIR)
-# LIBC_PATH=$(LIBC_DIR)/buildresults/src
+LIBC_PATH=$(LIBC_DIR)/buildresults/src
 
 # Path to uCmd.
 UCMD_DIR=$(LIBS_DIR)/ucmd
 
 # Link to ST Drivers. Using version 1.10.0
 STM_DIR=$(LIBS_DIR)/STM32CubeF3
-STM_SRC+=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
+STM_SRC=$(STM_DIR)/Drivers/STM32F3xx_HAL_Driver/Src
 
 # Link to FreeRTOS. Using version 10.2.1
 RTOS_DIR=$(LIBS_DIR)/FreeRTOS
@@ -97,7 +97,6 @@ INC_DIRS+=.
 
 ST_LINK_DIR=~/opt/stlink/build/Release/bin
 
-#TOOLS_DIR=~/opt/gcc-arm-none-eabi-9-2020-q2/bin
 TOOLS_DIR=~/opt/gcc-arm-none-eabi-8.2.1.1.4/bin
 CC=$(TOOLS_DIR)/arm-none-eabi-gcc
 OBJCOPY=$(TOOLS_DIR)/arm-none-eabi-objcopy
@@ -106,26 +105,34 @@ GDB=$(TOOLS_DIR)/arm-none-eabi-gdb-py
 SZ=$(TOOLS_DIR)/arm-none-eabi-size
 BUILD_DIR=./build
 
-# Any compiler options you need to set
-CFLAGS=-ggdb3 -Og
-# CFLAGS+=-Og -gdwarf-5
-CFLAGS+=-Wall -Wextra -Warray-bounds
-CFLAGS+=-mlittle-endian -mcpu=cortex-m4
-CFLAGS+=-mthumb-interwork -mthumb
-CFLAGS+=-mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
-# CFLAGS+=--specs=nosys.specs --specs=rdimon.specs
-CFLAGS+=-ffunction-sections -fdata-sections -fno-math-errno
+TARGET_FLAGS=-mcpu=cortex-m4 \
+						 -mthumb \
+						 -mfpu=fpv4-sp-d16 \
+						 -mfloat-abi=hard \
 
-# Linker Files (all *.ld files)
-LFLAGS=-Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -Wl,--gc-sections -T./linker/stm32f30_flash.ld
+CFLAGS=$(TARGET_FLAGS) \
+			-g \
+			-Og \
+			-Wall \
+			-lc \
+			--specs=nosys.specs \
+			-fsingle-precision-constant \
+			-fdata-sections \
+			-ffunction-sections \
+			-fno-math-errno \
 
-INCLUDE = $(addprefix -I,$(INC_DIRS))
+LFLAGS=$(TARGET_FLAGS) \
+			 -Wl,-Map,$(BUILD_DIR)/$(PROJ_NAME).map -T./linker/stm32f30_flash.ld \
+			 -Wl,--gc-sections \
+			 -Wl,--print-memory-usage \
+			 -lc \
+
+INCLUDE=$(addprefix -I,$(INC_DIRS))
 
 DEFS=-DSTM32F302x8
 DEFS+=-D__DBG__
 DEFS+=-D__SLOG__
 
-.PHONY: $(PROJ_NAME)
 $(PROJ_NAME): $(PROJ_NAME).elf
 
 %.o: %.c
@@ -154,8 +161,10 @@ all:
 	make clean && make && make flash
 
 # before you start gdb, you must start st-util
-.PHONY: debug
 debug:
 	$(ST_LINK_DIR)/st-util &
-	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=./debug/cmd.gdb
+	#$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf --command=./debug/cmd.gdb
+	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf
 	killall st-util
+
+.PHONY: dump clean flash stlink all debug $(PROJ_NAME)
