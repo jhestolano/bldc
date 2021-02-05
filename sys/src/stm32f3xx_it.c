@@ -40,9 +40,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_it.h"
 #include "stm32f3xx_hal.h"
-#include "dbg.h"
-#include "FreeRTOS.h"
-#include "task.h"
+// #include "dbg.h"
 /** @addtogroup STM32F3xx_HAL_Examples
   * @{
   */
@@ -108,23 +106,23 @@ void debugHardfault(uint32_t* sp)
   uint32_t pc  = sp[6];
   uint32_t psr = sp[7];
 
-  printf("HardFault:\n");
-  printf("SCB->CFSR   0x%08lx\n", cfsr);
-  printf("SCB->HFSR   0x%08lx\n", hfsr);
-  printf("SCB->MMFAR  0x%08lx\n", mmfar);
-  printf("SCB->BFAR   0x%08lx\n", bfar);
-  printf("\n");
+  /* printf("HardFault:\n"); */
+  /* printf("SCB->CFSR   0x%08lx\n", cfsr); */
+  /* printf("SCB->HFSR   0x%08lx\n", hfsr); */
+  /* printf("SCB->MMFAR  0x%08lx\n", mmfar); */
+  /* printf("SCB->BFAR   0x%08lx\n", bfar); */
+  /* printf("\n"); */
 
-  printf("SP          0x%08lx\n", (uint32_t)sp);
-  printf("R0          0x%08lx\n", r0);
-  printf("R1          0x%08lx\n", r1);
-  printf("R2          0x%08lx\n", r2);
-  printf("R3          0x%08lx\n", r3);
-  printf("R12         0x%08lx\n", r12);
-  printf("LR          0x%08lx\n", lr);
-  printf("PC          0x%08lx\n", pc);
-  printf("PSR         0x%08lx\n", psr);
-  __asm("BKPT #0\n");
+  /* printf("SP          0x%08lx\n", (uint32_t)sp); */
+  /* printf("R0          0x%08lx\n", r0); */
+  /* printf("R1          0x%08lx\n", r1); */
+  /* printf("R2          0x%08lx\n", r2); */
+  /* printf("R3          0x%08lx\n", r3); */
+  /* printf("R12         0x%08lx\n", r12); */
+  /* printf("LR          0x%08lx\n", lr); */
+  /* printf("PC          0x%08lx\n", pc); */
+  /* printf("PSR         0x%08lx\n", psr); */
+  /* __asm("BKPT #0\n"); */
   while(1);
 }
 

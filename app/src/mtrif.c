@@ -6,6 +6,15 @@
 #include "adc.h"
 #include "rtwtypes.h"
 #include "ctrl.h"
+#include "DBG_BUS.h"
+#include "stdlib.h"
+#include "gpio.h"
+
+#define MTRIF_TO_DEG (0.1f) /* App layer position resolution is 0.1 degrees
+                               represented as int. For example, a value of
+                               13 represents 1.3 degrees. */
+#define MTRIF_TO_MILLIS (1.0e3f) /* Convert to millis (amps, volts, etc.) */
+#define MTRIF_FROM_MILLIS (1.0e-3f) /* Convert back from millis. */
 
 typedef struct MtrIf_tag {
 
@@ -39,17 +48,34 @@ typedef struct MtrIf_tag {
 
 static volatile MtrIf_S _mtr_if_s;
 
+volatile int32_t IfbkBuffer[1000];
+
 /* Function called within interrupt context from ADC. */
 static void _mtr_if_adc_isr_callback(void *params) {
+  static int32_t cnt;
+  static int32_t tmr;
+  static int32_t idx;
   (void)params;
   if(_mtr_if_s.ctrl_fast_is_init) {
-    rtU.MtrIf_Tgt = 0.0f;
-    rtU.MtrIf_Pos =  (float)App_GetPosition() / (float)APP_PARAMS_POS_RES * APP_PARAMS_DEG_TO_RAD;
-    rtU.MtrIf_IfbkAct = (float)MtrIf_GetIfbk() / (float)APP_PARAMS_IFBK_RES;
+    rtU.MtrIf_Pos =  MtrIf_GetPos();
+    rtU.MtrIf_IfbkAct = MtrIf_GetIfbk();
     rtU.MtrIf_SpdSns = 0.0f; /* No speed sensor. */
-    rtU.MtrIf_CtrlMd = OpnLoopCtrlMd;
+    rtU.MtrIf_CtrlMd = PosCtrlMd;
+    /* rtU.MtrIf_Tgt = 10.0f * 3.14159f; */
+    rtU.MtrIf_Tgt = 359;
     Ctrl_Fast();
-    MtrIf_SetVin((int32_t)(rtY.MtrIf_CtrlCmd * 1000.0f));
+    MtrIf_SetVin(rtY.MtrIf_CtrlCmd);
+    _mtr_if_s.mtr_spd = rtY.MtrIf_SpdEst;
+    if((cnt < 1000) && (rtY.DBG_BUS_OUT.Status == 1)) {
+      IfbkBuffer[cnt] = rtU.MtrIf_IfbkAct;
+      cnt++;
+    } else {
+      /* Nothing */
+    }
+    if(tmr++ >= 30e3) {
+      GPIO_LedToggle();
+      tmr = 0;
+    }
   }
 }
 
@@ -66,7 +92,8 @@ void MtrIf_Init(void) {
   App_ArmMotor();
 }
 
-void MtrIf_SetVin(int32_t vin) {
+void MtrIf_SetVin(float mtrvin) {
+  int32_t vin = (int32_t)(mtrvin * MTRIF_TO_MILLIS);
   if(vin > 0) {
     App_SetPwmVoltage(MTRIF_POS_PH, (uint32_t)vin);
     App_SetPwmVoltage(MTRIF_NEG_PH, 0);
@@ -79,13 +106,13 @@ void MtrIf_SetVin(int32_t vin) {
   }
 }
 
-int32_t MtrIf_GetVin(void) {
+float MtrIf_GetVin(void) {
   int32_t vin = (int32_t)App_GetPwmVoltage(MTRIF_POS_PH)
                -(int32_t)App_GetPwmVoltage(MTRIF_NEG_PH);
-  return vin;
+  return (float)vin * (MTRIF_FROM_MILLIS);
 }
 
-int32_t MtrIf_GetIfbk(void) {
+float MtrIf_GetIfbk(void) {
   int32_t ret;
   int32_t ifbkpos = App_GetCurrent(MTRIF_POS_PH_IFBK);
   int32_t ifbkneg = App_GetCurrent(MTRIF_NEG_PH_IFBK);
@@ -103,39 +130,39 @@ int32_t MtrIf_GetIfbk(void) {
     /* When both phases are readable, take average of both. */
     ret = (ifbkneg - ifbkpos) / 2;
   }
-  return ret;
+  return (float)ret * MTRIF_FROM_MILLIS;
 }
 
-int32_t MtrIf_GetPos(void) {
-  return App_GetPosition();
+float MtrIf_GetPos(void) {
+  return (float)App_GetPosition() * (MTRIF_TO_DEG);
 }
 
-int32_t MtrIf_GetPosEst(void) {
-  int32_t pos_est;
+float MtrIf_GetPosEst(void) {
+  float pos_est;
   MTRIF_LOCK();
-  pos_est = (int32_t)_mtr_if_s.pos_est;
+  pos_est = _mtr_if_s.pos_est;
   MTRIF_UNLOCK();
   return pos_est;
 }
 
-int32_t MtrIf_GetSpd(void) {
-  int32_t spd;
+float MtrIf_GetSpd(void) {
+  float spd;
   MTRIF_LOCK();
-  spd = (int32_t)_mtr_if_s.mtr_spd;
+  spd = _mtr_if_s.mtr_spd;
   MTRIF_UNLOCK();
   return spd;
 }
 
-void MtrIf_SetIfbkTgt(int32_t ifbktgt) {
+void MtrIf_SetIfbkTgt(float ifbktgt) {
   MTRIF_LOCK();
   _mtr_if_s.ifbk_tgt = (float)ifbktgt;
   MTRIF_UNLOCK();
 }
 
-int32_t MtrIf_GetIfbkTgt(void) {
-  int32_t ifbk_tgt;
+float MtrIf_GetIfbkTgt(void) {
+  float ifbk_tgt;
   MTRIF_LOCK();
-  ifbk_tgt = (int32_t)_mtr_if_s.ifbk_tgt;
+  ifbk_tgt = _mtr_if_s.ifbk_tgt;
   MTRIF_UNLOCK();
   return ifbk_tgt;
 }
@@ -152,6 +179,6 @@ void MtrIf_SetCtlMd(MtrCtlMd_T ctrl_md) {
   _mtr_if_s.ctrl_md = ctrl_md;
 }
 
-void MtrIf_SetTgt(int32_t tgt) {
-  _mtr_if_s.mtr_tgt = (float)tgt;
+void MtrIf_SetTgt(float tgt) {
+  _mtr_if_s.mtr_tgt = tgt;
 }

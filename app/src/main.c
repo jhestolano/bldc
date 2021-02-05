@@ -1,9 +1,6 @@
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 #include "task.h"
-#include "stm32f3xx_hal.h"
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_rcc_ex.h"
 #include "adc.h"
 #include "gpio.h"
 #include "tmr.h"
@@ -11,7 +8,7 @@
 #include "enc.h"
 #include "uart.h"
 #include "dbg.h"
-#include "tasks.h"
+#include "apptasks.h"
 #include "command.h"
 
 __attribute__((section("ccmram")))
@@ -34,9 +31,9 @@ int main(void)
   );
 
   HwInit();
-  command_init();
-  UART_AttachRxCallback(command_uart_rx_callback);
-  UART_EnableIRQ();
+  /* command_init(); */
+  /* UART_AttachRxCallback(command_uart_rx_callback); */
+  /* UART_EnableIRQ(); */
 
   /*-----------------------------------------------------------------------------
    * Low priority task for logging, command line, etc. 

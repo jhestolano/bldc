@@ -1,8 +1,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_rcc.h"
+#include "stm32f3xx_hal.h"
 
 /*******************************************************************************
  * GPIO MACRO DEFINITIONS.

@@ -25,6 +25,7 @@
 #define APP_PARAMS_MOTOR_KEMF (103) /* Motor back emf constant in mN*m*s/rad units. Actual: 1.10127e-5 N*m*s/rad */
 #define APP_PARAMS_MOTOR_KF (11012) /* Motor friction in g*mm^2*s/rad. Actual: 1.10127e-5 */
 #define APP_PARAMS_DEG_TO_RAD (0.017453292519943f) /* pi / 180 constant */
+#define APP_PARAMS_RADpS_TO_RPM (9.549296585513721f) /* 30 / pi scaling. */
 
 /* Voltage over which is not possible to read shunt resistor that is powering the phase. This is due to the fact */
 /* that the shunt resistor is located on the negative side of the bridge. At 100% duty-cycle, the shunt resistor */

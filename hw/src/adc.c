@@ -1,14 +1,14 @@
-#include "FreeRTOS.h"
-#include "task.h"
-#include "mtrif.h"
+/* #include "FreeRTOS.h" */
+/* #include "task.h" */
+/* #include "mtrif.h" */
 #include "adc.h"
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_rcc.h"
-#include "stm32f3xx_hal_cortex.h"
-#include "gpio.h"
+/* #include "stm32f3xx_hal_gpio.h" */
+/* #include "stm32f3xx_hal_rcc.h" */
+/* #include "stm32f3xx_hal_cortex.h" */
+/* #include "gpio.h" */
 #include "dbg.h"
-#include "app.h"
-#include "math.h"
+/* #include "app.h" */
+/* #include "math.h" */
 
 #define ADC_REG_CH_BUFF_OFS ADC_INJ_CH_MAX
 

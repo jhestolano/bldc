@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 #include "stddef.h"
+#include "stm32f3xx_hal.h"
 #include "printf.h"
 
 /*******************************************************************************

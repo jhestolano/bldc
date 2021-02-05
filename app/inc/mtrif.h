@@ -36,32 +36,32 @@ typedef enum {
 
 void MtrIf_Init(void);
 
-void MtrIf_SetVin(int32_t vin);
+void MtrIf_SetVin(float mtrvin);
 
-int32_t MtrIf_GetVin(void);
+float MtrIf_GetVin(void);
 
-int32_t MtrIf_GetIfbk(void);
+float MtrIf_GetIfbk(void);
 
-int32_t MtrIf_GetPos(void);
+float MtrIf_GetPos(void);
 
-int32_t MtrIf_GetSpd(void);
+float MtrIf_GetSpd(void);
 
 void MtrIf_Ctl(void);
 
-int32_t MtrIf_GetPosEst(void);
+float MtrIf_GetPosEst(void);
 
-void MtrIf_SetIfbk(int32_t ifbktgt);
+void MtrIf_SetIfbk(float ifbktgt);
 
-int32_t MtrIf_GetIfbkTgt(void);
+float MtrIf_GetIfbkTgt(void);
 
-void MtrIf_SetTgt(int32_t tgt);
+void MtrIf_SetTgt(float tgt);
 
-int32_t MtrIf_GetTgt(void);
+float MtrIf_GetTgt(void);
 
 void MtrIf_SetCtlMd(MtrCtlMd_T ctlmd);
 
 MtrCtlMd_T MtrIf_GetCtlMd(void);
 
-void MtrIf_SetTgt(int32_t tgt);
+void MtrIf_SetTgt(float tgt);
 
 #endif // _MTRIF_H_

@@ -1,7 +1,5 @@
 #include "gpio.h"
-#include "stm32f3xx_hal_cortex.h"
 #include "dbg.h"
-#include "enc.h"
 
 typedef struct _gpio_pin_map {
   uint16_t pin;

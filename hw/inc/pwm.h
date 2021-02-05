@@ -3,13 +3,7 @@
 
 #include <stdint.h>
 
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_dma.h"
-#include "stm32f3xx_hal_tim.h"
-#include "stm32f3xx_hal_tim_ex.h"
-#include "stm32f3xx_hal_rcc_ex.h"
-#include "stm32f3xx_hal_rcc.h"
-#include "stm32f3xx_ll_tim.h"
+#include "stm32f3xx_hal.h"
 
 /*******************************************************************************
 * PWM API MACRO DEFINITIONS.

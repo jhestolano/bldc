@@ -1,12 +1,12 @@
 #include "enc.h"
 #include "tmr.h"
-#include "stm32f3xx_hal_dma.h"
-#include "stm32f3xx_hal_tim.h"
-#include "stm32f3xx_hal_tim_ex.h"
-#include "stm32f3xx_hal_rcc_ex.h"
-#include "stm32f3xx_hal_rcc.h"
-#include "stm32f3xx_ll_tim.h"
-#include "stm32f3xx_hal_cortex.h"
+/* #include "stm32f3xx_hal_dma.h" */
+/* #include "stm32f3xx_hal_tim.h" */
+/* #include "stm32f3xx_hal_tim_ex.h" */
+/* #include "stm32f3xx_hal_rcc_ex.h" */
+/* #include "stm32f3xx_hal_rcc.h" */
+/* #include "stm32f3xx_ll_tim.h" */
+/* #include "stm32f3xx_hal_cortex.h" */
 #include "dbg.h"
 
 static TIM_HandleTypeDef gs_tim_enc_conf = TIM_ENC_INIT_CONF;

@@ -1,11 +1,4 @@
 #include "uart.h"
-#include "stm32f3xx_hal_dma.h"
-#include "stm32f3xx_hal_gpio.h"
-#include "stm32f3xx_hal_uart.h"
-#include "stm32f3xx_hal_uart_ex.h"
-#include "stm32f3xx_hal_rcc_ex.h"
-#include "stm32f3xx_hal_rcc.h"
-#include "stm32f3xx_hal_cortex.h"
 #include <string.h>
 #include "dbg.h"
 #include "line.h"
