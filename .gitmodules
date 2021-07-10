@@ -1,9 +1,3 @@
-[submodule "libs/FreeRTOS"]
-	path = libs/FreeRTOS
-	url = https://github.com/FreeRTOS/FreeRTOS.git
-[submodule "libs/STM32CubeF3"]
-	path = libs/STM32CubeF3
-	url = https://github.com/STMicroelectronics/STM32CubeF3.git
 [submodule "libs/ucmd"]
 	path = libs/ucmd
 	url = https://github.com/Pickman22/ucmd.git
