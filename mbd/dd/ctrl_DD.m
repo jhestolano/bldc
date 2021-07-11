@@ -1,3 +1,7 @@
+%% Sampling rates.
+FastTsample = 1. / 30e3;
+MainTsample = 1e-3;
+
 %% Fast sampling time 30khz
 TsFast = Simulink.Parameter;
 TsFast.StorageClass = 'Auto';
@@ -6,7 +10,137 @@ TsFast.DataType = 'single';
 TsFast.Min = [];
 TsFast.Max = [];
 TsFast.DocUnits = '';
-TsFast.Value = 1./30e3;
+TsFast.Value = FastTsample;
+
+%% Enable offset calibration.
+Cfg_TmOfsCal = Simulink.Parameter;
+Cfg_TmOfsCal.StorageClass = 'Auto';
+Cfg_TmOfsCal.Description = 'Offset calibration time window (seconds).';
+Cfg_TmOfsCal.DataType = 'single';
+Cfg_TmOfsCal.Min = [];
+Cfg_TmOfsCal.Max = [];
+Cfg_TmOfsCal.DocUnits = '';
+Cfg_TmOfsCal.Value = 0.5;
+
+%% Enable offset calibration.
+Cfg_EnblOfsCal = Simulink.Parameter;
+Cfg_EnblOfsCal.StorageClass = 'Auto';
+Cfg_EnblOfsCal.Description = 'Enable offset calibration at startup.';
+Cfg_EnblOfsCal.DataType = 'boolean';
+Cfg_EnblOfsCal.Min = [];
+Cfg_EnblOfsCal.Max = [];
+Cfg_EnblOfsCal.DocUnits = '';
+Cfg_EnblOfsCal.Value = true;
+
+%% Initial angle during offset calibration.
+Cfg_OfsCalAnglInit = Simulink.Parameter;
+Cfg_OfsCalAnglInit.StorageClass = 'Auto';
+Cfg_OfsCalAnglInit.Description = 'Initial angle during offset calibration';
+Cfg_OfsCalAnglInit.DataType = 'int32';
+Cfg_OfsCalAnglInit.Min = [];
+Cfg_OfsCalAnglInit.Max = [];
+Cfg_OfsCalAnglInit.DocUnits = '';
+Cfg_OfsCalAnglInit.Value = -MtrParams.EncCnts / 4.;
+
+%% Duty cycle during angle offset cal.
+Cfg_AnglOfsCalPwmDuty = Simulink.Parameter;
+Cfg_AnglOfsCalPwmDuty.StorageClass = 'Auto';
+Cfg_AnglOfsCalPwmDuty.Description = 'Duty cycle during angle offset cal';
+Cfg_AnglOfsCalPwmDuty.DataType = 'single';
+Cfg_AnglOfsCalPwmDuty.Min = [];
+Cfg_AnglOfsCalPwmDuty.Max = [];
+Cfg_AnglOfsCalPwmDuty.DocUnits = '';
+Cfg_AnglOfsCalPwmDuty.Value = 0.05;
+
+%% Step to cnts convesion.
+Cfg_StepToEncCnts = Simulink.Parameter;
+Cfg_StepToEncCnts.StorageClass = 'Auto';
+Cfg_StepToEncCnts.Description = 'Defines how many encoder counts per step.';
+Cfg_StepToEncCnts.DataType = 'int32';
+Cfg_StepToEncCnts.Min = [];
+Cfg_StepToEncCnts.Max = [];
+Cfg_StepToEncCnts.DocUnits = '';
+Cfg_StepToEncCnts.Value = 10;
+
+%% Use observer position estimate as actual position signal.
+Cfg_UseObsPosEst = Simulink.Parameter;
+Cfg_UseObsPosEst.StorageClass = 'Auto';
+Cfg_UseObsPosEst.Description = 'Use observer position estimate.';
+Cfg_UseObsPosEst.DataType = 'boolean';
+Cfg_UseObsPosEst.Min = [];
+Cfg_UseObsPosEst.Max = [];
+Cfg_UseObsPosEst.DocUnits = '';
+Cfg_UseObsPosEst.Value = false;
+
+%% Motor resistance.
+Cfg_MtrRs = Simulink.Parameter;
+Cfg_MtrRs.StorageClass = 'Auto';
+Cfg_MtrRs.Description = 'Motor resistance';
+Cfg_MtrRs.DataType = 'single';
+Cfg_MtrRs.Min = [];
+Cfg_MtrRs.Max = [];
+Cfg_MtrRs.DocUnits = '';
+Cfg_MtrRs.Value = MtrParams.Rs;
+
+%% Motor inductance.
+Cfg_MtrLs = Simulink.Parameter;
+Cfg_MtrLs.StorageClass = 'Auto';
+Cfg_MtrLs.Description = 'Motor inductance';
+Cfg_MtrLs.DataType = 'single';
+Cfg_MtrLs.Min = [];
+Cfg_MtrLs.Max = [];
+Cfg_MtrLs.DocUnits = '';
+Cfg_MtrLs.Value = MtrParams.Ls;
+
+%% Motor inertia.
+Cfg_MtrJm = Simulink.Parameter;
+Cfg_MtrJm.StorageClass = 'Auto';
+Cfg_MtrJm.Description = 'Motor rotor inertia.';
+Cfg_MtrJm.DataType = 'single';
+Cfg_MtrJm.Min = [];
+Cfg_MtrJm.Max = [];
+Cfg_MtrJm.DocUnits = '';
+Cfg_MtrJm.Value = MtrParams.Jm;
+
+%% Motor friction.
+Cfg_MtrKf = Simulink.Parameter;
+Cfg_MtrKf.StorageClass = 'Auto';
+Cfg_MtrKf.Description = 'Rotor friction coefficient';
+Cfg_MtrKf.DataType = 'single';
+Cfg_MtrKf.Min = [];
+Cfg_MtrKf.Max = [];
+Cfg_MtrKf.DocUnits = '';
+Cfg_MtrKf.Value = MtrParams.Kf;
+
+%%  Motor torque constant.
+Cfg_MtrKtrq = Simulink.Parameter;
+Cfg_MtrKtrq.StorageClass = 'Auto';
+Cfg_MtrKtrq.Description = 'Motor torque constant';
+Cfg_MtrKtrq.DataType = 'single';
+Cfg_MtrKtrq.Min = [];
+Cfg_MtrKtrq.Max = [];
+Cfg_MtrKtrq.DocUnits = '';
+Cfg_MtrKtrq.Value = MtrParams.Ktrq;
+
+%% Enable distrubance compensation.
+Cfg_DistTrqFfwdEnbl = Simulink.Parameter;
+Cfg_DistTrqFfwdEnbl.StorageClass = 'Auto';
+Cfg_DistTrqFfwdEnbl.Description = 'Enable disturbance compensation';
+Cfg_DistTrqFfwdEnbl.DataType = 'boolean';
+Cfg_DistTrqFfwdEnbl.Min = [];
+Cfg_DistTrqFfwdEnbl.Max = [];
+Cfg_DistTrqFfwdEnbl.DocUnits = '';
+Cfg_DistTrqFfwdEnbl.Value = true;
+
+%% Enable x-coupling and b-emf comp.
+Cfg_EnblDynComp = Simulink.Parameter;
+Cfg_EnblDynComp.StorageClass = 'Auto';
+Cfg_EnblDynComp.Description = 'Enable x-coupling and b-emf comp';
+Cfg_EnblDynComp.DataType = 'boolean';
+Cfg_EnblDynComp.Min = [];
+Cfg_EnblDynComp.Max = [];
+Cfg_EnblDynComp.DocUnits = '';
+Cfg_EnblDynComp.Value = true;
 
 %% Enable autocalibration at startup.
 Cfg_AutoCalEnbl = Simulink.Parameter;
@@ -16,7 +150,7 @@ Cfg_AutoCalEnbl.DataType = 'boolean';
 Cfg_AutoCalEnbl.Min = [];
 Cfg_AutoCalEnbl.Max = [];
 Cfg_AutoCalEnbl.DocUnits = '';
-Cfg_AutoCalEnbl.Value = true;
+Cfg_AutoCalEnbl.Value = false;
 
 %% Current contoller bandwith.
 Cfg_IfbkCtrlBW = Simulink.Parameter;
@@ -29,14 +163,14 @@ Cfg_IfbkCtrlBW.DocUnits = '';
 Cfg_IfbkCtrlBW.Value = 2e3;
 
 %% Configuration parameters.
-Cfg_SpdSnsSrc = Simulink.Parameter;
-Cfg_SpdSnsSrc.StorageClass = 'Auto';
-Cfg_SpdSnsSrc.Description = 'Speed signal source: Sensor(0), SM Diff(1), Linear Observer(2).';
-Cfg_SpdSnsSrc.DataType = 'uint32';
-Cfg_SpdSnsSrc.Min = [];
-Cfg_SpdSnsSrc.Max = [];
-Cfg_SpdSnsSrc.DocUnits = '';
-Cfg_SpdSnsSrc.Value = 1;
+Cfg_SpdSnsEnbl = Simulink.Parameter;
+Cfg_SpdSnsEnbl.StorageClass = 'Auto';
+Cfg_SpdSnsEnbl.Description = 'System has speed sensor.';
+Cfg_SpdSnsEnbl.DataType = 'boolean';
+Cfg_SpdSnsEnbl.Min = [];
+Cfg_SpdSnsEnbl.Max = [];
+Cfg_SpdSnsEnbl.DocUnits = '';
+Cfg_SpdSnsEnbl.Value = false;
 
 %% Enable Load Observer.
 Cfg_EnblLoadObs = Simulink.Parameter;
@@ -378,17 +512,37 @@ DistObs_J.DataType = 'single';
 DistObs_J.Min = [];
 DistObs_J.Max = [];
 DistObs_J.DocUnits = '';
-DistObs_J.Value = MotorParams.J;
+DistObs_J.Value = MtrParams.Jm;
 
 %% Encoder definition.
-EncCnts = Simulink.Parameter;
-EncCnts.StorageClass = 'Auto';
-EncCnts.Description = 'Encoder counts';
-EncCnts.DataType = 'single';
-EncCnts.Min = [];
-EncCnts.Max = [];
-EncCnts.DocUnits = '';
-EncCnts.Value = MotorParams.PPR;
+Cfg_EncCnts = Simulink.Parameter;
+Cfg_EncCnts.StorageClass = 'Auto';
+Cfg_EncCnts.Description = 'Encoder counts';
+Cfg_EncCnts.DataType = 'single';
+Cfg_EncCnts.Min = [];
+Cfg_EncCnts.Max = [];
+Cfg_EncCnts.DocUnits = '';
+Cfg_EncCnts.Value = MtrParams.EncCnts;
+
+%% Encoder definition.
+Cfg_EncCntsInt = Simulink.Parameter;
+Cfg_EncCntsInt.StorageClass = 'Auto';
+Cfg_EncCntsInt.Description = 'Encoder counts w/ int32 data type.';
+Cfg_EncCntsInt.DataType = 'int32';
+Cfg_EncCntsInt.Min = [];
+Cfg_EncCntsInt.Max = [];
+Cfg_EncCntsInt.DocUnits = '';
+Cfg_EncCntsInt.Value = MtrParams.EncCnts;
+
+%% Encoder to radians.
+EncCntsToRads = Simulink.Parameter;
+EncCntsToRads.StorageClass = 'Auto';
+EncCntsToRads.Description = 'Encoder to radians conversion.';
+EncCntsToRads.DataType = 'single';
+EncCntsToRads.Min = [];
+EncCntsToRads.Max = [];
+EncCntsToRads.DocUnits = '';
+EncCntsToRads.Value = 2. * pi / MtrParams.EncCnts;
 
 %% Encoder resolution.
 EncResDeg = Simulink.Parameter;
@@ -398,7 +552,7 @@ EncResDeg.DataType = 'single';
 EncResDeg.Min = [];
 EncResDeg.Max = [];
 EncResDeg.DocUnits = '';
-EncResDeg.Value = 360. / MotorParams.PPR;
+EncResDeg.Value = 360. / MtrParams.PPR;
 
 %% Main sampling time (1khz)
 TsMain = Simulink.Parameter;
@@ -408,7 +562,7 @@ TsMain.DataType = 'single';
 TsMain.Min = [];
 TsMain.Max = [];
 TsMain.DocUnits = '';
-TsMain.Value = 1e-3;
+TsMain.Value = MainTsample;
 
 
 %% Signal definitions
