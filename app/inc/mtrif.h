@@ -14,9 +14,6 @@ typedef enum {
   MtrCtlMdInv_E = 255
 } MtrCtlMd_T;
 
-#define MTRIF_CTL_SPD_TS (0.05f) /* Speed loop settling time. */
-#define MTRIF_CTL_POS_TS (0.3f) /* Position loop settling time. */
-
 #define MTRIF_POS_PH (PwmChA_E)
 #define MTRIF_NEG_PH (PwmChC_E)
 
@@ -27,8 +24,6 @@ typedef enum {
 #define MTRIF_LOCK() __disable_irq()
 #define MTRIF_UNLOCK() __enable_irq()
 
-#define MTRIF_TS (1e3) /* Execution rate of Motor Interface. */
-
 #define MTRIF_RPM_RES (1000) /* Represents a resolution of 0.001 RPM */
 
 /* Transforms 0.1 deg/s to 0.001 RPM units */
@@ -36,25 +31,23 @@ typedef enum {
 
 void MtrIf_Init(void);
 
+void MtrIf_CtrlSlow(void);
+
+void MtrIf_CtrlFast(void);
+
 void MtrIf_SetVin(float mtrvin);
 
-float MtrIf_GetVin(void);
+void MtrIf_GetVin(float* vin);
 
-float MtrIf_GetIfbk(void);
+float MtrIf_GetIfbk(float* ifbk);
 
 float MtrIf_GetPos(void);
 
 float MtrIf_GetSpd(void);
 
-void MtrIf_Ctl(void);
-
 float MtrIf_GetPosEst(void);
 
 void MtrIf_SetIfbk(float ifbktgt);
-
-float MtrIf_GetIfbkTgt(void);
-
-void MtrIf_SetTgt(float tgt);
 
 float MtrIf_GetTgt(void);
 
@@ -63,5 +56,17 @@ void MtrIf_SetCtlMd(MtrCtlMd_T ctlmd);
 MtrCtlMd_T MtrIf_GetCtlMd(void);
 
 void MtrIf_SetTgt(float tgt);
+
+void MtrIf_SetPwmDc(float* pwm_a);
+
+void MtrIf_GetPwmDc(float* pwm_a);
+
+void MtrIf_GetModWave(float* mod_wave);
+
+float MtrIf_GetIfbkPh(IfbkPh_E ph); 
+
+float MtrIf_GetPwmDcCh(PwmCh_E ch);
+
+float MtrIf_GetTrq(void);
 
 #endif // _MTRIF_H_
