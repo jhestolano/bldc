@@ -6,6 +6,10 @@
 #include "stdio.h"
 #include "dbg.h"
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define LIM(min, max, x) MAX((min), (MIN((max), (x))))
+
 #define APP_PWM_MAX_DC (10000)
 #define APP_ADC_MAX_VOLTS (3300)
 
@@ -108,6 +112,11 @@ int32_t App_GetTemp(void) {
 int32_t App_GetPosition(void) {
   int32_t cnts = ENC_GetCnt();
   return (int32_t)(cnts * APP_PARAMS_ENC_RES);
+}
+
+int32_t App_GetEncCnt(void) {
+  int32_t cnts = ENC_GetCnt();
+  return cnts;
 }
 
 void App_DisarmPhase(GpioCh_E pin) {
