@@ -12,10 +12,7 @@
 #include "math.h"
 #include "gpio.h"
 #include "command.h"
-#include "ctrl.h"
-#include "DBG_BUS.h"
-
-extern int32_t IfbkBuffer[300];
+#include "mtrif.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -32,7 +29,7 @@ void AppTask_LowPrio(void* params) {
   for(;;) {
 
     /* Application code goes here. */
-    command_update();
+    /* command_update(); */
 
 #ifdef __SLOG__
     /*-----------------------------------------------------------------------------
@@ -59,40 +56,26 @@ void AppTask_LowPrio(void* params) {
 void AppTask_MotorControl(void* params) {
   TickType_t last_wake_time = xTaskGetTickCount();
   StreamBufferHandle_t stream_buff = (StreamBufferHandle_t)params;
+
   MtrIf_Init();
+
 #ifdef __SLOG__
   float signal_buff[APP_TASK_MOTOR_CONTROL_N_SIGNALS] = {0};
 #endif
-  uint16_t tmr = 0;
-  int32_t cnt = 0;
   for(;;) {
 
     /* Motor control goes here. */
-    Ctrl_Slow();
+    MtrIf_CtrlSlow();
 
     signal_buff[0] = (float)MtrIf_GetPos();
-    signal_buff[1] = (float)MtrIf_GetVin();
-    signal_buff[2] = (float)MtrIf_GetIfbk();
-    signal_buff[3] = (float)MtrIf_GetSpd();
-    signal_buff[4] = (float)rtY.MtrIf_Ref;
-    signal_buff[5] = (float)rtY.DBG_BUS_OUT.Status;
-    signal_buff[6] = (float)rtY.DBG_BUS_OUT.Rest;
-    signal_buff[7] = (float)rtY.DBG_BUS_OUT.Lest;
-    signal_buff[8] = (float)rtY.DBG_BUS_OUT.KTrqEst;
-    if(rtY.DBG_BUS_OUT.Status == 255) {
-      signal_buff[9] = IfbkBuffer[cnt++];
-      if(cnt > 999) {
-        /* cnt = 0; */
-        cnt = 999;
-      }
-    } else {
-      signal_buff[9] = 0;
-    }
-    signal_buff[10] = (float)rtY.DBG_BUS_OUT.JEst;
-    signal_buff[11] = (float)rtY.DBG_BUS_OUT.KFrcEst;
-    signal_buff[12] = (float)rtY.DBG_BUS_OUT.IfbkSteady;
-    signal_buff[13] = (float)rtY.DBG_BUS_OUT.IfbkMax;
-
+    signal_buff[1] = (float)MtrIf_GetIfbkPh(IfbkPhA_E);
+    signal_buff[2] = (float)MtrIf_GetIfbkPh(IfbkPhB_E);
+    signal_buff[3] = (float)MtrIf_GetIfbkPh(IfbkPhC_E);
+    signal_buff[4] = (float)MtrIf_GetPwmDcCh(PwmChA_E);
+    signal_buff[5] = (float)MtrIf_GetPwmDcCh(PwmChB_E);
+    signal_buff[6] = (float)MtrIf_GetPwmDcCh(PwmChC_E);
+    signal_buff[7] = (float)MtrIf_GetSpd();
+    signal_buff[8] = (float)MtrIf_GetTrq();
 
 #ifdef __SLOG__
     xStreamBufferSend(stream_buff,
