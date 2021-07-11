@@ -21,7 +21,7 @@ MtrParams.Ktrq   = 0.035;
 MtrParams.MFlux = MtrParams.Ktrq / ((3/2) * MtrParams.Poles);
 MtrParams.Jm = 24.e-6;
 
-MtrParams.PPR = 5e3;
+MtrParams.PPR = 600;
 MtrParams.EncCnts = 4 * MtrParams.PPR;
 
 MtrParams.IfbkSnsNoise = 0.1; % Sensor noise on current measurement.

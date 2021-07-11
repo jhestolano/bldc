@@ -50,7 +50,7 @@ Cfg_AnglOfsCalPwmDuty.DataType = 'single';
 Cfg_AnglOfsCalPwmDuty.Min = [];
 Cfg_AnglOfsCalPwmDuty.Max = [];
 Cfg_AnglOfsCalPwmDuty.DocUnits = '';
-Cfg_AnglOfsCalPwmDuty.Value = 0.05;
+Cfg_AnglOfsCalPwmDuty.Value = 0.20;
 
 %% Step to cnts convesion.
 Cfg_StepToEncCnts = Simulink.Parameter;
