@@ -15,12 +15,15 @@
 
 typedef struct MtrIf_State_tag {
   uint8_t is_init;
+  uint8_t cal_done;
   float pwm_dc[3];
   float mod_wave[3];
   float mtr_ifbk[3];
   float mtr_spd;
   float mtr_trq;
   int32_t enc_cnts;
+  float pwm_dq[2];
+  float ifbk_dq[2];
 } MtrIf_State_S;
 
 MtrIf_State_S _mtr_if_s = {0};
@@ -33,11 +36,11 @@ static void _mtr_if_adc_isr_callback(void *params) {
   }
 
   /* Heartbeat. */
-  static int32_t tmr;
-  if(tmr++ >= 30e3) {
-    GPIO_LedToggle();
-    tmr = 0;
-  }
+  /* static int32_t tmr; */
+  /* if(tmr++ >= 30e3) { */
+  /*   GPIO_LedToggle(); */
+  /*   tmr = 0; */
+  /* } */
 
 }
 
@@ -57,13 +60,60 @@ void MtrIf_Init(void) {
 }
 
 void MtrIf_CtrlSlow(void) {
+
   boolean_T cal_actv;
   Trig_Pmsm_CtrlMgr(&pmsm_ctrl_obj);
   Trig_Pmsm_Cal(&pmsm_ctrl_obj, &cal_actv);
   Trig_Pmsm_MotnCtrl(&pmsm_ctrl_obj);
+
 }
 
 void MtrIf_CtrlFast(void) {
+
+  static uint8_t st = 0;
+  static uint32_t tmr = 0;
+  MtrCtrlMd_T ctrl_md;
+  MtrCtrlCal_T cal_rqst;
+  float ctrl_tgt[3] = {0.f};
+
+  switch(st) {
+    case 0: /* Offset calibration */
+    ctrl_md = CTRL_MD_CAL;
+    cal_rqst = CAL_ENC_OFS;
+    tmr++;
+    break;
+
+    case 1: /* Inductance calibration */
+    ctrl_md = CTRL_MD_CAL;
+    cal_rqst = CAL_IND_ID;
+    tmr++;
+    break;
+
+    case 2: /* Resistance calibration */
+    ctrl_md = CTRL_MD_CAL;
+    cal_rqst = CAL_RES_ID;
+    tmr++;
+    break;
+
+    case 3: /* Ifbk offset calibration */
+    ctrl_md = CTRL_MD_CAL;
+    cal_rqst = CAL_IFBK_OFS;
+    tmr++;
+    break;
+
+    default: /* Just spin it. */
+    ctrl_md = CTRL_MD_DQ_PWM;
+    ctrl_tgt[0] = 0.0f;
+    ctrl_tgt[1] = 0.0f; /* Q-component */
+    ctrl_tgt[2] = 0.0f;
+    cal_rqst = CAL_NONE;
+    tmr = 0;
+  }
+
+  if(tmr >= 60e3) {
+    st++;
+    tmr = 0;
+  }
 
   MtrIf_GetIfbk(&_mtr_if_s.mtr_ifbk[0]);
 
@@ -72,9 +122,9 @@ void MtrIf_CtrlFast(void) {
     App_GetEncCnt(), /* Encoder counts */
     (real32_T*)&_mtr_if_s.mtr_ifbk[0], /* Array with phase currents. */
     (real32_T)0.0f, /* Speed sensor */
-    CTRL_MD_CAL, /* Control mode */
-    (real32_T)0.0f, /* Control target */
-    CAL_IND_ID /* Calibration request. */
+    ctrl_md, /* Control mode */
+    (real32_T*)&ctrl_tgt, /* Control target. */
+    cal_rqst /* Calibration request. */
   );
 
   Trig_Pmsm_Foc(&pmsm_ctrl_obj);
@@ -85,6 +135,8 @@ void MtrIf_CtrlFast(void) {
     (real32_T*)&_mtr_if_s.mod_wave[0],
     (real32_T*)&_mtr_if_s.mtr_trq,
     (real32_T*)&_mtr_if_s.mtr_spd
+    /* (real32_T*)&_mtr_if_s.pwm_dq, */
+    /* (real32_T*)&_mtr_if_s.ifbk_dq */
   );
 
   MtrIf_SetPwmDc(&_mtr_if_s.pwm_dc[0]);
@@ -133,11 +185,20 @@ void MtrIf_GetVin(float* vin) {
 }
 
 
-float MtrIf_GetIfbk(float* ifbk) {
+void MtrIf_GetIfbk(float* ifbk) {
   if(ifbk) {
     for(size_t i = 0; i < IfbkPhMax_E; i++) {
       ifbk[i] = MTRIF_FROM_MILLIS * (float)App_GetCurrent((IfbkPh_E)i);
     }
+  }
+}
+
+void MtrIf_GetIfbkDq(float* ifbk) {
+  if(ifbk) {
+    MTRIF_LOCK();
+    ifbk[0] = _mtr_if_s.ifbk_dq[0];
+    ifbk[1] = _mtr_if_s.ifbk_dq[1];
+    MTRIF_UNLOCK();
   }
 }
 
@@ -194,4 +255,18 @@ void MtrIf_GetModWave(float* mod_wave) {
     mod_wave[2] = _mtr_if_s.mod_wave[2];
     MTRIF_UNLOCK();
   }
+}
+
+void MtrIf_GetMtrParams(MtrParams_S* params) {
+  if(params) {
+    MTRIF_LOCK();
+    params->ind = CalData_L;
+    params->res = CalData_Res;
+    params->ppoles = CalData_nPoles;
+    params->enc_ofs = CalData_EncOfs;
+    params->ifbk_ofs[0] = CalData_IfbkOfs_Abc[0];
+    params->ifbk_ofs[1] = CalData_IfbkOfs_Abc[1];
+    params->ifbk_ofs[2] = CalData_IfbkOfs_Abc[2];
+    MTRIF_UNLOCK();
+  } 
 }

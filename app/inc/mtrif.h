@@ -14,6 +14,17 @@ typedef enum {
   MtrCtlMdInv_E = 255
 } MtrCtlMd_T;
 
+typedef struct MtrParams_tag {
+  float ind; /* Inductance. */
+  float res; /* Resistance. */
+  float k_trq; /* Torque constant. */
+  float k_frc; /* Friction constant. */
+  int32_t ppoles; /* Pole paris. */
+  int32_t enc_ofs; /* Encoder offset. */
+  float inertia; /* Rotor inertia. */
+  float ifbk_ofs[3]; /* Current offsets. */
+} MtrParams_S;
+
 #define MTRIF_POS_PH (PwmChA_E)
 #define MTRIF_NEG_PH (PwmChC_E)
 
@@ -39,7 +50,9 @@ void MtrIf_SetVin(float mtrvin);
 
 void MtrIf_GetVin(float* vin);
 
-float MtrIf_GetIfbk(float* ifbk);
+void MtrIf_GetIfbk(float* ifbk);
+
+void MtrIf_GetIfbkDq(float* ifbk);
 
 float MtrIf_GetPos(void);
 
@@ -68,5 +81,7 @@ float MtrIf_GetIfbkPh(IfbkPh_E ph);
 float MtrIf_GetPwmDcCh(PwmCh_E ch);
 
 float MtrIf_GetTrq(void);
+
+void MtrIf_GetMtrParams(MtrParams_S* params);
 
 #endif // _MTRIF_H_
