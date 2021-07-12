@@ -31,7 +31,6 @@ int main(void)
   );
 
   HwInit();
-  command_init();
   UART_AttachRxCallback(command_uart_rx_callback);
   UART_EnableIRQ();
 
