@@ -81,6 +81,9 @@ sccprj/
 # Matlab code generation folders
 codegen/
 
+# Matlab cache folder.
+mbd/cache/
+
 # Simulink autosave extension
 *.autosave
 
