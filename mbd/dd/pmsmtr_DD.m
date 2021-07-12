@@ -5,7 +5,7 @@ SimParams.Ts = 1.0e-5;
 
 %% Motor parameters.
 MtrParams = struct;
-MtrParams.Vdc = 24;
+MtrParams.Vdc = 12;
 MtrParams.SpdNom = 4000.;
 
 MtrParams.Rs = 1.8 / 2.;
@@ -16,7 +16,8 @@ MtrParams.Ld = MtrParams.Ls + MtrParams.Ms + (3/2) * MtrParams.Lm;
 MtrParams.Lq = MtrParams.Ls + MtrParams.Ms - (3/2) * MtrParams.Lm;
 MtrParams.Kf = 0.;
 
-MtrParams.Poles = 8;
+MtrParams.Poles = 8; % Number of poles.
+MtrParams.PPoles = MtrParams.Poles / 2; % Pairs.
 MtrParams.Ktrq   = 0.035;
 MtrParams.MFlux = MtrParams.Ktrq / ((3/2) * MtrParams.Poles);
 MtrParams.Jm = 24.e-6;
