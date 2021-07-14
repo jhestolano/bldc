@@ -25,6 +25,12 @@ typedef struct MtrParams_tag {
   float ifbk_ofs[3]; /* Current offsets. */
 } MtrParams_S;
 
+typedef struct MtrDbg_tag {
+  float i_abc_lpf[3];
+  float e_angl;
+  float i_dq0[3];
+} MtrDbg_S;
+
 #define MTRIF_POS_PH (PwmChA_E)
 #define MTRIF_NEG_PH (PwmChC_E)
 
@@ -74,6 +80,8 @@ void MtrIf_SetPwmDc(float* pwm_a);
 
 void MtrIf_GetPwmDc(float* pwm_a);
 
+void MtrIf_GetPwmDq(float* pwm_dq);
+
 void MtrIf_GetModWave(float* mod_wave);
 
 float MtrIf_GetIfbkPh(IfbkPh_E ph); 
@@ -83,5 +91,7 @@ float MtrIf_GetPwmDcCh(PwmCh_E ch);
 float MtrIf_GetTrq(void);
 
 void MtrIf_GetMtrParams(MtrParams_S* params);
+
+void MtrIf_GetDbg(MtrDbg_S* dbg);
 
 #endif // _MTRIF_H_

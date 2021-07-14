@@ -87,7 +87,8 @@ OBJS:=$(SRCS:%=$(BUILD_DIR)/%.o)
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
-GDB=arm-none-eabi-gdb-py
+#GDB=arm-none-eabi-gdb-py
+GDB=arm-none-eabi-gdb
 SZ=arm-none-eabi-size
 
 # Project Defines.
@@ -150,6 +151,9 @@ clean:
 flash:
 	st-flash write $(BUILD_DIR)/$(PROJ_NAME).bin 0x8000000
 
+erase:
+	st-flash erase
+
 stlink:
 	st-util -p4242
 
@@ -158,8 +162,8 @@ all:
 
 # before you start gdb, you must start st-util
 debug:
-	st-util &
 	$(GDB) $(BUILD_DIR)/$(PROJ_NAME).elf
-	killall st-util
+#	st-util &
+#	killall st-util
 
-.PHONY: dump clean flash stlink all debug hal rtos $(PROJ_NAME)
+.PHONY: dump clean flash stlink all debug hal rtos $(PROJ_NAME) erase

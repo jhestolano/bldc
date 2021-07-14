@@ -16,8 +16,7 @@ MtrParams.Ld = MtrParams.Ls + MtrParams.Ms + (3/2) * MtrParams.Lm;
 MtrParams.Lq = MtrParams.Ls + MtrParams.Ms - (3/2) * MtrParams.Lm;
 MtrParams.Kf = 0.;
 
-MtrParams.Poles = 8; % Number of poles.
-MtrParams.PPoles = MtrParams.Poles / 2; % Pairs.
+MtrParams.Poles = 4; % Number of pole pairs.
 MtrParams.Ktrq   = 0.035;
 MtrParams.MFlux = MtrParams.Ktrq / ((3/2) * MtrParams.Poles);
 MtrParams.Jm = 24.e-6;
