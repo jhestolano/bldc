@@ -1,4 +1,0 @@
-[submodule "libs/ucmd"]
-	path = libs/ucmd
-	url = https://github.com/Pickman22/ucmd.git
-  ignore = dirty
