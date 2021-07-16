@@ -39,7 +39,7 @@ static void wrap_write_fnc(const char* str) {
 }
 
 static void wrap_read_fnc(uint8_t ch) {
-  /* Buffer so that it does not execute in interrupt context? */
+  /* This is interrupt context. Keep it short. */
   if(buff.cnt < BUFF_SIZE) {
     buff.mem[buff.cnt] = ch;
     buff.cnt++;
