@@ -11,8 +11,8 @@
 #include "mtrif.h"
 #include "math.h"
 #include "gpio.h"
-#include "command.h"
 #include "mtrif.h"
+#include "command.h"
 
 #define SLOG_START_FRAME (0x00CD00AB)
 /* Size definition in bytes. */
@@ -28,9 +28,13 @@ void AppTask_LowPrio(void* params) {
   StreamBufferHandle_t stream_buff_motor_control = (StreamBufferHandle_t)params;
 #endif
   TickType_t last_wake_time = xTaskGetTickCount();
+
+  command_init();
+
   for(;;) {
 
     /* Application code goes here. */
+    command_exec();
 
 #ifdef __SLOG__
     /*-----------------------------------------------------------------------------
@@ -67,15 +71,13 @@ void AppTask_MotorControl(void* params) {
 #endif
 
   MtrIf_Init();
-  /* command_init(); */
 
   for(;;) {
 
     /* Motor control goes here. */
     MtrIf_CtrlSlow();
 
-    /* Run command loop. */
-    /* command_update(); */
+    /* Get data from control layer. */
     MtrIf_GetMtrParams(&mtr_params);
     MtrIf_GetDbg(&mtr_dbg);
     MtrIf_GetIfbkDq(ifbk_dq);

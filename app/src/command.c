@@ -1,56 +1,48 @@
 #include "command.h"
-#include "ucmd.h"
-#include "line.h"
-#include "dbg.h"
+#include "anchor/console/console.h"
+#include "uart.h"
+#include "gpio.h"
 
-extern void GPIO_LedToggle(void);
-extern void MtrIf_SetVin(int32_t);
+const console_init_t init_console;
 
-/******************************************************************************/
-/* Callback definitions. */
-/******************************************************************************/
-static ErrCode_e command_led_toggle(Arg_s* args, void* usrargs) {
-  (void)args;
-  (void)usrargs;
-  GPIO_LedToggle();
-  return E_OK;
+/* Command defintions. */
+CONSOLE_COMMAND_DEF(led_set, "Set user LED value",
+    CONSOLE_INT_ARG_DEF(value, "The value <0-1>")
+);
+static void led_set_command_handler(const led_set_args_t* args) {
+  HAL_GPIO_WritePin(RED_LED_PORT, RED_LED_PIN, (GPIO_PinState)args->value);
 }
 
-static ErrCode_e command_motor_vin(Arg_s* args, void* usrargs) {
-  int32_t data = -1;
-  (void)usrargs;
-  if(UCMD_ARG_IS_VALID(args, 0)) {
-    data = UCMD_ARG(args, 0, int32_t);
-    MtrIf_SetVin(data);
-  }
-  DBG_DEBUG("motor data: %d\n\r", data);
-  return E_OK;
+CONSOLE_COMMAND_DEF(set_dc, "Set motor duty cycle Q-Axis",
+    CONSOLE_INT_ARG_DEF(value, "The value <0-100>")
+);
+static void set_dc_command_handler(const set_dc_args_t* args) {
+
+}
+/* End of command definitions. */
+
+/* Wrappers for Tx / Rx UART communication. */
+static void wrap_write_fnc(const char* str) {
+  UART_Puts(str);
 }
 
-/******************************************************************************/
-/* Table definition. */
-/******************************************************************************/
-const uCmdInfo_s CommandTable_a[] = {
-  {"led_toggle", command_led_toggle, UCMD_ARG_NONE, UCMD_ARG_USER_NONE},
-  {"motor_vin", command_motor_vin, {{E_ARG_I32, 'v'}}, UCMD_ARG_USER_NONE},
-  /* Keep this element last. Denotes end of table. */
-  UCMD_TABLE_END,
-};
+static void wrap_read_fnc(uint8_t ch) {
+  /* Buffer so that it does not execute in interrupt context? */
+
+  console_process(&ch, sizeof(uint8_t));
+}
+/* End of wrappers. */
 
 void command_init(void) {
-  Line_Init();
-  uCmd_InitTable(CommandTable_a, UCMD_GET_TABLE_SIZE(CommandTable_a));
+  const console_init_t init_console = {
+    .write_function = wrap_write_fnc,
+  };
+  console_init(&init_console);
+  console_command_register(led_set);
+  console_command_register(set_dc);
+  UART_AttachRxCallback(wrap_read_fnc);
 }
 
-void command_update(void) {
-  uCmd_Loop();
-}
-
-void command_uart_rx_callback(uint8_t data) {
-  Line_AddChar(data);
-  if(Line_BuffIsFull()) {
-    DBG_WARN("Buffer is full!\n\r");
-  } if(Line_BuffIsOvrFlwn()) {
-    DBG_WARN("Buffer overflow!!\n\r");
-  }
+void command_exec(void) {
+  /* Handle console processing and buffering here. */
 }

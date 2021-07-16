@@ -12,8 +12,6 @@ RTOS_DIR=./rtos
 
 HAL_SRC_DIR=./hal/src
 
-UCMD_DIR=./libs/ucmd
-
 CODEGEN_DIR=./mbd/codegen/pmsm_ctrl_ert_rtw
 
 HAL_INC=./hal/inc
@@ -27,7 +25,7 @@ INC_DIRS+=./app/inc
 INC_DIRS+=$(RTOS_INC)
 INC_DIRS+=$(HAL_INC)
 INC_DIRS+=./libs/printf
-INC_DIRS+=./libs/ucmd
+INC_DIRS+=./libs/console/include/
 INC_DIRS+=$(CODEGEN_DIR)
 
 SRCS=app/src/main.c
@@ -61,14 +59,12 @@ SRCS+=$(HAL_SRC_DIR)/stm32f3xx_hal_tim_ex.c
 SRCS+=$(HAL_SRC_DIR)/stm32f3xx_hal_uart.c
 SRCS+=$(HAL_SRC_DIR)/stm32f3xx_hal_uart_ex.c
 
-# Location for command utility.
-SRCS+=$(UCMD_DIR)/ucmd.c
-SRCS+=$(UCMD_DIR)/line.c
-SRCS+=$(UCMD_DIR)/err.c
-SRCS+=$(UCMD_DIR)/utils.c
 
 # This is the location for printf.c file implementation from Embdedded Artistry.
 SRCS+=./libs/printf/printf.c
+
+# Shell console.
+SRCS+=./libs/console/src/console.c
  
 # This is the location of port.c file.
 SRCS+=$(RTOS_DIR)/ARM_CM4F/port.c
@@ -93,9 +89,9 @@ SZ=arm-none-eabi-size
 
 # Project Defines.
 DEFS=-DSTM32F302x8 \
-	-D__SLOG__ \
 	-DUSE_HAL_DRIVER \
 #	-D__DBG__ \
+#	-D__SLOG__ \
 
 TARGET_FLAGS=-mcpu=cortex-m4 \
 	-mthumb \
