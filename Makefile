@@ -12,6 +12,8 @@ RTOS_DIR=./rtos
 
 HAL_SRC_DIR=./hal/src
 
+CMSIS_DSP_DIR=./libs/CMSIS/DSP
+
 CODEGEN_DIR=./mbd/codegen/pmsm_ctrl_ert_rtw
 
 HAL_INC=./hal/inc
@@ -26,6 +28,7 @@ INC_DIRS+=$(RTOS_INC)
 INC_DIRS+=$(HAL_INC)
 INC_DIRS+=./libs/printf
 INC_DIRS+=./libs/console/include/
+INC_DIRS+=$(CMSIS_DSP_DIR)/Include/
 INC_DIRS+=$(CODEGEN_DIR)
 
 SRCS=app/src/main.c
@@ -77,6 +80,11 @@ SRCS+=$(RTOS_DIR)/queue.c
 SRCS+=$(RTOS_DIR)/list.c
 SRCS+=$(RTOS_DIR)/stream_buffer.c
 
+# CMSIS Math functions.
+SRCS+=$(CMSIS_DSP_DIR)/Source/FastMathFunctions/arm_sin_f32.c
+SRCS+=$(CMSIS_DSP_DIR)/Source/FastMathFunctions/arm_cos_f32.c
+SRCS+=$(CMSIS_DSP_DIR)/Source/CommonTables/arm_common_tables.c
+
 # SRCS:=$(shell find $(SRC_DIRS) -name *.c)
 OBJS:=$(SRCS:%=$(BUILD_DIR)/%.o)
 
@@ -89,9 +97,11 @@ SZ=arm-none-eabi-size
 
 # Project Defines.
 DEFS=-DSTM32F302x8 \
+	-DARM_MATH_CM4 \
+	-D__FPU_PRESENT \
 	-DUSE_HAL_DRIVER \
+	-D__SLOG__ \
 #	-D__DBG__ \
-#	-D__SLOG__ \
 
 TARGET_FLAGS=-mcpu=cortex-m4 \
 	-mthumb \

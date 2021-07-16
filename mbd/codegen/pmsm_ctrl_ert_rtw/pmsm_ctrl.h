@@ -3,7 +3,7 @@
  *
  * Code generation for model "pmsm_ctrl".
  *
- * Model version              : 1.674
+ * Model version              : 1.676
  * Simulink Coder version : 8.14 (R2018a) 06-Feb-2018
  *
  */
@@ -20,6 +20,7 @@
 
 /* Shared type includes */
 #include "multiword_types.h"
+#include "mw_cmsis.h"
 
 /* Macros for accessing real-time model data structure */
 
@@ -50,6 +51,7 @@ typedef struct {
   real32_T DiscreteTimeIntegrator1;    /* '<S60>/Discrete-Time Integrator1' */
   real32_T DiscreteTimeIntegrator;     /* '<S60>/Discrete-Time Integrator' */
   real32_T OutportBufferForGrd;        /* '<S60>/Discrete-Time Integrator' */
+  real32_T OutportBufferForRef;        /* '<S60>/Discrete-Time Integrator1' */
   real32_T Add;                        /* '<S58>/Add' */
   real32_T MtrIf_TrqAct;               /* '<S30>/Data Type Conversion2' */
   real32_T MtrIf_SpdOut_i;             /* '<S30>/Data Type Conversion1' */
